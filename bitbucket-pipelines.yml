@@ -7,11 +7,10 @@ definitions:
         -   step: &php81-image
                 image: heptacom/heptaconnect-pipeline:php81-7.0.0
     services:
-        mysql:
-            image: mysql:5.7
+        shopware-6-4-20:
+            image: dockware/play:6.4.20.0
             variables:
-                MYSQL_DATABASE: 'pipelines'
-                MYSQL_ROOT_PASSWORD: 'let_me_in'
+                APP_URL: http://127.0.0.1:80/
     steps:
         -   step: &default-step
                 caches:
@@ -103,9 +102,12 @@ definitions:
                     - COMPOSER_EXTRA_ARGS=-vvv make -e test
         -   step: &test-coverage
                 <<: *default-step
+                services:
+                    - shopware-6-4-20
                 name: Test coverage
                 script:
                     - bash setup-vendor.sh
+                    - . ./bitbucket-pipelines.env
                     - XDEBUG_MODE=coverage COMPOSER_EXTRA_ARGS=-vvv make -e coverage
         -   step: &test-code-style-php
                 <<: *default-step
