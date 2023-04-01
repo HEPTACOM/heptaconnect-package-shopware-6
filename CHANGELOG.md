@@ -16,10 +16,26 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 ### Added
 
 - Add composer dependency `heptacom/heptaconnect-portal-base: >=0.9.4 <0.10` to make use of HEPTAconnect portal and package tools
+- Add composer dependency `psr/http-client: ^1.0` and `psr/http-message: ^1.0` as HTTP request and responses needs to be handled
+- Add composer dependency `ext-json: *` as JSON requests and responses needs to be sent and parsed
 - Add contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface` to provide `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration`, that is used to identify and authenticate against a Shopware API
 - Add utility `\Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility` to unify JSON handling
 - Add exception code `1680371700` to `\Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility::fromPayloadToStream` when non-JSON-specific encoding issues occur
 - Add exception code `1680371701` to `\Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility::fromStreamToPayload` when the decoded JSON is not a PHP array
+- Add exception `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed` to identify issues on authenticating with the Shopware API
+- Add contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationStorageInterface` to recalculate and retrieve authentication information to communicate with Shopware 6 API
+- Add default implementation `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage` for `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationStorageInterface` to request new authentication token and store the token in the portal node storage to share it with other PHP instances
+- Add implementation `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryAuthenticationStorageCache` as decorator for `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationStorageInterface` to hold authentication information in-memory to reduce calls to any I/O dependant storage
+- Add exception code `1680350600` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage::getAuthorizationHeader` when the token data could not be read from the portal node storage
+- Add exception code `1680350601` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage::getAuthorizationHeader` when the token data is missing the token_type
+- Add exception code `1680350602` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage::getAuthorizationHeader` when the token data is missing the access_token
+- Add exception code `1680350610` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage::refresh` when the API configuration could not be loaded
+- Add exception code `1680350611` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage::refresh` when the token request could not be created
+- Add exception code `1680350612` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage::refresh` when the token request could not be sent
+- Add exception code `1680350613` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage::refresh` when the token request received a non-OK response
+- Add exception code `1680350614` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage::refresh` when the token response could not be parsed
+- Add exception code `1680350615` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage::refresh` when the token data could not be stored in the portal node storage
+- Add exception code `1680350620` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage` when the grant_type in the API configuration is not supported
 
 ### Changed
 
