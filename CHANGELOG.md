@@ -17,6 +17,9 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 
 - Add composer dependency `heptacom/heptaconnect-portal-base: >=0.9.4 <0.10` to make use of HEPTAconnect portal and package tools
 - Add contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface` to provide `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration`, that is used to identify and authenticate against a Shopware API
+- Add utility `\Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility` to unify JSON handling
+- Add exception code `1680371700` to `\Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility::fromPayloadToStream` when non-JSON-specific encoding issues occur
+- Add exception code `1680371701` to `\Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility::fromStreamToPayload` when the decoded JSON is not a PHP array
 
 ### Changed
 
