@@ -5,7 +5,7 @@
 
 This HEPTAconnect package is all about communicating to Shopware 6 APIs.
 You can use it in combination with the Shopware 6 Portals.
-Read more in the [documentation](https://heptaconnect.io/).
+Read more in the [documentation](https://heptaconnect.io/) and have a look into the [examples section](./docs/examples).
 
 
 ## System requirements
