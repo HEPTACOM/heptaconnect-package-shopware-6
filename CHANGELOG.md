@@ -36,6 +36,7 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 - Add exception code `1680350614` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage::refresh` when the token response could not be parsed
 - Add exception code `1680350615` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage::refresh` when the token data could not be stored in the portal node storage
 - Add exception code `1680350620` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage` when the grant_type in the API configuration is not supported
+- Add implementation `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient` for contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface` to automatically authorize requests using the `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationStorageInterface`
 
 ### Changed
 
