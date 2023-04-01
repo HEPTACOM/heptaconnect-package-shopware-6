@@ -26,7 +26,7 @@ final class AuthenticatedHttpClientTest extends TestCase
             return Psr17FactoryDiscovery::findResponseFactory()->createResponse();
         });
         $authenticationStorage = $this->createMock(AuthenticationStorageInterface::class);
-        $authenticationStorage->expects(self::atLeastOnce())->method('getAuthorizationHeader')->willReturn('foobar');
+        $authenticationStorage->expects(static::atLeastOnce())->method('getAuthorizationHeader')->willReturn('foobar');
 
         $service = new AuthenticatedHttpClient($httpClient, $authenticationStorage);
         $request = Psr17FactoryDiscovery::findRequestFactory()->createRequest('GET', '/');
@@ -43,11 +43,11 @@ final class AuthenticatedHttpClientTest extends TestCase
             static::assertContains($auth, ['valid', 'invalid']);
 
             return Psr17FactoryDiscovery::findResponseFactory()
-                ->createResponse( $auth === 'invalid' ? 401 : 200);
+                ->createResponse($auth === 'invalid' ? 401 : 200);
         });
         $authenticationStorage = $this->createMock(AuthenticationStorageInterface::class);
-        $authenticationStorage->expects(self::atLeastOnce())->method('refresh');
-        $authenticationStorage->expects(self::atLeastOnce())->method('getAuthorizationHeader')->willReturn('invalid', 'valid');
+        $authenticationStorage->expects(static::atLeastOnce())->method('refresh');
+        $authenticationStorage->expects(static::atLeastOnce())->method('getAuthorizationHeader')->willReturn('invalid', 'valid');
 
         $service = new AuthenticatedHttpClient($httpClient, $authenticationStorage);
         $request = Psr17FactoryDiscovery::findRequestFactory()->createRequest('GET', '/');
