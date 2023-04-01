@@ -61,7 +61,7 @@ final class JsonStreamUtilityTest extends TestCase
         static::expectException(\JsonException::class);
 
         $service->fromPayloadToStream([
-            \fopen('php://stdin', 'r'),
+            \fopen('php://stdin', 'rb'),
         ]);
     }
 
