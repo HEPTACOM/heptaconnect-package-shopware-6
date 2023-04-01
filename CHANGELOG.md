@@ -15,6 +15,8 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 
 ### Added
 
+- Add composer dependency `heptacom/heptaconnect-portal-base: >=0.9.4 <0.10` to make use of HEPTAconnect portal and package tools
+
 ### Changed
 
 ### Deprecated
