@@ -1,9 +1,10 @@
-# repo-base
+# Shopware 6 API Package
 #### This is part of HEPTACOM solutions for medium and large enterprises.
 
 ## Description
 
-This is a HEPTAconnect package.
+This HEPTAconnect package is all about communicating to Shopware 6 APIs.
+You can use it in combination with the Shopware 6 Portals.
 Read more in the [documentation](https://heptaconnect.io/).
 
 
@@ -25,13 +26,13 @@ See the attached [CHANGELOG.md](./CHANGELOG.md) file for a complete version hist
 
 ## Contributing
 
-Thank you for considering contributing to this package! Be sure to sign the [CLA](./CLA.md) after creating the pull request. [![CLA assistant](https://cla-assistant.io/readme/badge/HEPTACOM/heptaconnect-repo-base)](https://cla-assistant.io/HEPTACOM/heptaconnect-repo-base)
+Thank you for considering contributing to this package! Be sure to sign the [CLA](./CLA.md) after creating the pull request. [![CLA assistant](https://cla-assistant.io/readme/badge/HEPTACOM/heptaconnect-repo-base)](https://cla-assistant.io/HEPTACOM/heptaconnect-package-shopware-6)
 
 
 ### Steps to contribute
 
 1. Fork the repository
-2. `git clone yourname/heptaconnect-repo-base`
+2. `git clone yourname/heptaconnect-package-shopware-6`
 3. Make your changes to master branch
 4. Create your Pull-Request
 
