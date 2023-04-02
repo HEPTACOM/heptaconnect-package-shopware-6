@@ -41,6 +41,7 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 - Add exception `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\MalformedResponse` to identify issues with expected formats of an HTTP response
 - Add contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\ErrorHandlerInterface` to detect errors in a Shopware request cycle 
 - Add implementation `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler` for contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\ErrorHandlerInterface` to detect any errors in a JSON response using multiple `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\JsonResponseValidatorInterface` detected by tag `heptaconnect.package.shopware6.json_response_validator`
+- Add base class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient` for services to work with Shopware action endpoints
 
 ### Changed
 
