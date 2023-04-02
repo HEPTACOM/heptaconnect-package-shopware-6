@@ -7,14 +7,22 @@ definitions:
         -   step: &php81-image
                 image: heptacom/heptaconnect-pipeline:php81-7.0.0
     services:
-        shopware-6-4-20:
-            image: dockware/play:6.4.20.0
-            variables:
-                APP_URL: http://127.0.0.1:80/
-        shopware-6-4-0:
+        shopware-6-4-0: &shopware-6-service
             image: dockware/play:6.4.0.0
             variables:
                 APP_URL: http://127.0.0.1:80/
+        shopware-6-4-5:
+            <<: *shopware-6-service
+            image: dockware/play:6.4.5.0
+        shopware-6-4-10:
+            <<: *shopware-6-service
+            image: dockware/play:6.4.10.0
+        shopware-6-4-15:
+            <<: *shopware-6-service
+            image: dockware/play:6.4.15.0
+        shopware-6-4-20:
+            <<: *shopware-6-service
+            image: dockware/play:6.4.20.0
     steps:
         -   step: &default-step
                 caches:
@@ -104,15 +112,6 @@ definitions:
                     - GLOBAL_REPOSITORIES_DIR=`pwd`/.build/private-composer composer-repository
                     - composer update --prefer-lowest --prefer-stable
                     - COMPOSER_EXTRA_ARGS=-vvv make -e test
-        -   step: &test-coverage
-                <<: *default-step
-                services:
-                    - shopware-6-4-20
-                name: Test coverage
-                script:
-                    - bash setup-vendor.sh
-                    - . ./bitbucket-pipelines.env
-                    - XDEBUG_MODE=coverage COMPOSER_EXTRA_ARGS=-vvv make -e coverage
         -   step: &test-coverage-6-4-0
                 <<: *default-step
                 services:
@@ -122,6 +121,26 @@ definitions:
                     - bash setup-vendor.sh
                     - . ./bitbucket-pipelines.env
                     - XDEBUG_MODE=coverage COMPOSER_EXTRA_ARGS=-vvv make -e coverage
+        -   step: &test-coverage-6-4-5
+                <<: *test-coverage-6-4-0
+                services:
+                    - shopware-6-4-5
+                name: Test coverage (6.4.5.0)
+        -   step: &test-coverage-6-4-10
+                <<: *test-coverage-6-4-0
+                services:
+                    - shopware-6-4-10
+                name: Test coverage (6.4.10.0)
+        -   step: &test-coverage-6-4-15
+                <<: *test-coverage-6-4-0
+                services:
+                    - shopware-6-4-15
+                name: Test coverage (6.4.15.0)
+        -   step: &test-coverage-6-4-20
+                <<: *test-coverage-6-4-0
+                services:
+                    - shopware-6-4-20
+                name: Test coverage (6.4.20.0)
         -   step: &test-code-style-php
                 <<: *default-step
                 name: ECS (Code style)
@@ -190,8 +209,11 @@ pipelines:
             -   step: *github-mirror-branch
             -   step: *composer-high-install
             -   parallel: &steps-blocking-tests
-                    -   step: *test-coverage
                     -   step: *test-coverage-6-4-0
+                    -   step: *test-coverage-6-4-5
+                    -   step: *test-coverage-6-4-10
+                    -   step: *test-coverage-6-4-15
+                    -   step: *test-coverage-6-4-20
                     -   step: *test-code-style-composer-normalize
                     -   step: *test-code-style-composer-unused
                     -   step: *test-code-style-json
@@ -199,8 +221,11 @@ pipelines:
                     -   step: *test-code-style-phpcpd
             -   step: *composer-low-install
             -   parallel: &steps-blocking-low-tests
-                    -   step: *test-coverage
                     -   step: *test-coverage-6-4-0
+                    -   step: *test-coverage-6-4-5
+                    -   step: *test-coverage-6-4-10
+                    -   step: *test-coverage-6-4-15
+                    -   step: *test-coverage-6-4-20
                     -   step: *test-code-style-composer-unused
             -   parallel: &steps-blocking-non-min-php-version-tests
                     -   step: *test-unit-high-install-80
