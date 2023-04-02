@@ -11,6 +11,10 @@ definitions:
             image: dockware/play:6.4.20.0
             variables:
                 APP_URL: http://127.0.0.1:80/
+        shopware-6-4-0:
+            image: dockware/play:6.4.0.0
+            variables:
+                APP_URL: http://127.0.0.1:80/
     steps:
         -   step: &default-step
                 caches:
@@ -109,6 +113,15 @@ definitions:
                     - bash setup-vendor.sh
                     - . ./bitbucket-pipelines.env
                     - XDEBUG_MODE=coverage COMPOSER_EXTRA_ARGS=-vvv make -e coverage
+        -   step: &test-coverage-6-4-0
+                <<: *default-step
+                services:
+                    - shopware-6-4-0
+                name: Test coverage (6.4.0.0)
+                script:
+                    - bash setup-vendor.sh
+                    - . ./bitbucket-pipelines.env
+                    - XDEBUG_MODE=coverage COMPOSER_EXTRA_ARGS=-vvv make -e coverage
         -   step: &test-code-style-php
                 <<: *default-step
                 name: ECS (Code style)
@@ -178,6 +191,7 @@ pipelines:
             -   step: *composer-high-install
             -   parallel: &steps-blocking-tests
                     -   step: *test-coverage
+                    -   step: *test-coverage-6-4-0
                     -   step: *test-code-style-composer-normalize
                     -   step: *test-code-style-composer-unused
                     -   step: *test-code-style-json
@@ -186,6 +200,7 @@ pipelines:
             -   step: *composer-low-install
             -   parallel: &steps-blocking-low-tests
                     -   step: *test-coverage
+                    -   step: *test-coverage-6-4-0
                     -   step: *test-code-style-composer-unused
             -   parallel: &steps-blocking-non-min-php-version-tests
                     -   step: *test-unit-high-install-80
