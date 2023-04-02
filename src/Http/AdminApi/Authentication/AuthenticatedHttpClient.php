@@ -6,6 +6,7 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationStorageInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -24,13 +25,17 @@ final class AuthenticatedHttpClient implements AuthenticatedHttpClientInterface
 
     public function sendRequest(RequestInterface $request): ResponseInterface
     {
-        $response = $this->decorated->sendRequest($request->withAddedHeader(
-            'Authorization',
-            $this->authenticationStorage->getAuthorizationHeader()
-        ));
+        try {
+            $response = $this->decorated->sendRequest($request->withAddedHeader(
+                'Authorization',
+                $this->authenticationStorage->getAuthorizationHeader()
+            ));
 
-        if ($response->getStatusCode() !== 401) {
-            return $response;
+            if ($response->getStatusCode() !== 401) {
+                return $response;
+            }
+        } catch (AuthenticationFailed $authenticationFailed) {
+            // this is ok to happen, we just try to refresh and try again
         }
 
         $this->authenticationStorage->refresh();
