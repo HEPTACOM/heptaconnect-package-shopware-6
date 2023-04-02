@@ -18,14 +18,10 @@ final class SystemConfigPostAction extends AbstractActionClient implements Syste
             $params['salesChannelId'] = $payload->getSalesChannel();
         }
 
-        $request = $this->generateRequest(
-            'POST',
-            $path,
-            $params,
-            $payload->getValues()
-        );
-
+        $request = $this->generateRequest('POST', $path, $params, $payload->getValues());
+        $request = $this->addExpectedPackages($request, $payload);
         $response = $this->getClient()->sendRequest($request);
+
         $this->parseResponse($request, $response);
     }
 }

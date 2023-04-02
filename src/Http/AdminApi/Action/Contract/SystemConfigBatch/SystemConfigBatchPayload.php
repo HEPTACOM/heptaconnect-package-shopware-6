@@ -6,10 +6,13 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\
 
 use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\ExpectedPackagesAwareInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Support\ExpectedPackagesAwareTrait;
 
-final class SystemConfigBatchPayload implements AttachmentAwareInterface
+final class SystemConfigBatchPayload implements AttachmentAwareInterface, ExpectedPackagesAwareInterface
 {
     use AttachmentAwareTrait;
+    use ExpectedPackagesAwareTrait;
 
     public const GLOBAL_SALES_CHANNEL = 'null';
 

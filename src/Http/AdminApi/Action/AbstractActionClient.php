@@ -6,6 +6,7 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\ExpectedPackagesAwareInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\ErrorHandlerInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -61,6 +62,27 @@ abstract class AbstractActionClient
             $request = $request
                 ->withHeader('Content-Type', 'application/json')
                 ->withBody($this->jsonStreamUtility->fromPayloadToStream($payload));
+        }
+
+        return $request;
+    }
+
+    protected function addExpectedPackages(
+        RequestInterface $request,
+        ExpectedPackagesAwareInterface $expectedPackagesAware
+    ): RequestInterface {
+        $expectedPackages = [];
+
+        foreach ($expectedPackagesAware->getExpectedPackageVersionConstraints() as $package => $constraints) {
+            foreach ($constraints as $constraint) {
+                $expectedPackages[] = \sprintf('%s: %s', $package, $constraint);
+            }
+        }
+
+        if ($expectedPackages !== []) {
+            $expectedPackages = \array_unique($expectedPackages);
+
+            $request = $request->withHeader('sw-expect-packages', \implode(',', $expectedPackages));
         }
 
         return $request;
