@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync;
+
+use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
+use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
+
+final class SyncResult implements AttachmentAwareInterface
+{
+    use AttachmentAwareTrait;
+
+    private SyncOperationResultCollection $operationResults;
+
+    public function __construct(SyncOperationResultCollection $operationResults)
+    {
+        $this->operationResults = $operationResults;
+    }
+
+    public function getOperationResults(): SyncOperationResultCollection
+    {
+        return $this->operationResults;
+    }
+}

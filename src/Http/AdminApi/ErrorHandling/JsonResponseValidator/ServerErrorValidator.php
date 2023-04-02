@@ -13,7 +13,9 @@ final class ServerErrorValidator implements JsonResponseValidatorInterface
 {
     public function validate(array $body, array $errors, RequestInterface $request, ResponseInterface $response): void
     {
-        if ($response->getStatusCode() === 500) {
+        // 400 on batch operations
+        // 500 on single operations
+        if ($response->getStatusCode() === 400 || $response->getStatusCode() === 500) {
             foreach ($errors as $error) {
                 $code = $error['code'] ?? '';
                 $status = $error['status'] ?? '';
