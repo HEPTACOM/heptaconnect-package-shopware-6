@@ -85,32 +85,44 @@ definitions:
         -   step: &test-unit-high-install-80
                 <<: *php80-image
                 name: Install and Unit test (8.0 + High dependencies)
+                services:
+                    - shopware-6-4-20
                 script:
                     - make clean
                     - GLOBAL_REPOSITORIES_DIR=`pwd`/.build/private-composer composer-repository
+                    - . ./bitbucket-pipelines.env
                     - COMPOSER_EXTRA_ARGS=-vvv make -e test
         -   step: &test-unit-low-install-80
                 <<: *php80-image
                 name: Install and Unit test (8.0 + Low dependencies)
+                services:
+                    - shopware-6-4-20
                 script:
                     - make clean
                     - GLOBAL_REPOSITORIES_DIR=`pwd`/.build/private-composer composer-repository
                     - composer update --prefer-lowest --prefer-stable
+                    - . ./bitbucket-pipelines.env
                     - COMPOSER_EXTRA_ARGS=-vvv make -e test
         -   step: &test-unit-high-install-81
                 <<: *php81-image
                 name: Install and Unit test (8.1 + High dependencies)
+                services:
+                    - shopware-6-4-20
                 script:
                     - make clean
                     - GLOBAL_REPOSITORIES_DIR=`pwd`/.build/private-composer composer-repository
+                    - . ./bitbucket-pipelines.env
                     - COMPOSER_EXTRA_ARGS=-vvv make -e test
         -   step: &test-unit-low-install-81
                 <<: *php81-image
                 name: Install and Unit test (8.1 + Low dependencies)
+                services:
+                    - shopware-6-4-20
                 script:
                     - make clean
                     - GLOBAL_REPOSITORIES_DIR=`pwd`/.build/private-composer composer-repository
                     - composer update --prefer-lowest --prefer-stable
+                    - . ./bitbucket-pipelines.env
                     - COMPOSER_EXTRA_ARGS=-vvv make -e test
         -   step: &test-coverage-6-4-0
                 <<: *default-step
@@ -198,8 +210,11 @@ definitions:
         -   step: &test-infection
                 <<: *default-step
                 name: Test infection
+                services:
+                    - shopware-6-4-20
                 script:
                     - bash setup-vendor.sh
+                    - . ./bitbucket-pipelines.env
                     - COMPOSER_EXTRA_ARGS=-vvv make -e infection
 
 pipelines:
