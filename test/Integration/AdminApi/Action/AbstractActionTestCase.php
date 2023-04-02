@@ -10,6 +10,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contrac
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ServerErrorValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\MemoryApiConfigurationStorage;
@@ -59,6 +60,7 @@ abstract class AbstractActionTestCase extends TestCase
             $this->createApiConfigurationStorage(),
             $jsonStreamUtility,
             new JsonResponseErrorHandler($jsonStreamUtility, [
+                new ExpectationFailedValidator(),
                 new ServerErrorValidator(),
             ]),
         );
