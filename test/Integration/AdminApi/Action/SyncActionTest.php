@@ -8,8 +8,9 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\S
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncOperationCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncOperationResult;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncPayload;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Exception\SyncResultException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\SyncAction;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\UnknownError;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\JsonResponseValidationCollectionException;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
@@ -19,12 +20,14 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncOperationResultCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncPayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncResult
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Exception\SyncResultException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\SyncAction
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\AbstractRequestException
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\JsonResponseValidationCollectionException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\UnknownError
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator
@@ -73,13 +76,33 @@ final class SyncActionTest extends AbstractActionTestCase
     {
         $action = $this->createAction(SyncAction::class);
 
-        static::expectException(UnknownError::class);
+        static::expectException(SyncResultException::class);
 
         $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
             (new SyncOperation('tag', SyncOperation::ACTION_UPSERT, 'tag-upsert'))->withAddedPayload([
                 'random-tag-' . \bin2hex(\random_bytes(8)),
             ]),
         ])));
+    }
+
+    public function testGroupExceptionsOnMultipleWronglyShapedEntitiesData(): void
+    {
+        $action = $this->createAction(SyncAction::class);
+
+        try {
+            $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
+                (new SyncOperation('tag', SyncOperation::ACTION_UPSERT, 'tag-upsert'))->withAddedPayload([
+                    'random-tag-' . \bin2hex(\random_bytes(8)),
+                ])->withAddedPayload([
+                    'random-tag-' . \bin2hex(\random_bytes(8)),
+                ]),
+            ])));
+        } catch (SyncResultException $syncResultException) {
+            $previous = $syncResultException->getPrevious();
+
+            static::assertInstanceOf(JsonResponseValidationCollectionException::class, $previous);
+            static::assertCount(2, $previous->getExceptions());
+        }
     }
 
     public function testDeleteNonExistingTags(): void

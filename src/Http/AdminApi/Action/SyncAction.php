@@ -10,6 +10,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\S
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncOperationResultCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncPayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncResult;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Exception\SyncResultException;
 
 final class SyncAction extends AbstractActionClient implements SyncActionInterface
 {
@@ -58,9 +59,30 @@ final class SyncAction extends AbstractActionClient implements SyncActionInterfa
         }
 
         $response = $this->getClient()->sendRequest($request);
-        $result = $this->parseResponse($request, $response);
 
-        $success = $result['success'];
+        try {
+            $result = $this->parseResponse($request, $response);
+        } catch (\Throwable $exception) {
+            try {
+                $responseData = $this->getJsonStreamUtility()->fromStreamToPayload($response->getBody());
+            } catch (\Throwable $ignore) {
+                throw $exception;
+            }
+
+            throw new SyncResultException(
+                $request,
+                $this->createSyncResultFromResponse($responseData),
+                'Found an error in a sync request',
+                1680479000,
+                $exception,
+            );
+        }
+
+        return $this->createSyncResultFromResponse($result);
+    }
+
+    private function createSyncResultFromResponse(array $result): SyncResult
+    {
         $data = $result['data'];
 
         return new SyncResult(new SyncOperationResultCollection(\array_map(

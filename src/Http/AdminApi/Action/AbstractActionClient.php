@@ -106,4 +106,9 @@ abstract class AbstractActionClient
     {
         return $this->client;
     }
+
+    protected function getJsonStreamUtility(): JsonStreamUtility
+    {
+        return $this->jsonStreamUtility;
+    }
 }
