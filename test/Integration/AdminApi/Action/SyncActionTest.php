@@ -10,6 +10,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\S
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncPayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Exception\SyncResultException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\SyncAction;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\FieldIsBlankException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\JsonResponseValidationCollectionException;
 
 /**
@@ -27,10 +28,12 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\AbstractRequestException
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\FieldIsBlankException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\JsonResponseValidationCollectionException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\UnknownError
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\FieldIsBlankValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ServerErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
@@ -121,5 +124,36 @@ final class SyncActionTest extends AbstractActionTestCase
         static::assertInstanceOf(SyncOperationResult::class, $operationResult);
         static::assertSame([], $operationResult->getErrors());
         static::assertSame([[]], $operationResult->getEntities());
+    }
+
+    public function testFailOnEmptyTags(): void
+    {
+        $action = $this->createAction(SyncAction::class);
+
+        try {
+            $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
+                (new SyncOperation('tag', SyncOperation::ACTION_UPSERT, 'tags-upsert'))->withAddedPayload([
+                    'name' => '',
+                ])->withAddedPayload([
+                    'name' => '',
+                ]),
+            ])));
+        } catch (SyncResultException $syncResultException) {
+            static::assertTrue($syncResultException->getSyncResult()->getOperationResults()->hasKey('tags-upsert'));
+
+            $operationResult = $syncResultException->getSyncResult()->getOperationResults()->getKey('tags-upsert');
+
+            static::assertInstanceOf(SyncOperationResult::class, $operationResult);
+            static::assertNotSame([], $operationResult->getEntities());
+
+            $previous = $syncResultException->getPrevious();
+
+            static::assertInstanceOf(JsonResponseValidationCollectionException::class, $previous);
+            static::assertCount(2, $previous->getExceptions());
+
+            foreach ($previous->getExceptions() as $innerException) {
+                static::assertInstanceOf(FieldIsBlankException::class, $innerException);
+            }
+        }
     }
 }
