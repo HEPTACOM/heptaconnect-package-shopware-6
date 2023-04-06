@@ -51,7 +51,7 @@ abstract class AbstractActionTestCase extends TestCase
      *
      * @return AbstractActionClient&TActionClass
      */
-    protected function createAction(string $actionClass): AbstractActionClient
+    protected function createAction(string $actionClass, ...$args): AbstractActionClient
     {
         $jsonStreamUtility = $this->createJsonStreamUtility();
 
@@ -65,6 +65,7 @@ abstract class AbstractActionTestCase extends TestCase
                 new ServerErrorValidator(),
                 new FieldIsBlankValidator(),
             ]),
+            ...$args,
         );
     }
 

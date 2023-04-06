@@ -29,5 +29,11 @@
         >
             <argument type="service" id=".inner"/>
         </service>
+
+        <service
+            id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorCollection"
+        >
+            <argument type="tagged_iterator" tag="heptaconnect.package.shopware6.admin_api.sync_payload_interceptor"/>
+        </service>
     </services>
 </container>

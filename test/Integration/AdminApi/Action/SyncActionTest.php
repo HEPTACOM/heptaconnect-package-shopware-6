@@ -10,6 +10,8 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\S
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncPayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Exception\SyncResultException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\SyncAction;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\FieldIsBlankException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\JsonResponseValidationCollectionException;
 
@@ -27,6 +29,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\FieldIsBlankException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\JsonResponseValidationCollectionException
@@ -42,7 +45,7 @@ final class SyncActionTest extends AbstractActionTestCase
 {
     public function testUpsertAndDeleteTag(): void
     {
-        $action = $this->createAction(SyncAction::class);
+        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection());
 
         $result = $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
             (new SyncOperation('tag', SyncOperation::ACTION_UPSERT, 'tag-upsert'))->withAddedPayload([
@@ -77,7 +80,7 @@ final class SyncActionTest extends AbstractActionTestCase
 
     public function testFailOnWronglyShapedEntitiesData(): void
     {
-        $action = $this->createAction(SyncAction::class);
+        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection());
 
         static::expectException(SyncResultException::class);
 
@@ -90,7 +93,7 @@ final class SyncActionTest extends AbstractActionTestCase
 
     public function testGroupExceptionsOnMultipleWronglyShapedEntitiesData(): void
     {
-        $action = $this->createAction(SyncAction::class);
+        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection());
 
         try {
             $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
@@ -110,7 +113,7 @@ final class SyncActionTest extends AbstractActionTestCase
 
     public function testDeleteNonExistingTags(): void
     {
-        $action = $this->createAction(SyncAction::class);
+        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection());
         $result = $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
             (new SyncOperation('tag', SyncOperation::ACTION_DELETE, 'tag-delete'))->withAddedPayload([
                 'id' => '00000000000000000000000000000000',
@@ -128,7 +131,7 @@ final class SyncActionTest extends AbstractActionTestCase
 
     public function testFailOnEmptyTags(): void
     {
-        $action = $this->createAction(SyncAction::class);
+        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection());
 
         try {
             $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
@@ -155,5 +158,26 @@ final class SyncActionTest extends AbstractActionTestCase
                 static::assertInstanceOf(FieldIsBlankException::class, $innerException);
             }
         }
+    }
+
+    public function testSyncPayloadInterceptor(): void
+    {
+        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection([
+            new class() implements SyncPayloadInterceptorInterface {
+                public function intercept(SyncPayload $payload): SyncPayload
+                {
+                    return $payload->withSyncOperations(new SyncOperationCollection());
+                }
+            },
+        ]));
+
+        // this would fail
+        $result = $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
+            (new SyncOperation('tag', SyncOperation::ACTION_UPSERT, 'tags-upsert'))->withAddedPayload([
+                'name' => '',
+            ]),
+        ])));
+
+        static::assertTrue($result->getOperationResults()->isEmpty());
     }
 }

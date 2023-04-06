@@ -11,11 +11,37 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\S
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncPayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncResult;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Exception\SyncResultException;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\ErrorHandlerInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
+use Psr\Http\Message\RequestFactoryInterface;
 
 final class SyncAction extends AbstractActionClient implements SyncActionInterface
 {
+    private SyncPayloadInterceptorCollection $syncPayloadInterceptors;
+
+    public function __construct(
+        AuthenticatedHttpClientInterface $client,
+        RequestFactoryInterface $requestFactory,
+        ApiConfigurationStorageInterface $apiConfigurationStorage,
+        JsonStreamUtility $jsonStreamUtility,
+        ErrorHandlerInterface $errorHandler,
+        SyncPayloadInterceptorCollection $syncPayloadInterceptors
+    ) {
+        parent::__construct($client, $requestFactory, $apiConfigurationStorage, $jsonStreamUtility, $errorHandler);
+        $this->syncPayloadInterceptors = $syncPayloadInterceptors;
+    }
+
     public function sync(SyncPayload $payload): SyncResult
     {
+        /** @var SyncPayloadInterceptorInterface $syncPayloadInterceptor */
+        foreach ($this->syncPayloadInterceptors as $syncPayloadInterceptor) {
+            $payload = $syncPayloadInterceptor->intercept($payload);
+        }
+
         $path = '_action/sync';
         $body = [];
 
