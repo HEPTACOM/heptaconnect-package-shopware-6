@@ -9,6 +9,7 @@
             <exclude>../../Http/AdminApi/Action/Contract/**/*{Payload,Criteria}.php</exclude>
             <exclude>../../Http/AdminApi/Authentication/Exception/**</exclude>
             <exclude>../../Http/AdminApi/ErrorHandling/Exception/**</exclude>
+            <exclude>../../Utility/**</exclude>
         </prototype>
 
         <instanceof id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\JsonResponseValidatorInterface">
