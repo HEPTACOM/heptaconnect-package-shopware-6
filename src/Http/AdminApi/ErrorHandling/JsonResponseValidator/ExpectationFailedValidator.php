@@ -11,10 +11,14 @@ use Psr\Http\Message\ResponseInterface;
 
 final class ExpectationFailedValidator implements JsonResponseValidatorInterface
 {
-    public function validate(array $body, array $errors, RequestInterface $request, ResponseInterface $response): void
+    public function validate(array $body, ?array $error, RequestInterface $request, ResponseInterface $response): void
     {
+        if ($error === null) {
+            return;
+        }
+
         if ($response->getStatusCode() === 417) {
-            $parameters = $errors[0]['meta']['parameters'] ?? [];
+            $parameters = $error['meta']['parameters'] ?? [];
 
             throw new ExpectationFailedException($request, \implode(\PHP_EOL, $parameters), $response->getStatusCode());
         }

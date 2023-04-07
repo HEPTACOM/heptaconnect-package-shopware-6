@@ -6,6 +6,7 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\ErrorHandlerInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\JsonResponseValidatorInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\JsonResponseValidationCollectionException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\MalformedResponse;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 use Psr\Http\Message\RequestInterface;
@@ -41,9 +42,35 @@ final class JsonResponseErrorHandler implements ErrorHandlerInterface
         }
 
         $errors = $this->collectErrors($data);
+        $exceptions = [];
 
-        foreach ($this->validators as $validator) {
-            $validator->validate($data, $errors, $request, $response);
+        // allow error checks for non-extractable errors
+        if ($errors === []) {
+            $errors[] = null;
+        }
+
+        /** @var array|null $error */
+        foreach ($errors as $error) {
+            try {
+                foreach ($this->validators as $validator) {
+                    $validator->validate($data, $error, $request, $response);
+                }
+            } catch (\Throwable $exception) {
+                $exceptions[] = $exception;
+            }
+        }
+
+        if ($exceptions !== []) {
+            if (\count($exceptions) === 1) {
+                throw current($exceptions);
+            }
+
+            throw new JsonResponseValidationCollectionException(
+                $request,
+                $exceptions,
+                'Found multiple exceptions',
+                1680482000
+            );
         }
     }
 

@@ -39,12 +39,14 @@ use Psr\Http\Message\ResponseInterface;
 
 class CustomErrorValidator implements JsonResponseValidatorInterface
 {
-    public function validate(array $body, array $errors, RequestInterface $request, ResponseInterface $response) : void
+    public function validate(array $body, ?array $error, RequestInterface $request, ResponseInterface $response): void
     {
-        foreach ($errors as $error) {
-            if ($error['code'] === 'SHOPWARE_EXTENSION__CUSTOM_ERROR') {
-                throw new \RuntimeException('My custom error was found');
-            }
+        if ($error === null) {
+            return;
+        }
+
+        if ($error['code'] === 'SHOPWARE_EXTENSION__CUSTOM_ERROR') {
+            throw new \RuntimeException('My custom error was found');
         }
     }
 }

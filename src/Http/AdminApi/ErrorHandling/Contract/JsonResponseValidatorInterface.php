@@ -17,5 +17,5 @@ interface JsonResponseValidatorInterface
      *
      * @throws \Throwable
      */
-    public function validate(array $body, array $errors, RequestInterface $request, ResponseInterface $response): void;
+    public function validate(array $body, ?array $error, RequestInterface $request, ResponseInterface $response): void;
 }
