@@ -12,6 +12,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalN
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\FieldIsBlankValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ResourceNotFoundValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ServerErrorValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\MemoryApiConfigurationStorage;
@@ -64,6 +65,7 @@ abstract class AbstractActionTestCase extends TestCase
                 new ExpectationFailedValidator(),
                 new ServerErrorValidator(),
                 new FieldIsBlankValidator(),
+                new ResourceNotFoundValidator(),
             ]),
             ...$args,
         );
