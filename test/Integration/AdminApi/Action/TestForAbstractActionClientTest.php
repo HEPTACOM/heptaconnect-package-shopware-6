@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Info\InfoParams;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoAction;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\MethodNotAllowedException;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Fixture\AdminApi\BrokenActionClient;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Info\InfoResult
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoAction
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\AbstractRequestException
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\MethodNotAllowedException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\FieldIsBlankValidator
@@ -27,12 +27,14 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoAction;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class InfoActionTest extends AbstractActionTestCase
+final class TestForAbstractActionClientTest extends AbstractActionTestCase
 {
-    public function testGetVersion(): void
+    public function testInvokeWrongMethod(): void
     {
-        $action = $this->createAction(InfoAction::class);
+        $action = $this->createAction(BrokenActionClient::class);
 
-        static::assertMatchesRegularExpression('/\d+\.\d+\.\d+\.\d+/', $action->getInfo(new InfoParams())->getVersion());
+        static::expectException(MethodNotAllowedException::class);
+
+        $action->triggerMethodNotAllowed();
     }
 }
