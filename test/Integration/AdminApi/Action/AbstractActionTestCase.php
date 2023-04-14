@@ -64,15 +64,7 @@ abstract class AbstractActionTestCase extends TestCase
             $this->createRequestFactory(),
             $this->createApiConfigurationStorage(),
             $jsonStreamUtility,
-            new JsonResponseErrorHandler($jsonStreamUtility, [
-                new ExpectationFailedValidator(),
-                new ServerErrorValidator(),
-                new FieldIsBlankValidator(),
-                new ResourceNotFoundValidator(),
-                new WriteTypeIntendErrorValidator(),
-                new NotFoundValidator(),
-                new InvalidTypeValidator(),
-            ]),
+            $this->createJsonResponseErrorHandler($jsonStreamUtility),
             ...$args,
         );
     }
@@ -85,5 +77,20 @@ abstract class AbstractActionTestCase extends TestCase
     protected function createJsonStreamUtility(): JsonStreamUtility
     {
         return new JsonStreamUtility(Psr17FactoryDiscovery::findStreamFactory());
+    }
+
+    protected function createJsonResponseErrorHandler(?JsonStreamUtility $jsonStreamUtility = null): JsonResponseErrorHandler
+    {
+        $jsonStreamUtility ??= $this->createJsonStreamUtility();
+
+        return new JsonResponseErrorHandler($jsonStreamUtility, [
+            new ExpectationFailedValidator(),
+            new ServerErrorValidator(),
+            new FieldIsBlankValidator(),
+            new ResourceNotFoundValidator(),
+            new WriteTypeIntendErrorValidator(),
+            new NotFoundValidator(),
+            new InvalidTypeValidator(),
+        ]);
     }
 }
