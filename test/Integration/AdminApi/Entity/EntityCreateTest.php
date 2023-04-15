@@ -109,7 +109,7 @@ final class EntityCreateTest extends AbstractActionTestCase
 
         static::expectException(WriteTypeIntendException::class);
 
-        $client->create(new EntityCreatePayload('country', [
+        $client->create(new EntityCreatePayload('currency', [
             'id' => $defaultCurrencyId,
             'iso' => 'foobar',
             'name' => 'foobar',
