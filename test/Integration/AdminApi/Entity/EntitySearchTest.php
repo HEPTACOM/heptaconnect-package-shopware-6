@@ -6,6 +6,7 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Enti
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\Criteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchCriteria;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\CriteriaFormatter;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
@@ -16,6 +17,8 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\CriteriaFormatter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchCriteria
@@ -39,7 +42,7 @@ final class EntitySearchTest extends AbstractActionTestCase
 {
     public function testFetchEntityWithEmptyCriteria(): void
     {
-        $client = $this->createAction(EntitySearchAction::class);
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria('country', new Criteria()));
 
         static::assertNotSame([], $result->getData()->asArray());
@@ -52,9 +55,18 @@ final class EntitySearchTest extends AbstractActionTestCase
         }
     }
 
+    public function testFetchEntityWithLimitCriteria(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(new EntitySearchCriteria('country', (new Criteria())->withLimit(1)));
+
+        static::assertNotSame([], $result->getData()->asArray());
+        static::assertCount(1, $result->getData());
+    }
+
     public function testEntityFormatWithEntityThatContainsSeparator(): void
     {
-        $client = $this->createAction(EntitySearchAction::class);
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria('sales-channel', new Criteria()));
 
         foreach ($result->getData() as $entity) {
@@ -64,7 +76,7 @@ final class EntitySearchTest extends AbstractActionTestCase
 
     public function testEntityFormatWithWrongEntityNameSeparatorFails(): void
     {
-        $client = $this->createAction(EntitySearchAction::class);
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
 
         static::expectException(NotFoundException::class);
 

@@ -6,6 +6,7 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Enti
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\Criteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearchId\EntitySearchIdCriteria;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\CriteriaFormatter;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchIdAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
@@ -39,7 +40,7 @@ final class EntitySearchIdTest extends AbstractActionTestCase
 {
     public function testFetchIdsWithEmptyCriteria(): void
     {
-        $client = $this->createAction(EntitySearchIdAction::class);
+        $client = $this->createAction(EntitySearchIdAction::class, new CriteriaFormatter());
         $result = $client->searchIds(new EntitySearchIdCriteria('country', new Criteria()));
 
         static::assertNotSame([], $result->getData());
@@ -52,7 +53,7 @@ final class EntitySearchIdTest extends AbstractActionTestCase
 
     public function testEntityFormatWithEntityThatContainsSeparator(): void
     {
-        $client = $this->createAction(EntitySearchIdAction::class);
+        $client = $this->createAction(EntitySearchIdAction::class, new CriteriaFormatter());
         $result = $client->searchIds(new EntitySearchIdCriteria('sales-channel', new Criteria()));
 
         static::assertNotSame([], $result->getData());
@@ -65,7 +66,7 @@ final class EntitySearchIdTest extends AbstractActionTestCase
 
     public function testEntityFormatWithWrongEntityNameSeparatorFails(): void
     {
-        $client = $this->createAction(EntitySearchIdAction::class);
+        $client = $this->createAction(EntitySearchIdAction::class, new CriteriaFormatter());
 
         static::expectException(NotFoundException::class);
 
