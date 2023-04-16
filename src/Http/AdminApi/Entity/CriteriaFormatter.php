@@ -13,9 +13,14 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
     {
         $result = [];
         $limit = $criteria->getLimit();
+        $totalCountMode = $criteria->getTotalCountMode();
 
         if ($limit !== null) {
             $result['limit'] = $limit;
+        }
+
+        if ($totalCountMode !== null) {
+            $result['total-count-mode'] = $totalCountMode;
         }
 
         return $result;

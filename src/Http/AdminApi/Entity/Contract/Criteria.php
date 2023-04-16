@@ -11,7 +11,24 @@ final class Criteria implements AttachmentAwareInterface
 {
     use AttachmentAwareTrait;
 
+    /**
+     * no total count will be selected. Should be used if no pagination required (fastest)
+     */
+    public const TOTAL_COUNT_MODE_NONE = 0;
+
+    /**
+     * exact total count will be selected. Should be used if an exact pagination is required (slow)
+     */
+    public const TOTAL_COUNT_MODE_EXACT = 1;
+
+    /**
+     * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
+     */
+    public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
+
     private ?int $limit = null;
+
+    private ?int $totalCountMode = null;
 
     public function getLimit(): ?int
     {
@@ -22,6 +39,19 @@ final class Criteria implements AttachmentAwareInterface
     {
         $that = clone $this;
         $that->limit = $limit;
+
+        return $that;
+    }
+
+    public function getTotalCountMode(): ?int
+    {
+        return $this->totalCountMode;
+    }
+
+    public function withTotalCountMode(?int $totalCountMode): self
+    {
+        $that = clone $this;
+        $that->totalCountMode = $totalCountMode;
 
         return $that;
     }

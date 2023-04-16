@@ -64,6 +64,58 @@ final class EntitySearchTest extends AbstractActionTestCase
         static::assertCount(1, $result->getData());
     }
 
+    public function testFetchWithDontTotalCriteria(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(
+            new EntitySearchCriteria(
+                'country',
+                (new Criteria())
+                ->withLimit(1)
+                ->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE)
+            )
+        );
+
+        static::assertNotSame([], $result->getData()->asArray());
+        static::assertCount(1, $result->getData());
+        static::assertSame(1, $result->getTotal());
+    }
+
+    public function testFetchWithExactTotalCriteria(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(
+            new EntitySearchCriteria(
+                'country',
+                (new Criteria())
+                    ->withLimit(1)
+                    ->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT)
+            )
+        );
+
+        static::assertNotSame([], $result->getData()->asArray());
+        static::assertCount(1, $result->getData());
+        static::assertGreaterThan(200, $result->getTotal());
+    }
+
+    public function testFetchWithNextPageTotalCriteria(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(
+            new EntitySearchCriteria(
+                'country',
+                (new Criteria())
+                    ->withLimit(1)
+                    ->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES)
+            )
+        );
+
+        static::assertNotSame([], $result->getData()->asArray());
+        static::assertCount(1, $result->getData());
+        static::assertLessThan(200, $result->getTotal());
+        static::assertGreaterThan(1, $result->getTotal());
+    }
+
     public function testEntityFormatWithEntityThatContainsSeparator(): void
     {
         $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
