@@ -20,7 +20,7 @@ final class MethodNotAllowedValidator implements JsonResponseValidatorInterface
         if ($status === '405' && $code === '0' && $title === 'Method Not Allowed') {
             $detail = $error['detail'] ?? '';
 
-            throw new MethodNotAllowedException($request, $detail);
+            throw new MethodNotAllowedException($request, $response, $detail);
         }
     }
 }

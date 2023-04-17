@@ -6,16 +6,17 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Ex
 
 use Psr\Http\Client\RequestExceptionInterface;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 final class MalformedResponse extends AbstractRequestException implements RequestExceptionInterface
 {
-    public function __construct(RequestInterface $request, int $statusCode, string $body, ?\Throwable $previous = null)
-    {
-        parent::__construct(
-            $request,
-            \sprintf('Response body is malformed. Code: "%s" Body: "%s"', $statusCode, $body),
-            0,
-            $previous
-        );
+    public function __construct(
+        RequestInterface $request,
+        ResponseInterface $response,
+        int $code = 0,
+        ?\Throwable $previous = null
+    ) {
+        $message = \sprintf('Response body is malformed. Code: "%d"', $response->getStatusCode());
+        parent::__construct($request, $response, $message, $code, $previous);
     }
 }

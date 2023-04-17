@@ -20,7 +20,7 @@ final class NotFoundValidator implements JsonResponseValidatorInterface
         if ($status === '404' && $code === '0' && $title === 'Not Found') {
             $detail = $error['detail'] ?? '';
 
-            throw new NotFoundException($request, $detail);
+            throw new NotFoundException($request, $response, $detail);
         }
     }
 }

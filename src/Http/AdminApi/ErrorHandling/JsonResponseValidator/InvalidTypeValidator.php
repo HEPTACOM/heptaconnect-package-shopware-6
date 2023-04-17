@@ -20,7 +20,7 @@ final class InvalidTypeValidator implements JsonResponseValidatorInterface
             $detail = $error['detail'] ?? '';
             $pointer = $error['source']['pointer'] ?? '';
 
-            throw new InvalidTypeException($request, $pointer, $detail, $response->getStatusCode());
+            throw new InvalidTypeException($request, $response, $pointer, $detail, $response->getStatusCode());
         }
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception;
 
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 final class JsonResponseValidationCollectionException extends AbstractRequestException
 {
@@ -18,11 +19,12 @@ final class JsonResponseValidationCollectionException extends AbstractRequestExc
      */
     public function __construct(
         RequestInterface $request,
+        ResponseInterface $response,
         array $exceptions,
-        ?string $message = '',
+        string $message,
         int $code = 0
     ) {
-        parent::__construct($request, $message, $code);
+        parent::__construct($request, $response, $message, $code);
         $this->exceptions = $exceptions;
     }
 

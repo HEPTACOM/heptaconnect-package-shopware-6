@@ -20,7 +20,7 @@ final class ResourceNotFoundValidator implements JsonResponseValidatorInterface
             $primaryKey = $error['meta']['parameters']['primaryKey'] ?? [];
             $type = $error['meta']['parameters']['type'] ?? '';
 
-            throw new ResourceNotFoundException($request, $type, $primaryKey);
+            throw new ResourceNotFoundException($request, $response, $type, $primaryKey);
         }
     }
 }

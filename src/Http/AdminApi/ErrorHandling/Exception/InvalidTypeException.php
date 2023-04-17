@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception;
 
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 final class InvalidTypeException extends AbstractRequestException
 {
@@ -12,9 +13,16 @@ final class InvalidTypeException extends AbstractRequestException
 
     private string $typeErrorMessage;
 
-    public function __construct(RequestInterface $request, string $typeErrorMessage, string $field, int $code = 0, ?\Throwable $previous = null)
-    {
-        parent::__construct($request, \sprintf('This type of "%s" is invalid: %s', $field, $typeErrorMessage), $code, $previous);
+    public function __construct(
+        RequestInterface $request,
+        ResponseInterface $response,
+        string $typeErrorMessage,
+        string $field,
+        int $code = 0,
+        ?\Throwable $previous = null
+    ) {
+        $message = \sprintf('This type of "%s" is invalid: %s', $field, $typeErrorMessage);
+        parent::__construct($request, $response, $message, $code, $previous);
         $this->field = $field;
         $this->typeErrorMessage = $typeErrorMessage;
     }

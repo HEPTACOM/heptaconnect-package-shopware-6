@@ -20,7 +20,7 @@ final class ExpectationFailedValidator implements JsonResponseValidatorInterface
         if ($response->getStatusCode() === 417) {
             $parameters = $error['meta']['parameters'] ?? [];
 
-            throw new ExpectationFailedException($request, \implode(\PHP_EOL, $parameters), $response->getStatusCode());
+            throw new ExpectationFailedException($request, $response, \implode(\PHP_EOL, $parameters), $response->getStatusCode());
         }
     }
 }

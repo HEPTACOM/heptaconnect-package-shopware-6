@@ -97,6 +97,7 @@ final class SyncAction extends AbstractActionClient implements SyncActionInterfa
 
             throw new SyncResultException(
                 $request,
+                $response,
                 $this->createSyncResultFromResponse($responseData),
                 'Found an error in a sync request',
                 1680479000,

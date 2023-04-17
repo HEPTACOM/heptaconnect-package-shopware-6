@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception;
 
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 final class InvalidLimitQueryException extends AbstractRequestException
 {
@@ -12,9 +13,16 @@ final class InvalidLimitQueryException extends AbstractRequestException
 
     private string $limitErrorMessage;
 
-    public function __construct(RequestInterface $request, string $limitErrorMessage, string $field, int $code = 0, ?\Throwable $previous = null)
-    {
-        parent::__construct($request, \sprintf('The value of "%s" is invalid: %s', $field, $limitErrorMessage), $code, $previous);
+    public function __construct(
+        RequestInterface $request,
+        ResponseInterface $response,
+        string $limitErrorMessage,
+        string $field,
+        int $code = 0,
+        ?\Throwable $previous = null
+    ) {
+        $message = \sprintf('The value of "%s" is invalid: %s', $field, $limitErrorMessage);
+        parent::__construct($request, $response, $message, $code, $previous);
         $this->field = $field;
         $this->limitErrorMessage = $limitErrorMessage;
     }

@@ -25,7 +25,7 @@ final class EntityDeleteAction extends AbstractActionClient implements EntityDel
         $locationPattern = '#/api/(' . \preg_quote($criteria->getEntityName(), '#') . ')/(.*)$#';
 
         if (\preg_match($locationPattern, $location, $matches) !== 1) {
-            throw new EntityReferenceLocationFormatInvalidException($request, $location);
+            throw new EntityReferenceLocationFormatInvalidException($request, $response, $location);
         }
 
         return new EntityDeleteResult($matches[1], $matches[2]);

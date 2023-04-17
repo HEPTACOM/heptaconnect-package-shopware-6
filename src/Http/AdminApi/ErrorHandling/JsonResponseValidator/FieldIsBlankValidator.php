@@ -19,7 +19,7 @@ final class FieldIsBlankValidator implements JsonResponseValidatorInterface
         if ($status === '400' && $code === 'c1051bb4-d103-4f74-8988-acbcafc7fdc3') {
             $pointer = $error['source']['pointer'] ?? '';
 
-            throw new FieldIsBlankException($request, $pointer, $response->getStatusCode());
+            throw new FieldIsBlankException($request, $response, $pointer, $response->getStatusCode());
         }
     }
 }

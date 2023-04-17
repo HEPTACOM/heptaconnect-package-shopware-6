@@ -20,7 +20,7 @@ final class InvalidLimitQueryValidator implements JsonResponseValidatorInterface
             $pointer = $error['source']['pointer'] ?? '';
             $message = $error['detail'] ?? '';
 
-            throw new InvalidLimitQueryException($request, $message, $pointer);
+            throw new InvalidLimitQueryException($request, $response, $message, $pointer);
         }
     }
 }

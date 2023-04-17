@@ -38,7 +38,7 @@ final class JsonResponseErrorHandler implements ErrorHandlerInterface
         try {
             $data = $this->jsonStreamUtility->fromStreamToPayload($response->getBody());
         } catch (\JsonException $exception) {
-            throw new MalformedResponse($request, $response->getStatusCode(), (string) $request->getBody(), $exception);
+            throw new MalformedResponse($request, $response, 0, $exception);
         }
 
         $errors = $this->collectErrors($data);
@@ -67,6 +67,7 @@ final class JsonResponseErrorHandler implements ErrorHandlerInterface
 
             throw new JsonResponseValidationCollectionException(
                 $request,
+                $response,
                 $exceptions,
                 'Found multiple exceptions',
                 1680482000

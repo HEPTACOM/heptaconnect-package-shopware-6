@@ -21,7 +21,7 @@ final class WriteTypeIntendErrorValidator implements JsonResponseValidatorInterf
             $definition = $error['meta']['parameters']['definition'] ?? '';
             $expectedClass = $error['meta']['parameters']['expectedClass'] ?? '';
 
-            throw new WriteTypeIntendException($request, $definition, $expectedClass, $actualClass);
+            throw new WriteTypeIntendException($request, $response, $definition, $expectedClass, $actualClass);
         }
     }
 }
