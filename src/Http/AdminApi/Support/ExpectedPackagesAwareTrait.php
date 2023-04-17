@@ -19,6 +19,9 @@ trait ExpectedPackagesAwareTrait
         return $this->expectedPackages;
     }
 
+    /**
+     * @return static
+     */
     public function withExpectedPackage(string $package, string $constraint): self
     {
         $this->validateExpectedPackageName($package);
@@ -29,6 +32,9 @@ trait ExpectedPackagesAwareTrait
         return $this;
     }
 
+    /**
+     * @return static
+     */
     public function withAddedExpectedPackage(string $package, string $constraint): self
     {
         $this->validateExpectedPackageName($package);
@@ -39,6 +45,9 @@ trait ExpectedPackagesAwareTrait
         return $this;
     }
 
+    /**
+     * @return static
+     */
     public function withoutExpectedPackage(string $package): self
     {
         $this->validateExpectedPackageName($package);
@@ -48,6 +57,9 @@ trait ExpectedPackagesAwareTrait
         return $this;
     }
 
+    /**
+     * @return static
+     */
     public function withoutExpectedPackages(): self
     {
         $this->expectedPackages = [];
