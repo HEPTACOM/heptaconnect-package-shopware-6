@@ -24,7 +24,7 @@ final class Entity extends \ArrayObject
             if (static::isArrayList($value)) {
                 if ($value === []) {
                     $value = new EntityCollection();
-                } elseif (!static::isArrayList($value[0])) {
+                } elseif (\is_array($value[0]) && !static::isArrayList($value[0])) {
                     $value = EntityCollection::fromList($value);
                 }
             } else {
