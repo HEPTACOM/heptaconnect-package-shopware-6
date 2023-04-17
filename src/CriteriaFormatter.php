@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity;
+namespace Heptacom\HeptaConnect\Package\Shopware6;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\Criteria;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\CriteriaFormatterInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria;
+use Heptacom\HeptaConnect\Package\Shopware6\Contract\CriteriaFormatterInterface;
 
 final class CriteriaFormatter implements CriteriaFormatterInterface
 {

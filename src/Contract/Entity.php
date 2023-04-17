@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract;
+namespace Heptacom\HeptaConnect\Package\Shopware6\Contract;
 
 /**
  * @extends \ArrayObject<string, scalar|Entity|EntityCollection|null>

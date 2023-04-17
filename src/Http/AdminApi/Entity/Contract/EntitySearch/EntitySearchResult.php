@@ -6,7 +6,7 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\
 
 use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\Contract\EntityCollection;
 
 final class EntitySearchResult implements AttachmentAwareInterface
 {

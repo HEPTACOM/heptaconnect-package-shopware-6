@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Unit\AdminApi\Entity;
+namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Unit;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\Entity;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\Contract\Entity;
+use Heptacom\HeptaConnect\Package\Shopware6\Contract\EntityCollection;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\Entity
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\Entity
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\EntityCollection
  */
 final class EntityTest extends TestCase
 {
