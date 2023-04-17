@@ -6,6 +6,9 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAct
 
 use Heptacom\HeptaConnect\Dataset\Base\Support\AbstractObjectCollection;
 
+/**
+ * @extends AbstractObjectCollection<SyncPayloadInterceptorInterface>
+ */
 final class SyncPayloadInterceptorCollection extends AbstractObjectCollection
 {
     protected function getT(): string

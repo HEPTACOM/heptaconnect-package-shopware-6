@@ -6,6 +6,9 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Contract;
 
 use Heptacom\HeptaConnect\Dataset\Base\Support\AbstractObjectCollection;
 
+/**
+ * @extends AbstractObjectCollection<Entity>
+ */
 final class EntityCollection extends AbstractObjectCollection
 {
     public function asArray(): array

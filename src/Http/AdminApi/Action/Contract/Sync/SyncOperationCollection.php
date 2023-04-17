@@ -6,6 +6,9 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\
 
 use Heptacom\HeptaConnect\Dataset\Base\Support\AbstractObjectCollection;
 
+/**
+ * @extends AbstractObjectCollection<SyncOperation>
+ */
 final class SyncOperationCollection extends AbstractObjectCollection
 {
     public function hasKey(string $key): bool
