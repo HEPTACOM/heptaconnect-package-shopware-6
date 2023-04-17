@@ -8,6 +8,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\Criter
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\CriteriaFormatter;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\InvalidLimitQueryException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
 
@@ -25,10 +26,12 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchResult
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\AbstractRequestException
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\InvalidLimitQueryException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\FieldIsBlankValidator
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\InvalidLimitQueryValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\InvalidTypeValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\MethodNotAllowedValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\NotFoundValidator
@@ -114,6 +117,15 @@ final class EntitySearchTest extends AbstractActionTestCase
         static::assertCount(1, $result->getData());
         static::assertLessThan(200, $result->getTotal());
         static::assertGreaterThan(1, $result->getTotal());
+    }
+
+    public function testFetchWithInvalidLimitParameter(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+
+        static::expectException(InvalidLimitQueryException::class);
+
+        $client->search(new EntitySearchCriteria('country', (new Criteria())->withLimit(0)));
     }
 
     public function testEntityFormatWithEntityThatContainsSeparator(): void
