@@ -9,6 +9,11 @@
     <issueHandlers>
         <LessSpecificReturnType errorLevel="info" />
         <ImplicitToStringCast errorLevel="info" />
+        <InvalidCatch>
+            <errorLevel type="info">
+                <referencedClass name="Psr\SimpleCache\InvalidArgumentException" />
+            </errorLevel>
+        </InvalidCatch>
     </issueHandlers>
 
     <plugins>
