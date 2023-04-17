@@ -17,6 +17,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
 use Http\Discovery\Psr17FactoryDiscovery;
 
 /**
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
