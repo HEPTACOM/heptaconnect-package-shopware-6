@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\SystemConfigPost;
 
+use Heptacom\HeptaConnect\Dataset\Base\AttachmentCollection;
 use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\ExpectedPackagesAwareInterface;
@@ -26,6 +27,7 @@ final class SystemConfigPostPayload implements AttachmentAwareInterface, Expecte
      */
     public function __construct(array $keyedValues, ?string $salesChannel = null)
     {
+        $this->attachments = new AttachmentCollection();
         $this->values = $keyedValues;
         $this->salesChannel = $salesChannel;
     }

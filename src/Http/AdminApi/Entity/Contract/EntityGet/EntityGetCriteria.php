@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityGet;
 
+use Heptacom\HeptaConnect\Dataset\Base\AttachmentCollection;
 use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
 use Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria;
@@ -23,6 +24,7 @@ final class EntityGetCriteria implements AttachmentAwareInterface, ExpectedPacka
 
     public function __construct(string $entityName, string $id, Criteria $criteria)
     {
+        $this->attachments = new AttachmentCollection();
         $this->entityName = $entityName;
         $this->id = $id;
         $this->criteria = $criteria;

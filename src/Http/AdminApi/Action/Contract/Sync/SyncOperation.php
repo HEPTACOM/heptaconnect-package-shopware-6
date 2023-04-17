@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync;
 
+use Heptacom\HeptaConnect\Dataset\Base\AttachmentCollection;
 use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
 
@@ -25,6 +26,7 @@ final class SyncOperation implements AttachmentAwareInterface
 
     public function __construct(string $entity, string $action, string $key)
     {
+        $this->attachments = new AttachmentCollection();
         $action = \strtolower($action);
 
         if (!\in_array($action, [self::ACTION_UPSERT, self::ACTION_DELETE], true)) {

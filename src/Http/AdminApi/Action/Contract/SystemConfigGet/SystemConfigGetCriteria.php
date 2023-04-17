@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\SystemConfigGet;
 
+use Heptacom\HeptaConnect\Dataset\Base\AttachmentCollection;
 use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\ExpectedPackagesAwareInterface;
@@ -20,6 +21,7 @@ final class SystemConfigGetCriteria implements AttachmentAwareInterface, Expecte
 
     public function __construct(string $configurationDomain, ?string $salesChannel = null)
     {
+        $this->attachments = new AttachmentCollection();
         $this->configurationDomain = $configurationDomain;
         $this->salesChannel = $salesChannel;
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch;
 
+use Heptacom\HeptaConnect\Dataset\Base\AttachmentCollection;
 use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
 use Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria;
@@ -21,6 +22,7 @@ final class EntitySearchCriteria implements AttachmentAwareInterface, ExpectedPa
 
     public function __construct(string $entityName, Criteria $criteria)
     {
+        $this->attachments = new AttachmentCollection();
         $this->entityName = $entityName;
         $this->criteria = $criteria;
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync;
 
+use Heptacom\HeptaConnect\Dataset\Base\AttachmentCollection;
 use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
 
@@ -15,6 +16,7 @@ final class SyncResult implements AttachmentAwareInterface
 
     public function __construct(SyncOperationResultCollection $operationResults)
     {
+        $this->attachments = new AttachmentCollection();
         $this->operationResults = $operationResults;
     }
 

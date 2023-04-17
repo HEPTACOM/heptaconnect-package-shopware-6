@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\SystemConfigBatch;
 
+use Heptacom\HeptaConnect\Dataset\Base\AttachmentCollection;
 use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\ExpectedPackagesAwareInterface;
@@ -26,6 +27,7 @@ final class SystemConfigBatchPayload implements AttachmentAwareInterface, Expect
      */
     public function __construct(array $salesChannelKeyedValues)
     {
+        $this->attachments = new AttachmentCollection();
         $this->values = $salesChannelKeyedValues;
     }
 

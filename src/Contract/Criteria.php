@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Contract;
 
+use Heptacom\HeptaConnect\Dataset\Base\AttachmentCollection;
 use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
 
@@ -36,6 +37,11 @@ final class Criteria implements AttachmentAwareInterface
      * @var list<string>|list<list<string>>|null
      */
     private ?array $ids = null;
+
+    public function __construct()
+    {
+        $this->attachments = new AttachmentCollection();
+    }
 
     public function getLimit(): ?int
     {
