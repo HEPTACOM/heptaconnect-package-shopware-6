@@ -30,6 +30,8 @@ final class Criteria implements AttachmentAwareInterface
 
     private ?int $totalCountMode = null;
 
+    private ?int $page = null;
+
     public function getLimit(): ?int
     {
         return $this->limit;
@@ -52,6 +54,19 @@ final class Criteria implements AttachmentAwareInterface
     {
         $that = clone $this;
         $that->totalCountMode = $totalCountMode;
+
+        return $that;
+    }
+
+    public function getPage(): ?int
+    {
+        return $this->page;
+    }
+
+    public function withPage(?int $page): self
+    {
+        $that = clone $this;
+        $that->page = $page;
 
         return $that;
     }
