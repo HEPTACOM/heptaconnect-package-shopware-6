@@ -32,6 +32,11 @@ final class Criteria implements AttachmentAwareInterface
 
     private ?int $page = null;
 
+    /**
+     * @var list<string>|list<list<string>>|null
+     */
+    private ?array $ids = null;
+
     public function getLimit(): ?int
     {
         return $this->limit;
@@ -67,6 +72,25 @@ final class Criteria implements AttachmentAwareInterface
     {
         $that = clone $this;
         $that->page = $page;
+
+        return $that;
+    }
+
+    /**
+     * @return list<string>|list<list<string>>|null
+     */
+    public function getIds(): ?array
+    {
+        return $this->ids;
+    }
+
+    /**
+     * @param list<string>|list<list<string>>|null $ids
+     */
+    public function withIds(?array $ids): self
+    {
+        $that = clone $this;
+        $that->ids = $ids;
 
         return $that;
     }
