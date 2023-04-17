@@ -24,10 +24,9 @@ use Heptacom\HeptaConnect\Package\Shopware6\Support\LetterCase;
 
 /**
  * Facade to entity action methods with a reduced set of arguments.
- *
- * @final If you want to intercept a process, use the action services.
+ * If you want to intercept a process, use the action services.
  */
-class EntityClient
+final class EntityClient
 {
     private EntitySearchActionInterface $searchAction;
 
