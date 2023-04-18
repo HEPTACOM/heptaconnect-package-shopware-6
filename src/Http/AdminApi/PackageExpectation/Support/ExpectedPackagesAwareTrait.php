@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Support;
+namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support;
 
 /**
- * Implements @see \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\ExpectedPackagesAwareInterface
+ * Implements @see \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract\ExpectedPackagesAwareInterface
  */
 trait ExpectedPackagesAwareTrait
 {

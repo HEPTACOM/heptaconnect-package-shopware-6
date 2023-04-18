@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract;
+namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract;
 
 /**
  * Describes a struct carrying information about the expected packages available in Shopware.
