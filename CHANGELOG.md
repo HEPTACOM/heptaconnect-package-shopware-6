@@ -100,6 +100,7 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\AdminApiSyncPayloadInterceptorRegistrationCompilerPass` to automatically tag all `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorInterface` with the tag `heptaconnect.package.shopware6.admin_api.sync_payload_interceptor`
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\AdminApiPackageExpectationRegistrationCompilerPass` to automatically tag all `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract\PackageExpectationInterface` with the tag `heptaconnect.package.shopware6.admin_api.package_expectation`
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient` to have a single dependency for common entity actions
+- Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\ExtensionClient` to have a single dependency for common extension actions
 
 ### Changed
 
