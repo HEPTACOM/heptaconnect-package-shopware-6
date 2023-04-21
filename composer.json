@@ -38,6 +38,7 @@
         "symfony/dependency-injection": "^4.4 || ^5.0"
     },
     "require-dev": {
+        "ext-zip": "*",
         "infection/infection": ">=0.21",
         "nyholm/psr7": "^1.5",
         "php-http/curl-client": ">=2 <3",
