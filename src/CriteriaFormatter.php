@@ -22,6 +22,7 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
         $term = $criteria->getTerm();
         $includes = $criteria->getIncludes();
         $sort = $criteria->getSort();
+        $grouping = $criteria->getGrouping();
 
         if ($limit !== null) {
             $result['limit'] = $limit;
@@ -49,6 +50,10 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
 
         if ($sort !== null) {
             $result['sort'] = $this->getSortValues($sort);
+        }
+
+        if ($grouping !== null) {
+            $result['grouping'] = $grouping->asArray();
         }
 
         return $result;

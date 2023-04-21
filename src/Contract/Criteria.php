@@ -46,6 +46,8 @@ final class Criteria implements AttachmentAwareInterface
 
     private ?FieldSortingCollection $sort = null;
 
+    private ?StringCollection $grouping = null;
+
     public function __construct()
     {
         $this->attachments = new AttachmentCollection();
@@ -201,5 +203,41 @@ final class Criteria implements AttachmentAwareInterface
         }
 
         return $this->withSort($sort);
+    }
+
+    public function getGrouping(): ?StringCollection
+    {
+        return $this->grouping;
+    }
+
+    public function withGrouping(?StringCollection $grouping): self
+    {
+        $that = clone $this;
+        $that->grouping = $grouping;
+
+        return $that;
+    }
+
+    public function withAddedGroupField(string $groupField): self
+    {
+        $grouping = $this->getGrouping() ?? new StringCollection();
+
+        $grouping->push([$groupField]);
+
+        return $this->withGrouping($grouping);
+    }
+
+    public function withoutGroupField(string $groupField): self
+    {
+        $grouping = $this->getGrouping() ?? new StringCollection();
+        $grouping = new StringCollection($grouping->filter(
+            static fn (string $field): bool => $field !== $groupField
+        ));
+
+        if ($grouping->isEmpty()) {
+            $grouping = null;
+        }
+
+        return $this->withGrouping($grouping);
     }
 }

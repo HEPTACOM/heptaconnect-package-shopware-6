@@ -205,6 +205,18 @@ final class EntitySearchTest extends AbstractActionTestCase
         static::assertSame(\array_reverse($descIds), $ascIds);
     }
 
+    public function testFetchWithGrouping(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $criteria = (new Criteria())->withAddedGroupField('countryId');
+        $groupedResults = $client->search(new EntitySearchCriteria('country-state', $criteria));
+        $criteria = $criteria->withoutGroupField('countryId');
+        $nonGroupedResults = $client->search(new EntitySearchCriteria('country-state', $criteria));
+
+        static::assertSame(3, $groupedResults->getTotal());
+        static::assertGreaterThan($groupedResults->getTotal(), $nonGroupedResults->getTotal());
+    }
+
     public function testFetchWithInvalidLimitParameter(): void
     {
         $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
