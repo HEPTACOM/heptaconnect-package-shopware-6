@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Entity;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria;
+use Heptacom\HeptaConnect\Package\Shopware6\Contract\FieldSorting;
 use Heptacom\HeptaConnect\Package\Shopware6\CriteriaFormatter;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
@@ -16,6 +17,8 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\EntityCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\FieldSorting
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\FieldSortingCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\CriteriaFormatter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
@@ -184,6 +187,22 @@ final class EntitySearchTest extends AbstractActionTestCase
         static::assertEqualsCanonicalizing([
             'apiAlias',
         ], $fields);
+    }
+
+    public function testFetchWithIdSorting(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $criteria = (new Criteria())->withFieldSort('id');
+        $ascResult = $client->search(new EntitySearchCriteria('country', $criteria));
+        $descResult = $client->search(new EntitySearchCriteria(
+            'country',
+            $criteria->withoutFieldSort('id')->withFieldSort('id', FieldSorting::DESCENDING)
+        ));
+
+        $ascIds = \array_column($ascResult->getData()->asArray(), 'id');
+        $descIds = \array_column($descResult->getData()->asArray(), 'id');
+
+        static::assertSame(\array_reverse($descIds), $ascIds);
     }
 
     public function testFetchWithInvalidLimitParameter(): void

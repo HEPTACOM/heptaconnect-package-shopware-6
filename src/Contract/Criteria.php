@@ -44,6 +44,8 @@ final class Criteria implements AttachmentAwareInterface
 
     private ?TaggedStringCollection $includes = null;
 
+    private ?FieldSortingCollection $sort = null;
+
     public function __construct()
     {
         $this->attachments = new AttachmentCollection();
@@ -156,5 +158,48 @@ final class Criteria implements AttachmentAwareInterface
         }
 
         return $that;
+    }
+
+    public function getSort(): ?FieldSortingCollection
+    {
+        return $this->sort;
+    }
+
+    public function withSort(?FieldSortingCollection $sort): self
+    {
+        $that = clone $this;
+        $that->sort = $sort;
+
+        return $that;
+    }
+
+    public function withFieldSort(string $field, string $direction = FieldSorting::ASCENDING, bool $naturalSorting = false): self
+    {
+        $sort = $this->sort;
+
+        if ($sort === null) {
+            $sort = new FieldSortingCollection();
+        }
+
+        $sort->push([new FieldSorting($field, $direction, $naturalSorting)]);
+
+        return $this->withSort($sort);
+    }
+
+    public function withoutFieldSort(string $field): self
+    {
+        $sort = $this->sort;
+
+        if ($sort !== null) {
+            $sort = new FieldSortingCollection($sort->filter(
+                static fn (FieldSorting $sorting): bool => $sorting->getField() !== $field
+            ));
+
+            if ($sort->isEmpty()) {
+                $sort = null;
+            }
+        }
+
+        return $this->withSort($sort);
     }
 }

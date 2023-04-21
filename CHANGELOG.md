@@ -19,7 +19,7 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 - Add composer dependency `psr/http-client: ^1.0`, `psr/http-factory: ^1.0` and `psr/http-message: ^1.0` as HTTP request and responses needs to be handled
 - Add composer dependency `ext-json: *` as JSON requests and responses needs to be sent and parsed
 - Add composer dependency `ext-mbstring: *` as Unicode texts are processed
-- Add criteria struct `\Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria` to represent all features of a entity querying criteria
+- Add criteria struct `\Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria` with `\Heptacom\HeptaConnect\Package\Shopware6\Contract\FieldSorting` and `\Heptacom\HeptaConnect\Package\Shopware6\Contract\FieldSortingCollection` to represent all features of a entity querying criteria
 - Add constant `\Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria::TOTAL_COUNT_MODE_NONE` to hold a value for a criteria, where no count is expected in the result, suitable for `\Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria::$totalCountMode`
 - Add constant `\Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` to hold a value for a criteria, where a rough count for a next-check is expected in the result, suitable for `\Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria::$totalCountMode`
 - Add constant `\Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria::TOTAL_COUNT_MODE_EXACT` to hold a value for a criteria, where an exact count is expected in the result, suitable for `\Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria::$totalCountMode`

@@ -112,6 +112,11 @@ final class EntityClient
         $criteria = $criteria->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
         $criteria = $criteria->withLimit($criteria->getLimit() ?? 500);
         $criteria = $criteria->withPage(1);
+
+        if ($criteria->getSort() === null) {
+            $criteria = $criteria->withFieldSort('id');
+        }
+
         $index = 0;
         $entityName = LetterCase::fromUnderscoreToDash($entityName);
 
@@ -139,6 +144,11 @@ final class EntityClient
         $criteria = $criteria->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
         $criteria = $criteria->withLimit($criteria->getLimit() ?? 500);
         $criteria = $criteria->withPage(1);
+
+        if ($criteria->getSort() === null) {
+            $criteria = $criteria->withFieldSort('id');
+        }
+
         $index = 0;
         $entityName = LetterCase::fromUnderscoreToDash($entityName);
 
