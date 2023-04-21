@@ -9,6 +9,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authent
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\JsonResponseValidatorInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExtensionInstallValidator;
@@ -32,6 +33,8 @@ use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractActionTestCase extends TestCase
 {
@@ -107,6 +110,14 @@ abstract class AbstractActionTestCase extends TestCase
             new NotFoundValidator(),
             new MethodNotAllowedValidator(),
             new InvalidTypeValidator(),
+            new class() implements JsonResponseValidatorInterface {
+                public function validate(array $body, ?array $error, RequestInterface $request, ResponseInterface $response): void
+                {
+                    if ($error !== null) {
+                        throw new \RuntimeException('Found error, that is not yet covered by a validator');
+                    }
+                }
+            },
         ]);
     }
 }
