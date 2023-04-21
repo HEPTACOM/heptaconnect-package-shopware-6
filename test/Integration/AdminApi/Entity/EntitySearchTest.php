@@ -150,6 +150,42 @@ final class EntitySearchTest extends AbstractActionTestCase
         static::assertTrue($germanyFound);
     }
 
+    public function testFetchWithIncludes(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(new EntitySearchCriteria(
+            'country',
+            (new Criteria())->withAddedIncludes('country', ['id', 'iso'])->withLimit(1)
+        ));
+
+        static::assertNotSame([], $result->getData()->asArray());
+
+        $fields = \array_keys($result->getData()->first()->getArrayCopy());
+
+        static::assertEqualsCanonicalizing([
+            'apiAlias',
+            'id',
+            'iso',
+        ], $fields);
+    }
+
+    public function testFetchWithEmptyIncludes(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(new EntitySearchCriteria(
+            'country',
+            (new Criteria())->withAddedIncludes('country', [])->withLimit(1)
+        ));
+
+        static::assertNotSame([], $result->getData()->asArray());
+
+        $fields = \array_keys($result->getData()->first()->getArrayCopy());
+
+        static::assertEqualsCanonicalizing([
+            'apiAlias',
+        ], $fields);
+    }
+
     public function testFetchWithInvalidLimitParameter(): void
     {
         $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());

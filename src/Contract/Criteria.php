@@ -6,7 +6,9 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Contract;
 
 use Heptacom\HeptaConnect\Dataset\Base\AttachmentCollection;
 use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
+use Heptacom\HeptaConnect\Dataset\Base\ScalarCollection\StringCollection;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
+use Heptacom\HeptaConnect\Dataset\Base\TaggedCollection\TaggedStringCollection;
 
 final class Criteria implements AttachmentAwareInterface
 {
@@ -39,6 +41,8 @@ final class Criteria implements AttachmentAwareInterface
     private ?array $ids = null;
 
     private ?string $term = null;
+
+    private ?TaggedStringCollection $includes = null;
 
     public function __construct()
     {
@@ -112,6 +116,44 @@ final class Criteria implements AttachmentAwareInterface
     {
         $that = clone $this;
         $that->term = $term;
+
+        return $that;
+    }
+
+    public function getIncludes(): ?TaggedStringCollection
+    {
+        return $this->includes === null ? null : new TaggedStringCollection($this->includes);
+    }
+
+    public function withIncludes(?TaggedStringCollection $includes): self
+    {
+        $that = clone $this;
+        $that->includes = $includes;
+
+        return $that;
+    }
+
+    /**
+     * @param iterable<string>|null $includes
+     */
+    public function withAddedIncludes(string $entity, ?iterable $includes): self
+    {
+        $that = clone $this;
+
+        if ($includes === null) {
+            if ($that->includes !== null) {
+                $that->includes->offsetUnset($entity);
+            }
+        } else {
+            $tagged = $that->includes;
+
+            if ($tagged === null) {
+                $tagged = new TaggedStringCollection();
+                $that->includes = $tagged;
+            }
+
+            $tagged[$entity]->getCollection()->push($includes);
+        }
 
         return $that;
     }
