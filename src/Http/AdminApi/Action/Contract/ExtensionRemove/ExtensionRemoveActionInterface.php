@@ -12,6 +12,7 @@ interface ExtensionRemoveActionInterface
      * Removes the referenced extension.
      *
      * @throws PluginNotFoundException if the referenced extension is not found
+     * @throws \Throwable
      */
     public function removeExtension(ExtensionRemovePayload $payload): void;
 }

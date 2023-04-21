@@ -8,6 +8,8 @@ interface ExtensionRefreshActionInterface
 {
     /**
      * Refresh the data in the extension listing.
+     *
+     * @throws \Throwable
      */
     public function refreshExtensions(ExtensionRefreshParams $params): void;
 }
