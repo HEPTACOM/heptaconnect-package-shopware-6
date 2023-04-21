@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Info\InfoParams;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoAction;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionParams;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoVersionAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ExpectationFailedException;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Info\InfoParams
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Info\InfoResult
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoAction
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionParams
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionResult
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoVersionAction
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
@@ -41,27 +41,27 @@ final class ExpectedPackagesTest extends AbstractActionTestCase
 {
     public function testVersionCanBeMatchedWithConstraints(): void
     {
-        $action = $this->createAction(InfoAction::class);
-        $version = $action->getInfo(new InfoParams())->getVersion();
-        $params = new InfoParams();
+        $action = $this->createAction(InfoVersionAction::class);
+        $version = $action->getVersion(new InfoVersionParams())->getVersion();
+        $params = new InfoVersionParams();
 
         $params = $params->withExpectedPackage('shopware/core', $version);
 
-        $action->getInfo($params);
-        $action->getInfo($params->withAddedExpectedPackage('shopware/core', '>=' . $version));
-        $action->getInfo($params->withAddedExpectedPackage('shopware/core', '<=' . $version));
+        $action->getVersion($params);
+        $action->getVersion($params->withAddedExpectedPackage('shopware/core', '>=' . $version));
+        $action->getVersion($params->withAddedExpectedPackage('shopware/core', '<=' . $version));
 
         $params = $params->withoutExpectedPackage('shopware/core');
         $params = $params->withExpectedPackage('shopware/core', '>' . $version);
 
         static::expectException(ExpectationFailedException::class);
 
-        $action->getInfo($params);
+        $action->getVersion($params);
     }
 
     public function testExpectedPackagesInputIsValidatedWhenPackageIsEmpty(): void
     {
-        $params = new InfoParams();
+        $params = new InfoVersionParams();
 
         static::expectException(\UnexpectedValueException::class);
         static::expectExceptionCode(1680447700);
@@ -71,7 +71,7 @@ final class ExpectedPackagesTest extends AbstractActionTestCase
 
     public function testExpectedPackagesInputIsValidatedWhenPackageVendorIsMissing(): void
     {
-        $params = new InfoParams();
+        $params = new InfoVersionParams();
 
         static::expectException(\UnexpectedValueException::class);
         static::expectExceptionCode(1680447701);
@@ -81,7 +81,7 @@ final class ExpectedPackagesTest extends AbstractActionTestCase
 
     public function testExpectedPackagesInputIsValidatedWhenPackageNameIsMissing(): void
     {
-        $params = new InfoParams();
+        $params = new InfoVersionParams();
 
         static::expectException(\UnexpectedValueException::class);
         static::expectExceptionCode(1680447701);
@@ -91,7 +91,7 @@ final class ExpectedPackagesTest extends AbstractActionTestCase
 
     public function testExpectedPackagesInputIsValidatedWhenPackageSeparatorIsMissing(): void
     {
-        $params = new InfoParams();
+        $params = new InfoVersionParams();
 
         static::expectException(\UnexpectedValueException::class);
         static::expectExceptionCode(1680447701);
@@ -101,7 +101,7 @@ final class ExpectedPackagesTest extends AbstractActionTestCase
 
     public function testExpectedPackagesInputIsValidatedWhenConstraintIsEmpty(): void
     {
-        $params = new InfoParams();
+        $params = new InfoVersionParams();
 
         static::expectException(\UnexpectedValueException::class);
         static::expectExceptionCode(1680447702);
