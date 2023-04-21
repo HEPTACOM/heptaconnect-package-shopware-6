@@ -126,6 +126,30 @@ final class EntitySearchTest extends AbstractActionTestCase
         static::assertGreaterThan(1, $result->getTotal());
     }
 
+    public function testFetchWithSearchTerm(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(
+            new EntitySearchCriteria(
+                'country',
+                (new Criteria())->withTerm('de')
+            )
+        );
+
+        static::assertNotSame([], $result->getData()->asArray());
+        static::assertLessThan(20, $result->getTotal());
+
+        $germanyFound = false;
+
+        foreach ($result->getData() as $entity) {
+            if ($entity->iso === 'DE') {
+                $germanyFound = true;
+            }
+        }
+
+        static::assertTrue($germanyFound);
+    }
+
     public function testFetchWithInvalidLimitParameter(): void
     {
         $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());

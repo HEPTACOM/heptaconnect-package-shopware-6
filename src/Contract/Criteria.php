@@ -38,6 +38,8 @@ final class Criteria implements AttachmentAwareInterface
      */
     private ?array $ids = null;
 
+    private ?string $term = null;
+
     public function __construct()
     {
         $this->attachments = new AttachmentCollection();
@@ -97,6 +99,19 @@ final class Criteria implements AttachmentAwareInterface
     {
         $that = clone $this;
         $that->ids = $ids;
+
+        return $that;
+    }
+
+    public function getTerm(): ?string
+    {
+        return $this->term;
+    }
+
+    public function withTerm(?string $term): self
+    {
+        $that = clone $this;
+        $that->term = $term;
 
         return $that;
     }
