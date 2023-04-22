@@ -23,6 +23,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
 use Http\Discovery\Psr17FactoryDiscovery;
 
 /**
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResultCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection

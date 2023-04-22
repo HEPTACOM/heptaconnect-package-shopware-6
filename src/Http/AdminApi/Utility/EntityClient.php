@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility;
 
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationContract;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResult;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection;
@@ -97,6 +100,32 @@ final class EntityClient
         $criteria = $criteria->withLimit(1);
 
         return $this->searchIdAction->searchIds(new EntitySearchIdCriteria($entityName, $criteria))->getTotal();
+    }
+
+    public function aggregate(string $entityName, AggregationContract $aggregation): AggregationResult
+    {
+        $entityName = LetterCase::fromUnderscoreToDash($entityName);
+        $criteria = new Criteria();
+        $criteria = $criteria->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+        $criteria = $criteria->withLimit(1);
+        $criteria = $criteria->withAddedAggregation($aggregation);
+
+        return $this->searchAction->search(new EntitySearchCriteria($entityName, $criteria))->getAggregations()[$aggregation->getName()];
+    }
+
+    public function groupFieldByField(string $entityName, string $fieldKey, string $fieldValue): array
+    {
+        $response = $this->aggregate(
+            $entityName,
+            new TermsAggregation('key', $fieldKey, null, new TermsAggregation('value', $fieldValue))
+        );
+        $result = [];
+
+        foreach ($response->buckets as $bucket) {
+            $result[$bucket['key']] = $bucket['value']['buckets'][0]['key'];
+        }
+
+        return $result;
     }
 
     /**

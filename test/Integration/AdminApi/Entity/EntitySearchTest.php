@@ -4,6 +4,15 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Entity;
 
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\AverageAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\CountAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\EntityAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\HistogramAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\MaximumAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\MinimumAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\StatisticsAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\SumAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter;
@@ -14,6 +23,14 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
 
 /**
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationContract
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResult
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResultCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\AbstractFieldAggregation
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\EntityAggregation
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\HistogramAggregation
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection
@@ -243,5 +260,78 @@ final class EntitySearchTest extends AbstractActionTestCase
         static::expectException(NotFoundException::class);
 
         $client->search(new EntitySearchCriteria('sales_channel', new Criteria()));
+    }
+
+    public function testCountAggregation(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(new EntitySearchCriteria(
+            'country',
+            (new Criteria())
+                ->withLimit(1)
+                ->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT)
+                ->withAddedAggregation(new CountAggregation('count', 'id'))
+        ));
+
+        static::assertSame($result->getTotal(), $result->getAggregations()['count']->count);
+    }
+
+    public function testStatisticsAggregation(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(new EntitySearchCriteria(
+            'country',
+            (new Criteria())
+                ->withLimit(1)
+                ->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE)
+                ->withAddedAggregation(new AverageAggregation('average', 'position'))
+                ->withAddedAggregation(new SumAggregation('sum', 'position'))
+                ->withAddedAggregation(new MinimumAggregation('minimum', 'position'))
+                ->withAddedAggregation(new MaximumAggregation('maximum', 'position'))
+                ->withAddedAggregation(new StatisticsAggregation('statistics', 'position'))
+        ));
+
+        static::assertEquals($result->getAggregations()['statistics']->avg, $result->getAggregations()['average']->avg);
+        static::assertEquals($result->getAggregations()['statistics']->sum, $result->getAggregations()['sum']->sum);
+        static::assertEquals($result->getAggregations()['statistics']->min, $result->getAggregations()['minimum']->min);
+        static::assertEquals($result->getAggregations()['statistics']->max, $result->getAggregations()['maximum']->max);
+    }
+
+    public function testEntityAggregation(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(new EntitySearchCriteria(
+            'country-state',
+            (new Criteria())
+                ->withLimit(1)
+                ->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE)
+                ->withAddedAggregation(new EntityAggregation('countries', 'countryId', 'country'))
+                ->withAddedAggregation(new TermsAggregation('countryIds', 'countryId'))
+        ));
+
+        static::assertCount(3, $result->getAggregations()['countries']->entities);
+        static::assertEqualsCanonicalizing(
+            \array_column($result->getAggregations()['countryIds']->buckets, 'key'),
+            \array_column($result->getAggregations()['countries']->entities->asArray(), 'id')
+        );
+    }
+
+    public function testHistogramAggregation(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(new EntitySearchCriteria(
+            'country-state',
+            (new Criteria())
+                ->withLimit(1)
+                ->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE)
+                ->withAddedAggregation(new CountAggregation('count', 'id'))
+                ->withAddedAggregation(new HistogramAggregation('created_minute', 'createdAt', HistogramAggregation::INTERVAL_MINUTE))
+                ->withAddedAggregation(new HistogramAggregation('created_hour', 'createdAt', HistogramAggregation::INTERVAL_HOUR))
+                ->withAddedAggregation(new HistogramAggregation('created_day', 'createdAt', HistogramAggregation::INTERVAL_DAY))
+        ));
+
+        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_minute']->buckets[0]['count']);
+        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_hour']->buckets[0]['count']);
+        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_day']->buckets[0]['count']);
     }
 }

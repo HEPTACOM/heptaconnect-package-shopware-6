@@ -48,6 +48,8 @@ final class Criteria implements AttachmentAwareInterface
 
     private ?StringCollection $grouping = null;
 
+    private ?AggregationCollection $aggregations = null;
+
     public function __construct()
     {
         $this->attachments = new AttachmentCollection();
@@ -146,7 +148,7 @@ final class Criteria implements AttachmentAwareInterface
 
         if ($includes === null) {
             if ($that->includes !== null) {
-                $that->includes->offsetUnset($entity);
+                unset($that->includes[$entity]);
             }
         } else {
             $tagged = $that->includes;
@@ -239,5 +241,38 @@ final class Criteria implements AttachmentAwareInterface
         }
 
         return $this->withGrouping($grouping);
+    }
+
+    public function getAggregations(): ?AggregationCollection
+    {
+        return $this->aggregations;
+    }
+
+    public function withAggregations(?AggregationCollection $aggregations): self
+    {
+        $that = clone $this;
+        $that->aggregations = $aggregations;
+
+        return $that;
+    }
+
+    public function withAddedAggregation(AggregationContract $aggregation): self
+    {
+        $aggregations = new AggregationCollection($this->getAggregations() ?? []);
+        $aggregations->push([$aggregation]);
+
+        return $this->withAggregations($aggregations);
+    }
+
+    public function withoutAggregation(string $aggregationName): self
+    {
+        $aggregations = new AggregationCollection($this->getAggregations() ?? []);
+        unset($aggregations[$aggregationName]);
+
+        if ($aggregations->isEmpty()) {
+            $aggregations = null;
+        }
+
+        return $this->withAggregations($aggregations);
     }
 }

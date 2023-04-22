@@ -17,6 +17,12 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
 
 /**
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationContract
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResult
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResultCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\AbstractFieldAggregation
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection
@@ -165,6 +171,16 @@ final class EntityClientTest extends AbstractActionTestCase
         $client->delete('tag', $tagId);
 
         static::assertFalse($client->exists('tag', $tagId));
+    }
+
+    public function testGroupBy(): void
+    {
+        $client = $this->createEntityClient();
+        $groupBy = $client->groupFieldByField('country_state', 'shortCode', 'country.iso');
+
+        static::assertNotSame([], $groupBy);
+        static::assertArrayHasKey('DE-HB', $groupBy);
+        static::assertSame('DE', $groupBy['DE-HB']);
     }
 
     private function createEntityClient(): EntityClient

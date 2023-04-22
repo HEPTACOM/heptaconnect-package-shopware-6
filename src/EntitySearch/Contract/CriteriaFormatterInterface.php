@@ -9,6 +9,8 @@ interface CriteriaFormatterInterface
     /**
      * Convert a criteria into a scalar-only array, that can be used in web request.
      *
+     * @throws \UnexpectedValueException
+     *
      * @return array<string, array|scalar>
      */
     public function formatCriteria(Criteria $criteria): array;
