@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation;
 
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationContract;
-use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingContract;
 
 final class TermsAggregation extends AbstractFieldAggregation
 {
-    private ?FieldSorting $sorting;
+    private ?SortingContract $sorting;
 
     private ?AggregationContract $aggregation;
 
     public function __construct(
         string $name,
         string $field,
-        ?FieldSorting $sorting = null,
+        ?SortingContract $sorting = null,
         ?AggregationContract $aggregation = null
     ) {
         parent::__construct($name, $field);
@@ -24,7 +24,7 @@ final class TermsAggregation extends AbstractFieldAggregation
         $this->aggregation = $aggregation;
     }
 
-    public function getSorting(): ?FieldSorting
+    public function getSorting(): ?SortingContract
     {
         return $this->sorting;
     }

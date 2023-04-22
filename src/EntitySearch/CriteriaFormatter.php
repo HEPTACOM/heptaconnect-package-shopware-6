@@ -17,9 +17,10 @@ use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\Su
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationContract;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CountSorting;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CriteriaFormatterInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSortingCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting;
 
 final class CriteriaFormatter implements CriteriaFormatterInterface
 {
@@ -93,7 +94,7 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
     /**
      * @return list<array{field: string, order: string, naturalSorting: bool}>
      */
-    private function getSortValues(FieldSortingCollection $sort): array
+    private function getSortValues(SortingCollection $sort): array
     {
         $result = [];
 
@@ -191,13 +192,25 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
         throw new \UnexpectedValueException('Type of $aggregation is not supported', 1682167000);
     }
 
-    private function getFieldSortValues($instruction): array
+    private function getFieldSortValues(SortingContract $sort): array
     {
-        return [
-            'field' => $instruction->getField(),
-            'order' => $instruction->getDirection(),
-            'naturalSorting' => $instruction->isNaturalSorting(),
-        ];
+        if ($sort instanceof CountSorting) {
+            return [
+                'type' => 'count',
+                'field' => $sort->getField(),
+                'order' => $sort->getDirection(),
+            ];
+        }
+
+        if ($sort instanceof FieldSorting) {
+            return [
+                'field' => $sort->getField(),
+                'order' => $sort->getDirection(),
+                'naturalSorting' => $sort->isNaturalSorting(),
+            ];
+        }
+
+        throw new \UnexpectedValueException('Type of $sort is not supported', 1682167001);
     }
 
     private function getHistogramAggregationValues(HistogramAggregation $aggregation): array

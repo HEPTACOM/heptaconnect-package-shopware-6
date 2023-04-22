@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation;
 
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationContract;
-use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingContract;
 
 final class HistogramAggregation extends AbstractFieldAggregation
 {
@@ -29,7 +29,7 @@ final class HistogramAggregation extends AbstractFieldAggregation
 
     private ?string $timeZone;
 
-    private ?FieldSorting $sorting;
+    private ?SortingContract $sorting;
 
     private ?AggregationContract $aggregation;
 
@@ -39,7 +39,7 @@ final class HistogramAggregation extends AbstractFieldAggregation
         string $interval,
         ?string $format = null,
         ?string $timeZone = null,
-        ?FieldSorting $sorting = null,
+        ?SortingContract $sorting = null,
         ?AggregationContract $aggregation = null
     ) {
         parent::__construct($name, $field);
@@ -65,7 +65,7 @@ final class HistogramAggregation extends AbstractFieldAggregation
         return $this->timeZone;
     }
 
-    public function getSorting(): ?FieldSorting
+    public function getSorting(): ?SortingContract
     {
         return $this->sorting;
     }

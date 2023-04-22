@@ -44,7 +44,7 @@ final class Criteria implements AttachmentAwareInterface
 
     private ?TaggedStringCollection $includes = null;
 
-    private ?FieldSortingCollection $sort = null;
+    private ?SortingCollection $sort = null;
 
     private ?StringCollection $grouping = null;
 
@@ -164,12 +164,12 @@ final class Criteria implements AttachmentAwareInterface
         return $that;
     }
 
-    public function getSort(): ?FieldSortingCollection
+    public function getSort(): ?SortingCollection
     {
         return $this->sort;
     }
 
-    public function withSort(?FieldSortingCollection $sort): self
+    public function withSort(?SortingCollection $sort): self
     {
         $that = clone $this;
         $that->sort = $sort;
@@ -177,15 +177,20 @@ final class Criteria implements AttachmentAwareInterface
         return $that;
     }
 
-    public function withFieldSort(string $field, string $direction = FieldSorting::ASCENDING, bool $naturalSorting = false): self
+    public function withFieldSort(string $field, string $direction = SortingContract::ASCENDING, bool $naturalSorting = false): self
     {
-        $sort = $this->sort;
-
-        if ($sort === null) {
-            $sort = new FieldSortingCollection();
-        }
+        $sort = new SortingCollection($this->getSort() ?? []);
 
         $sort->push([new FieldSorting($field, $direction, $naturalSorting)]);
+
+        return $this->withSort($sort);
+    }
+
+    public function withCountSort(string $field, string $direction = SortingContract::DESCENDING): self
+    {
+        $sort = new SortingCollection($this->getSort() ?? []);
+
+        $sort->push([new CountSorting($field, $direction)]);
 
         return $this->withSort($sort);
     }
@@ -195,8 +200,8 @@ final class Criteria implements AttachmentAwareInterface
         $sort = $this->sort;
 
         if ($sort !== null) {
-            $sort = new FieldSortingCollection($sort->filter(
-                static fn (FieldSorting $sorting): bool => $sorting->getField() !== $field
+            $sort = new SortingCollection($sort->filter(
+                static fn (SortingContract $sorting): bool => $sorting->getField() !== $field
             ));
 
             if ($sort->isEmpty()) {

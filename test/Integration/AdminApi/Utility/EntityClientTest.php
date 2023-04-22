@@ -27,7 +27,8 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSortingCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingContract
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration

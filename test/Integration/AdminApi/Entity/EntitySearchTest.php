@@ -31,11 +31,13 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\EntityAggregation
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\HistogramAggregation
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CountSorting
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSortingCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingContract
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
@@ -220,6 +222,21 @@ final class EntitySearchTest extends AbstractActionTestCase
         $descIds = \array_column($descResult->getData()->asArray(), 'id');
 
         static::assertSame(\array_reverse($descIds), $ascIds);
+    }
+
+    public function testFetchWithCountSorting(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $criteria = (new Criteria())->withCountSort('states.id');
+        $result = $client->search(new EntitySearchCriteria('country', $criteria));
+
+        $first = $result->getData()->shift();
+        $second = $result->getData()->shift();
+        $third = $result->getData()->shift();
+
+        static::assertSame($first->iso, 'GB'); // 224 states
+        static::assertSame($second->iso, 'US'); // 50 states
+        static::assertSame($third->iso, 'DE'); // 16 states
     }
 
     public function testFetchWithGrouping(): void
