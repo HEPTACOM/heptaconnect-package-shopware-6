@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Utility;
 
-use Heptacom\HeptaConnect\Package\Shopware6\CriteriaFormatter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionActivateAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionDeactivateAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionInstallAction;
@@ -23,10 +23,10 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
 use Http\Discovery\Psr17FactoryDiscovery;
 
 /**
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\Entity
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Contract\EntityCollection
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\CriteriaFormatter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\AbstractExtensionPayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionRefresh\ExtensionRefreshParams

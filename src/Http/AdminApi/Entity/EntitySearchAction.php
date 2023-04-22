@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Contract\CriteriaFormatterInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Contract\EntityCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CriteriaFormatterInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Heptacom\HeptaConnect\Package\Shopware6;
+namespace Heptacom\HeptaConnect\Package\Shopware6\EntitySearch;
 
 use Heptacom\HeptaConnect\Dataset\Base\TaggedCollection\TaggedStringCollection;
 use Heptacom\HeptaConnect\Dataset\Base\TaggedCollection\TagItem;
-use Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria;
-use Heptacom\HeptaConnect\Package\Shopware6\Contract\CriteriaFormatterInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Contract\FieldSortingCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CriteriaFormatterInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSortingCollection;
 
 final class CriteriaFormatter implements CriteriaFormatterInterface
 {

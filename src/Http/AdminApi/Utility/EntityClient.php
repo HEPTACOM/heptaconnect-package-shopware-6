@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Contract\Criteria;
-use Heptacom\HeptaConnect\Package\Shopware6\Contract\Entity;
-use Heptacom\HeptaConnect\Package\Shopware6\Contract\EntityCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreateActionInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreatePayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityDelete\EntityDeleteActionInterface;
