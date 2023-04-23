@@ -32,6 +32,8 @@ use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\RangeFi
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\SuffixFilter;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterContract;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\ScoreQuery;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\ScoreQueryCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingContract;
 
@@ -51,6 +53,7 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
         $aggregations = $criteria->getAggregations();
         $filter = $criteria->getFilter();
         $postFilter = $criteria->getPostFilter();
+        $queries = $criteria->getQueries();
 
         if ($limit !== null) {
             $result['limit'] = $limit;
@@ -94,6 +97,10 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
 
         if ($postFilter !== null) {
             $result['post-filter'] = $this->getFiltersValues($postFilter);
+        }
+
+        if ($queries !== null) {
+            $result['query'] = $this->getQueriesValues($queries);
         }
 
         return $result;
@@ -375,6 +382,36 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
 
         if ($innerAggregation !== null) {
             $result['aggregation'] = $this->getAggregationValues($innerAggregation);
+        }
+
+        return $result;
+    }
+
+    private function getQueriesValues(ScoreQueryCollection $queries): array
+    {
+        $result = [];
+
+        foreach ($queries as $query) {
+            $result[] = $this->getQueryValues($query);
+        }
+
+        return $result;
+    }
+
+    private function getQueryValues(ScoreQuery $query): array
+    {
+        $result = [
+            'query' => $this->getFilterValues($query->getFilter()),
+        ];
+        $score = $query->getScore();
+        $scoreField = $query->getScoreField();
+
+        if ($score !== null) {
+            $result['score'] = $score;
+        }
+
+        if ($scoreField !== null) {
+            $result['scoreField'] = $scoreField;
         }
 
         return $result;

@@ -15,8 +15,10 @@ use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\St
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\SumAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AbstractNestedFilters;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\ContainsFilter;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsAnyFilter;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\NotFilter;
@@ -53,11 +55,14 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AbstractNestedFilters
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AbstractTextFieldValueFilter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AndFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\ContainsFilter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsAnyFilter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\NotFilter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\OrFilter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\RangeFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\ScoreQuery
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\ScoreQueryCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
@@ -494,5 +499,24 @@ final class EntitySearchTest extends AbstractActionTestCase
             (new Criteria())
                 ->withAndFilter(new PrefixFilter('iso', 'de'))
         ));
+    }
+
+    public function testScoringQueries(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(new EntitySearchCriteria(
+            'country-state',
+            (new Criteria())
+                ->withAddedQuery(new PrefixFilter('shortCode', 'de'), 5)
+                ->withAddedQuery(new ContainsFilter('shortCode', 'hb'), 2)
+        ));
+
+        static::assertSame(16, $result->getTotal());
+
+        $first = $result->getData()->first();
+
+        static::assertInstanceOf(Entity::class, $first);
+        static::assertEquals(7, $first->extensions->search->_score);
+        static::assertSame('DE-HB', $first->shortCode);
     }
 }

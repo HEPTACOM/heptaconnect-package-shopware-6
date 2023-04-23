@@ -58,6 +58,8 @@ final class Criteria implements AttachmentAwareInterface
 
     private ?FilterCollection $postFilter = null;
 
+    private ?ScoreQueryCollection $queries = null;
+
     public function __construct()
     {
         $this->attachments = new AttachmentCollection();
@@ -369,5 +371,28 @@ final class Criteria implements AttachmentAwareInterface
         $postFilter->push([$filter]);
 
         return $this->withPostFilter($postFilter);
+    }
+
+    public function getQueries(): ?ScoreQueryCollection
+    {
+        return $this->queries;
+    }
+
+    public function withQueries(?ScoreQueryCollection $queries): self
+    {
+        $that = clone $this;
+        $that->queries = $queries;
+
+        return $that;
+    }
+
+    public function withAddedQuery(FilterContract $filter, ?float $score = null, ?string $scoreField = null): self
+    {
+        $queries = new ScoreQueryCollection($this->getQueries() ?? []);
+        $queries->push([
+            new ScoreQuery($filter, $score, $scoreField),
+        ]);
+
+        return $this->withQueries($queries);
     }
 }
