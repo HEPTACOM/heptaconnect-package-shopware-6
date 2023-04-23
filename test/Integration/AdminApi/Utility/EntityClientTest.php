@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Utility;
 
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityCreateAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityDeleteAction;
@@ -22,8 +23,12 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResult
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResultCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\AbstractFieldAggregation
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\FilterAggregation
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AbstractFieldFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting
@@ -183,6 +188,31 @@ final class EntityClientTest extends AbstractActionTestCase
         static::assertNotSame([], $groupBy);
         static::assertArrayHasKey('DE-HB', $groupBy);
         static::assertSame('DE', $groupBy['DE-HB']);
+    }
+
+    public function testFilteredGroupBy(): void
+    {
+        $client = $this->createEntityClient();
+        $groupBy = $client->groupFieldByField('country_state', 'shortCode', 'country.iso', new EqualsFilter('country.iso', 'DE'));
+
+        static::assertEqualsCanonicalizing([
+            'DE-BB' => 'DE',
+            'DE-BE' => 'DE',
+            'DE-BW' => 'DE',
+            'DE-BY' => 'DE',
+            'DE-HB' => 'DE',
+            'DE-HE' => 'DE',
+            'DE-HH' => 'DE',
+            'DE-MV' => 'DE',
+            'DE-NI' => 'DE',
+            'DE-NW' => 'DE',
+            'DE-RP' => 'DE',
+            'DE-SH' => 'DE',
+            'DE-SL' => 'DE',
+            'DE-SN' => 'DE',
+            'DE-ST' => 'DE',
+            'DE-TH' => 'DE',
+        ], $groupBy);
     }
 
     private function createEntityClient(): EntityClient

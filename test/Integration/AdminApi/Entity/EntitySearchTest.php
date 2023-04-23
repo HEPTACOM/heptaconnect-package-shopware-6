@@ -7,6 +7,7 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Enti
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\AverageAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\CountAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\EntityAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\FilterAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\HistogramAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\MaximumAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\MinimumAggregation;
@@ -37,6 +38,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResultCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\AbstractFieldAggregation
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\EntityAggregation
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\FilterAggregation
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\HistogramAggregation
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CountSorting
@@ -311,6 +313,25 @@ final class EntitySearchTest extends AbstractActionTestCase
         ));
 
         static::assertSame($result->getTotal(), $result->getAggregations()['count']->count);
+    }
+
+    public function testFilteredCountAggregation(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(new EntitySearchCriteria(
+            'country-state',
+            (new Criteria())
+                ->withLimit(1)
+                ->withAddedAggregation(new FilterAggregation('usStatesFilter', new CountAggregation('usStates', 'id'), new FilterCollection([
+                    new PrefixFilter('shortCode', 'us-'),
+                ])))
+                ->withAddedAggregation(new FilterAggregation('deStatesFilter', new CountAggregation('deStates', 'id'), new FilterCollection([
+                    new PrefixFilter('shortCode', 'de-'),
+                ])))
+        ));
+
+        static::assertSame(16, $result->getAggregations()['deStates']->count);
+        static::assertSame(51, $result->getAggregations()['usStates']->count);
     }
 
     public function testStatisticsAggregation(): void

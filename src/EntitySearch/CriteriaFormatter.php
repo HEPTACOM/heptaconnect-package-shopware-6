@@ -9,6 +9,7 @@ use Heptacom\HeptaConnect\Dataset\Base\TaggedCollection\TagItem;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\AverageAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\CountAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\EntityAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\FilterAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\HistogramAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\MaximumAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\MinimumAggregation;
@@ -286,6 +287,15 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
                 'type' => 'entity',
                 'field' => $aggregation->getField(),
                 'definition' => $aggregation->getEntityName(),
+            ];
+        }
+
+        if ($aggregation instanceof FilterAggregation) {
+            return [
+                'name' => $aggregation->getName(),
+                'type' => 'filter',
+                'filter' => $this->getFiltersValues($aggregation->getFilters()),
+                'aggregation' => $this->getAggregationValues($aggregation->getAggregation()),
             ];
         }
 

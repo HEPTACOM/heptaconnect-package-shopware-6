@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility;
 
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\FilterAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationContract;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResult;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterContract;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreateActionInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreatePayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityDelete\EntityDeleteActionInterface;
@@ -102,22 +105,31 @@ final class EntityClient
         return $this->searchIdAction->searchIds(new EntitySearchIdCriteria($entityName, $criteria))->getTotal();
     }
 
-    public function aggregate(string $entityName, AggregationContract $aggregation): AggregationResult
+    public function aggregate(string $entityName, AggregationContract $aggregation, ?FilterContract $filter = null): AggregationResult
     {
         $entityName = LetterCase::fromUnderscoreToDash($entityName);
         $criteria = new Criteria();
         $criteria = $criteria->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
         $criteria = $criteria->withLimit(1);
+        $inAggregation = $aggregation;
+
+        if ($filter !== null) {
+            $aggregation = new FilterAggregation('filter' . $aggregation->getName(), $aggregation, new FilterCollection([
+                $filter,
+            ]));
+        }
+
         $criteria = $criteria->withAddedAggregation($aggregation);
 
-        return $this->searchAction->search(new EntitySearchCriteria($entityName, $criteria))->getAggregations()[$aggregation->getName()];
+        return $this->searchAction->search(new EntitySearchCriteria($entityName, $criteria))->getAggregations()[$inAggregation->getName()];
     }
 
-    public function groupFieldByField(string $entityName, string $fieldKey, string $fieldValue): array
+    public function groupFieldByField(string $entityName, string $fieldKey, string $fieldValue, ?FilterContract $filter = null): array
     {
         $response = $this->aggregate(
             $entityName,
-            new TermsAggregation('key', $fieldKey, null, new TermsAggregation('value', $fieldValue))
+            new TermsAggregation('key', $fieldKey, null, new TermsAggregation('value', $fieldValue)),
+            $filter
         );
         $result = [];
 
