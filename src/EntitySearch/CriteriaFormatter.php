@@ -21,6 +21,18 @@ use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CountSorting;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CriteriaFormatterInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AbstractNestedFilters;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\ContainsFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsAnyFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\NotFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\PrefixFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\RangeFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\SuffixFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterContract;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingContract;
 
 final class CriteriaFormatter implements CriteriaFormatterInterface
 {
@@ -36,6 +48,8 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
         $sort = $criteria->getSort();
         $grouping = $criteria->getGrouping();
         $aggregations = $criteria->getAggregations();
+        $filter = $criteria->getFilter();
+        $postFilter = $criteria->getPostFilter();
 
         if ($limit !== null) {
             $result['limit'] = $limit;
@@ -73,6 +87,14 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
             $result['aggregations'] = $this->getAggregationsValues($aggregations);
         }
 
+        if ($filter !== null) {
+            $result['filter'] = $this->getFiltersValues($filter);
+        }
+
+        if ($postFilter !== null) {
+            $result['post-filter'] = $this->getFiltersValues($postFilter);
+        }
+
         return $result;
     }
 
@@ -103,6 +125,92 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
         }
 
         return $result;
+    }
+
+    /**
+     * @throws \UnexpectedValueException
+     */
+    private function getFiltersValues(FilterCollection $filters): array
+    {
+        $result = [];
+
+        foreach ($filters as $filter) {
+            $result[] = $this->getFilterValues($filter);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @throws \UnexpectedValueException
+     */
+    private function getFilterValues(FilterContract $filter): array
+    {
+        if ($filter instanceof EqualsFilter) {
+            return [
+                'type' => 'equals',
+                'field' => $filter->getField(),
+                'value' => $filter->getValue(),
+            ];
+        }
+
+        if ($filter instanceof ContainsFilter) {
+            return [
+                'type' => 'contains',
+                'field' => $filter->getField(),
+                'value' => $filter->getValue(),
+            ];
+        }
+
+        if ($filter instanceof PrefixFilter) {
+            return [
+                'type' => 'prefix',
+                'field' => $filter->getField(),
+                'value' => $filter->getValue(),
+            ];
+        }
+
+        if ($filter instanceof SuffixFilter) {
+            return [
+                'type' => 'suffix',
+                'field' => $filter->getField(),
+                'value' => $filter->getValue(),
+            ];
+        }
+
+        if ($filter instanceof EqualsAnyFilter) {
+            return [
+                'type' => 'equalsAny',
+                'field' => $filter->getField(),
+                'value' => $filter->getValues(),
+            ];
+        }
+
+        if ($filter instanceof RangeFilter) {
+            return [
+                'type' => 'range',
+                'field' => $filter->getField(),
+                'parameters' => $filter->getConstraints(),
+            ];
+        }
+
+        if ($filter instanceof NotFilter) {
+            return [
+                'type' => 'not',
+                'queries' => $this->getFiltersValues($filter->getFilters()),
+                'operator' => $filter->getOperator(),
+            ];
+        }
+
+        if ($filter instanceof AbstractNestedFilters) {
+            return [
+                'type' => 'multi',
+                'queries' => $this->getFiltersValues($filter->getFilters()),
+                'operator' => $filter->getOperator(),
+            ];
+        }
+
+        throw new \UnexpectedValueException('Type of $filter is not supported', 1682167002);
     }
 
     /**

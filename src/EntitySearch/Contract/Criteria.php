@@ -9,6 +9,10 @@ use Heptacom\HeptaConnect\Dataset\Base\Contract\AttachmentAwareInterface;
 use Heptacom\HeptaConnect\Dataset\Base\ScalarCollection\StringCollection;
 use Heptacom\HeptaConnect\Dataset\Base\Support\AttachmentAwareTrait;
 use Heptacom\HeptaConnect\Dataset\Base\TaggedCollection\TaggedStringCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AbstractNestedFilters;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AndFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\NotFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\OrFilter;
 
 final class Criteria implements AttachmentAwareInterface
 {
@@ -49,6 +53,10 @@ final class Criteria implements AttachmentAwareInterface
     private ?StringCollection $grouping = null;
 
     private ?AggregationCollection $aggregations = null;
+
+    private ?FilterCollection $filter = null;
+
+    private ?FilterCollection $postFilter = null;
 
     public function __construct()
     {
@@ -279,5 +287,87 @@ final class Criteria implements AttachmentAwareInterface
         }
 
         return $this->withAggregations($aggregations);
+    }
+
+    public function getFilter(): ?FilterCollection
+    {
+        return $this->filter;
+    }
+
+    public function withFilter(?FilterCollection $filter): self
+    {
+        $that = clone $this;
+        $that->filter = $filter;
+
+        return $that;
+    }
+
+    public function withAndFilter(FilterContract $filter): self
+    {
+        $filters = new FilterCollection($this->getFilter() ?? []);
+        $filters->push([$filter]);
+
+        return $this->withFilter($filters);
+    }
+
+    public function withOrFilter(FilterContract $filter): self
+    {
+        $filters = new FilterCollection($this->getFilter() ?? []);
+        $replaced = false;
+
+        if ($filters->count() === 1) {
+            $orFilter = $filters->first();
+
+            if (
+                $orFilter instanceof AbstractNestedFilters
+                && !$orFilter instanceof NotFilter
+                && $orFilter->getOperator() === AbstractNestedFilters::OPERATOR_OR
+            ) {
+                $innerFilters = new FilterCollection($orFilter->getFilters());
+                $innerFilters->push([$filter]);
+
+                $filters = new FilterCollection([
+                    new OrFilter($innerFilters),
+                ]);
+                $replaced = true;
+            }
+        }
+
+        if (!$replaced) {
+            $innerFilters = new FilterCollection();
+
+            if (!$filters->isEmpty()) {
+                $innerFilters->push([new AndFilter($filters)]);
+            }
+
+            $innerFilters->push([$filter]);
+
+            $filters = new FilterCollection([
+                new OrFilter($innerFilters),
+            ]);
+        }
+
+        return $this->withFilter($filters);
+    }
+
+    public function getPostFilter(): ?FilterCollection
+    {
+        return $this->postFilter;
+    }
+
+    public function withPostFilter(?FilterCollection $postFilter): self
+    {
+        $that = clone $this;
+        $that->postFilter = $postFilter;
+
+        return $that;
+    }
+
+    public function withAndPostFilter(FilterContract $filter): self
+    {
+        $postFilter = new FilterCollection($this->getPostFilter() ?? []);
+        $postFilter->push([$filter]);
+
+        return $this->withPostFilter($postFilter);
     }
 }

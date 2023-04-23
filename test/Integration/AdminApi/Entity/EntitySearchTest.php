@@ -15,11 +15,19 @@ use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\Su
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AbstractNestedFilters;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsAnyFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\NotFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\PrefixFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\RangeFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\InvalidLimitQueryException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\UnmappedFieldException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
 
 /**
@@ -38,6 +46,16 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingContract
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AbstractFieldFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AbstractNestedFilters
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AbstractTextFieldValueFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AndFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsAnyFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\NotFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\OrFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\RangeFilter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
@@ -51,6 +69,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\InvalidLimitQueryException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\UnmappedFieldException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExtensionInstallValidator
@@ -351,5 +370,108 @@ final class EntitySearchTest extends AbstractActionTestCase
         static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_minute']->buckets[0]['count']);
         static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_hour']->buckets[0]['count']);
         static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_day']->buckets[0]['count']);
+    }
+
+    public function testEqualsFilter(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(new EntitySearchCriteria(
+            'country',
+            (new Criteria())
+                ->withAndFilter(new EqualsFilter('iso', 'DE'))
+        ));
+
+        static::assertCount(1, $result->getData());
+        static::assertSame('DE', $result->getData()->first()->iso);
+    }
+
+    public function testEqualsAnyFilterAndCompareAgainstEqualsOrFilter(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $orCriteria = (new Criteria())
+            ->withOrFilter(new EqualsFilter('iso', 'DE'))
+            ->withOrFilter(new EqualsFilter('iso', 'NL'));
+        $anyCriteria = (new Criteria())->withFilter(new FilterCollection([
+            new EqualsAnyFilter('iso', [
+                'DE',
+                'NL',
+            ]),
+        ]));
+
+        static::assertCount(1, $orCriteria->getFilter());
+
+        $orContainer = $orCriteria->getFilter()->first();
+
+        static::assertInstanceOf(AbstractNestedFilters::class, $orContainer);
+        static::assertSame(AbstractNestedFilters::OPERATOR_OR, $orContainer->getOperator());
+        static::assertCount(2, $orContainer->getFilters());
+
+        $equalsOr = $client->search(new EntitySearchCriteria('country', $orCriteria));
+        $equalsAny = $client->search(new EntitySearchCriteria('country', $anyCriteria));
+
+        static::assertCount(2, $equalsOr->getData());
+        static::assertCount(2, $equalsAny->getData());
+        static::assertEqualsCanonicalizing(
+            \array_column($equalsAny->getData()->asArray(), 'id'),
+            \array_column($equalsOr->getData()->asArray(), 'id'),
+        );
+    }
+
+    public function testPositionRangeFilterAgainstNotInverseRange(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $resultGt = $client->search(new EntitySearchCriteria(
+            'payment-method',
+            (new Criteria())
+                ->withAndFilter(new RangeFilter('position', [
+                    RangeFilter::GT => 3,
+                ]))
+        ));
+        $resultNotLte = $client->search(new EntitySearchCriteria(
+            'payment-method',
+            (new Criteria())
+                ->withAndFilter(new NotFilter(new FilterCollection([
+                    new RangeFilter('position', [
+                        RangeFilter::LTE => 3,
+                    ]),
+                ])))
+        ));
+
+        static::assertNotEmpty($resultGt->getData()->asArray());
+        static::assertNotEmpty($resultNotLte->getData()->asArray());
+
+        static::assertEqualsCanonicalizing(
+            \array_column($resultGt->getData()->asArray(), 'position'),
+            \array_column($resultNotLte->getData()->asArray(), 'position'),
+        );
+
+        foreach ($resultGt->getData() as $countryState) {
+            static::assertGreaterThan(3, $countryState->position);
+        }
+    }
+
+    public function testPostFilterWithPrefixFilter(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $result = $client->search(new EntitySearchCriteria(
+            'country-state',
+            (new Criteria())
+                ->withAndPostFilter(new PrefixFilter('shortCode', 'de'))
+        ));
+
+        static::assertCount(16, $result->getData());
+    }
+
+    public function testFilterOnNonExistingField(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+
+        static::expectException(UnmappedFieldException::class);
+
+        $client->search(new EntitySearchCriteria(
+            'country-state',
+            (new Criteria())
+                ->withAndFilter(new PrefixFilter('iso', 'de'))
+        ));
     }
 }
