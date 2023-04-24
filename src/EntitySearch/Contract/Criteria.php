@@ -60,6 +60,11 @@ final class Criteria implements AttachmentAwareInterface
 
     private ?ScoreQueryCollection $queries = null;
 
+    /**
+     * @var array<string, Criteria>
+     */
+    private ?array $associations = null;
+
     public function __construct()
     {
         $this->attachments = new AttachmentCollection();
@@ -394,5 +399,115 @@ final class Criteria implements AttachmentAwareInterface
         ]);
 
         return $this->withQueries($queries);
+    }
+
+    /**
+     * @return array<string, Criteria>|null
+     */
+    public function getAssociations(): ?array
+    {
+        return $this->associations;
+    }
+
+    /**
+     * @param array<string, Criteria>|null $associations
+     */
+    public function withAssociations(?array $associations): self
+    {
+        $that = clone $this;
+        $that->associations = $associations;
+
+        return $that;
+    }
+
+    /**
+     * @param \Closure(Criteria): Criteria $change
+     */
+    public function withChangedAssociation(string $path, \Closure $change): self
+    {
+        $parts = \explode('.', $path, 2);
+        $associations = $this->getAssociations();
+
+        if ($associations === null) {
+            return clone $this;
+        }
+
+        $association = $associations[$parts[0]] ?? null;
+
+        if ($association === null) {
+            return clone $this;
+        }
+
+        if (\count($parts) === 1) {
+            $associations[$parts[0]] = $change($association);
+
+            return $this->withAssociations($associations);
+        }
+
+        return $this->withChangedAssociation(
+            $parts[0],
+            static fn (Criteria $criteria): Criteria => $criteria->withChangedAssociation($parts[1], $change)
+        );
+    }
+
+    public function getAssociation(string $path): ?Criteria
+    {
+        $parts = \explode('.', $path);
+        $that = clone $this;
+        $recursion = $that;
+
+        foreach ($parts as $part) {
+            $next = $recursion->associations[$part] ?? null;
+
+            if ($next === null) {
+                return null;
+            }
+
+            $recursion = $next;
+        }
+
+        return $recursion;
+    }
+
+    public function withAddedAssociation(string $path): self
+    {
+        $parts = \explode('.', $path);
+        $that = clone $this;
+        $recursion = $that;
+
+        foreach ($parts as $part) {
+            $next = $recursion->associations[$part] ?? new Criteria();
+            $recursion->associations[$part] = $next;
+            $recursion = $next;
+        }
+
+        return $that;
+    }
+
+    public function withAddedAssociations(StringCollection $paths): self
+    {
+        $that = clone $this;
+
+        foreach ($paths as $path) {
+            $that = $that->withAddedAssociation($path);
+        }
+
+        return $that;
+    }
+
+    public function hasAssociation(string $path): bool
+    {
+        $parts = \explode('.', $path, 2);
+        $association = $this->associations[$parts[0]] ?? null;
+
+        if ($association === null) {
+            return false;
+        }
+
+        if (\count($parts) === 1) {
+            return true;
+        }
+
+        return $association->hasAssociation($parts[1]);
     }
 }

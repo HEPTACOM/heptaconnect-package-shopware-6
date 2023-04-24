@@ -138,6 +138,10 @@ final class EntityClientTest extends AbstractActionTestCase
         $country = $client->get('country', $countryId);
 
         static::assertSame($countryId, $country->id);
+
+        $countryWithStates = $client->get('country', $countryId, ['states']);
+
+        static::assertSame($countryWithStates->id, $country->id);
     }
 
     public function testThatAnAlreadyDeletedEntryIsNotBadOnSecondTryToDelete(): void

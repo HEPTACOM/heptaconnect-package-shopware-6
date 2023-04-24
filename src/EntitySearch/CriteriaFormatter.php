@@ -54,6 +54,7 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
         $filter = $criteria->getFilter();
         $postFilter = $criteria->getPostFilter();
         $queries = $criteria->getQueries();
+        $associations = $criteria->getAssociations();
 
         if ($limit !== null) {
             $result['limit'] = $limit;
@@ -101,6 +102,10 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
 
         if ($queries !== null) {
             $result['query'] = $this->getQueriesValues($queries);
+        }
+
+        if ($associations !== null) {
+            $result['associations'] = $this->getAssociationsValues($associations);
         }
 
         return $result;
@@ -412,6 +417,20 @@ final class CriteriaFormatter implements CriteriaFormatterInterface
 
         if ($scoreField !== null) {
             $result['scoreField'] = $scoreField;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array<string, Criteria> $associations
+     */
+    private function getAssociationsValues(array $associations): array
+    {
+        $result = [];
+
+        foreach ($associations as $associationName => $criteria) {
+            $result[$associationName] = $this->formatCriteria($criteria);
         }
 
         return $result;

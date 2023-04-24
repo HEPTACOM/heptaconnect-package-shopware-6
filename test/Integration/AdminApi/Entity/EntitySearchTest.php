@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Entity;
 
+use Heptacom\HeptaConnect\Dataset\Base\ScalarCollection\StringCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\AverageAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\CountAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\EntityAggregation;
@@ -518,5 +519,59 @@ final class EntitySearchTest extends AbstractActionTestCase
         static::assertInstanceOf(Entity::class, $first);
         static::assertEquals(7, $first->extensions->search->_score);
         static::assertSame('DE-HB', $first->shortCode);
+    }
+
+    public function testAssociationCountryLoadsStates(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $criteria = (new Criteria())
+            ->withAddedAssociations(new StringCollection([
+                'states',
+            ]))
+            ->withAndFilter(new NotFilter(new FilterCollection([
+                new EqualsFilter('states.id', null),
+            ])));
+
+        static::assertTrue($criteria->hasAssociation('states'));
+
+        $result = $client->search(new EntitySearchCriteria('country', $criteria));
+
+        static::assertSame(3, $result->getTotal());
+
+        foreach ($result->getData() as $country) {
+            static::assertNotEmpty($country->states);
+        }
+    }
+
+    public function testAssociationCountryLoadsFirstThreeStatesSortedByName(): void
+    {
+        $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
+        $criteria = (new Criteria())
+            ->withAddedAssociations(new StringCollection([
+                'states',
+            ]))
+            ->withChangedAssociation(
+                'states',
+                static fn (Criteria $criteria): Criteria => $criteria->withFieldSort('shortCode')->withLimit(3)
+            )
+            ->withAndFilter(new NotFilter(new FilterCollection([
+                new EqualsFilter('states.id', null),
+            ])));
+
+        static::assertTrue($criteria->hasAssociation('states'));
+        static::assertSame(3, $criteria->getAssociation('states')->getLimit());
+        static::assertCount(1, $criteria->getAssociation('states')->getSort());
+
+        $result = $client->search(new EntitySearchCriteria('country', $criteria));
+
+        static::assertSame(3, $result->getTotal());
+
+        foreach ($result->getData() as $country) {
+            static::assertCount(3, $country->states);
+
+            foreach ($country->states as $state) {
+                static::assertMatchesRegularExpression('/^.+-[AB]/', $state->shortCode);
+            }
+        }
     }
 }

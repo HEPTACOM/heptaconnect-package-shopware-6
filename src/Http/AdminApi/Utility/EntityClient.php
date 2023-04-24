@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility;
 
+use Heptacom\HeptaConnect\Dataset\Base\ScalarCollection\StringCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\FilterAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationContract;
@@ -245,13 +246,20 @@ final class EntityClient
     /**
      * Reads and returns the entity.
      *
+     * @param string[] $associations
+     *
      * @throws \Throwable
      */
-    public function get(string $entityName, string $id): Entity
+    public function get(string $entityName, string $id, ?array $associations = null): Entity
     {
         $entityName = LetterCase::fromUnderscoreToDash($entityName);
+        $criteria = new Criteria();
 
-        return $this->getAction->get(new EntityGetCriteria($entityName, $id, new Criteria()))->getEntity();
+        if ($associations !== null) {
+            $criteria = $criteria->withAddedAssociations(new StringCollection($associations));
+        }
+
+        return $this->getAction->get(new EntityGetCriteria($entityName, $id, $criteria))->getEntity();
     }
 
     /**
