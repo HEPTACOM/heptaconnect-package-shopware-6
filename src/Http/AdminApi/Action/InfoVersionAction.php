@@ -15,7 +15,7 @@ final class InfoVersionAction extends AbstractActionClient implements InfoVersio
         $path = '_info/version';
         $request = $this->generateRequest('GET', $path);
         $request = $this->addExpectedPackages($request, $params);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
         $result = $this->parseResponse($request, $response);
 
         return new InfoVersionResult($result['version']);

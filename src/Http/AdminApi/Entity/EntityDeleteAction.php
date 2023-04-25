@@ -17,7 +17,7 @@ final class EntityDeleteAction extends AbstractActionClient implements EntityDel
         $path = $this->getEntityPath($criteria->getEntityName(), $criteria->getId());
         $request = $this->generateRequest('DELETE', $path);
         $request = $this->addExpectedPackages($request, $criteria);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
         // to trigger exceptions
         $this->parseResponse($request, $response);
 

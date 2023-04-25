@@ -16,7 +16,7 @@ final class ExtensionUpdateAction extends AbstractActionClient implements Extens
             'allowNewPermissions' => $payload->isAllowNewPermissions(),
         ]);
         $request = $this->addExpectedPackages($request, $payload);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
 
         $this->parseResponse($request, $response);
     }

@@ -6,32 +6,16 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionUpload\ExtensionUploadActionInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionUpload\ExtensionUploadPayload;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\ErrorHandlerInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
-use Psr\Http\Message\RequestFactoryInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient;
 use Psr\Http\Message\StreamFactoryInterface;
 
 final class ExtensionUploadAction extends AbstractActionClient implements ExtensionUploadActionInterface
 {
     private StreamFactoryInterface $streamFactory;
 
-    public function __construct(
-        AuthenticatedHttpClientInterface $client,
-        RequestFactoryInterface $requestFactory,
-        ApiConfigurationStorageInterface $apiConfigurationStorage,
-        JsonStreamUtility $jsonStreamUtility,
-        ErrorHandlerInterface $errorHandler,
-        StreamFactoryInterface $streamFactory
-    ) {
-        parent::__construct(
-            $client,
-            $requestFactory,
-            $apiConfigurationStorage,
-            $jsonStreamUtility,
-            $errorHandler,
-        );
+    public function __construct(ActionClient $actionClient, StreamFactoryInterface $streamFactory)
+    {
+        parent::__construct($actionClient);
         $this->streamFactory = $streamFactory;
     }
 
@@ -55,7 +39,7 @@ final class ExtensionUploadAction extends AbstractActionClient implements Extens
         $request = $request
             ->withHeader('Content-Type', 'multipart/form-data; boundary=' . $boundary)
             ->withBody($this->streamFactory->createStream($body));
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
 
         $this->parseResponse($request, $response);
     }

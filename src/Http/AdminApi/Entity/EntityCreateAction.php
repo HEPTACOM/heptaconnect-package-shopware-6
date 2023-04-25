@@ -16,7 +16,7 @@ final class EntityCreateAction extends AbstractActionClient implements EntityCre
     {
         $request = $this->generateRequest('POST', $payload->getEntityName(), [], $payload->getPayload());
         $request = $this->addExpectedPackages($request, $payload);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
         // to trigger exceptions
         $this->parseResponse($request, $response);
 

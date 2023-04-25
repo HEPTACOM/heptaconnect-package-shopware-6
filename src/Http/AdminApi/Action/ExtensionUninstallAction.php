@@ -16,7 +16,7 @@ final class ExtensionUninstallAction extends AbstractActionClient implements Ext
             'keepUserData' => $payload->isKeepUserData(),
         ]);
         $request = $this->addExpectedPackages($request, $payload);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
 
         $this->parseResponse($request, $response);
     }

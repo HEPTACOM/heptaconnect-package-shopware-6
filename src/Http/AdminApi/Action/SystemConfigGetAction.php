@@ -23,7 +23,7 @@ final class SystemConfigGetAction extends AbstractActionClient implements System
 
         $request = $this->generateRequest('GET', $path, $param);
         $request = $this->addExpectedPackages($request, $criteria);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
 
         return new SystemConfigGetResult($this->parseResponse($request, $response));
     }

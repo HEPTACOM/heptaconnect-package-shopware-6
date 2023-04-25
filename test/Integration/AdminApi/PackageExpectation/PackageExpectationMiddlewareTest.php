@@ -17,6 +17,7 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionParams
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionResult
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoVersionAction
@@ -90,13 +91,7 @@ final class PackageExpectationMiddlewareTest extends AbstractActionTestCase
                 return $middlewareClient->sendRequest($request);
             });
 
-        $action = new InfoVersionAction(
-            $client,
-            $this->createRequestFactory(),
-            $this->createApiConfigurationStorage(),
-            $jsonStreamUtility,
-            $this->createJsonResponseErrorHandler($jsonStreamUtility),
-        );
+        $action = new InfoVersionAction($this->createActionClient($client));
 
         $action->getVersion((new InfoVersionParams())->withAddedExpectedPackage('shopware/core', '<6.5.0'));
     }
@@ -141,13 +136,7 @@ final class PackageExpectationMiddlewareTest extends AbstractActionTestCase
                 return $middlewareClient->sendRequest($request);
             });
 
-        $action = new InfoVersionAction(
-            $client,
-            $this->createRequestFactory(),
-            $this->createApiConfigurationStorage(),
-            $jsonStreamUtility,
-            $this->createJsonResponseErrorHandler($jsonStreamUtility),
-        );
+        $action = new InfoVersionAction($this->createActionClient($client));
 
         $action->getVersion(new InfoVersionParams());
     }

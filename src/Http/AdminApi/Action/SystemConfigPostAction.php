@@ -20,7 +20,7 @@ final class SystemConfigPostAction extends AbstractActionClient implements Syste
 
         $request = $this->generateRequest('POST', $path, $params, $payload->getValues());
         $request = $this->addExpectedPackages($request, $payload);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
 
         $this->parseResponse($request, $response);
     }

@@ -14,7 +14,7 @@ final class ExtensionInstallAction extends AbstractActionClient implements Exten
         $path = sprintf('_action/extension/install/%s/%s', $payload->getExtensionType(), $payload->getExtensionName());
         $request = $this->generateRequest('POST', $path);
         $request = $this->addExpectedPackages($request, $payload);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
 
         $this->parseResponse($request, $response);
     }

@@ -14,7 +14,7 @@ final class ExtensionActivateAction extends AbstractActionClient implements Exte
         $path = sprintf('_action/extension/activate/%s/%s', $payload->getExtensionType(), $payload->getExtensionName());
         $request = $this->generateRequest('PUT', $path);
         $request = $this->addExpectedPackages($request, $payload);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
         $this->parseResponse($request, $response);
     }
 }

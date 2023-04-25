@@ -14,7 +14,7 @@ final class SystemConfigBatchAction extends AbstractActionClient implements Syst
         $path = '_action/system-config/batch';
         $request = $this->generateRequest('POST', $path, [], $payload->getValues());
         $request = $this->addExpectedPackages($request, $payload);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
 
         $this->parseResponse($request, $response);
     }

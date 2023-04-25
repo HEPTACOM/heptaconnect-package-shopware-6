@@ -14,7 +14,7 @@ final class ExtensionRefreshAction extends AbstractActionClient implements Exten
         $path = '_action/extension/refresh';
         $request = $this->generateRequest('POST', $path);
         $request = $this->addExpectedPackages($request, $params);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
 
         $this->parseResponse($request, $response);
     }

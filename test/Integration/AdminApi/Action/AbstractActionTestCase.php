@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
@@ -69,14 +70,8 @@ abstract class AbstractActionTestCase extends TestCase
      */
     protected function createAction(string $actionClass, ...$args): AbstractActionClient
     {
-        $jsonStreamUtility = $this->createJsonStreamUtility();
-
         return new $actionClass(
-            $this->createClient(),
-            $this->createRequestFactory(),
-            $this->createApiConfigurationStorage(),
-            $jsonStreamUtility,
-            $this->createJsonResponseErrorHandler($jsonStreamUtility),
+            $this->createActionClient(),
             ...$args,
         );
     }
@@ -121,5 +116,18 @@ abstract class AbstractActionTestCase extends TestCase
                 }
             },
         ]);
+    }
+
+    protected function createActionClient(?AuthenticatedHttpClientInterface $client = null): ActionClient
+    {
+        $jsonStreamUtility = $this->createJsonStreamUtility();
+
+        return new ActionClient(
+            $client ?? $this->createClient(),
+            $this->createRequestFactory(),
+            $this->createApiConfigurationStorage(),
+            $jsonStreamUtility,
+            $this->createJsonResponseErrorHandler($jsonStreamUtility),
+        );
     }
 }

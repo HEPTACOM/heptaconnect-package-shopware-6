@@ -17,7 +17,7 @@ final class StorePluginSearchAction extends AbstractActionClient implements Stor
         $path = '_action/store/plugin/search';
         $request = $this->generateRequest('POST', $path);
         $request = $this->addExpectedPackages($request, $params);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
         $result = $this->parseResponse($request, $response);
 
         return new StorePluginSearchResult(

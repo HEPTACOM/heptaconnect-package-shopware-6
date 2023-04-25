@@ -17,7 +17,7 @@ final class InfoEntitySchemaAction extends AbstractActionClient implements InfoE
         $path = '_info/entity-schema.json';
         $request = $this->generateRequest('GET', $path);
         $request = $this->addExpectedPackages($request, $params);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
         $result = $this->parseResponse($request, $response);
 
         return new InfoEntitySchemaResult(new EntitySchemaCollection(\array_map(

@@ -11,28 +11,25 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\S
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncPayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncResult;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Exception\SyncResultException;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\ErrorHandlerInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
-use Psr\Http\Message\RequestFactoryInterface;
 
 final class SyncAction extends AbstractActionClient implements SyncActionInterface
 {
     private SyncPayloadInterceptorCollection $syncPayloadInterceptors;
 
+    private JsonStreamUtility $jsonStream;
+
     public function __construct(
-        AuthenticatedHttpClientInterface $client,
-        RequestFactoryInterface $requestFactory,
-        ApiConfigurationStorageInterface $apiConfigurationStorage,
-        JsonStreamUtility $jsonStreamUtility,
-        ErrorHandlerInterface $errorHandler,
-        SyncPayloadInterceptorCollection $syncPayloadInterceptors
+        ActionClient $actionClient,
+        SyncPayloadInterceptorCollection $syncPayloadInterceptors,
+        JsonStreamUtility $jsonStream
     ) {
-        parent::__construct($client, $requestFactory, $apiConfigurationStorage, $jsonStreamUtility, $errorHandler);
+        parent::__construct($actionClient);
         $this->syncPayloadInterceptors = $syncPayloadInterceptors;
+        $this->jsonStream = $jsonStream;
     }
 
     public function sync(SyncPayload $payload): SyncResult
@@ -84,13 +81,13 @@ final class SyncAction extends AbstractActionClient implements SyncActionInterfa
             $request = $request->withHeader('single-operation', (int) $singleOperation);
         }
 
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
 
         try {
             $result = $this->parseResponse($request, $response);
         } catch (\Throwable $exception) {
             try {
-                $responseData = $this->getJsonStreamUtility()->fromStreamToPayload($response->getBody());
+                $responseData = $this->jsonStream->fromStreamToPayload($response->getBody());
             } catch (\Throwable $ignore) {
                 throw $exception;
             }

@@ -14,7 +14,7 @@ final class ExtensionDeactivateAction extends AbstractActionClient implements Ex
         $path = sprintf('_action/extension/deactivate/%s/%s', $payload->getExtensionType(), $payload->getExtensionName());
         $request = $this->generateRequest('PUT', $path);
         $request = $this->addExpectedPackages($request, $payload);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
 
         $this->parseResponse($request, $response);
     }

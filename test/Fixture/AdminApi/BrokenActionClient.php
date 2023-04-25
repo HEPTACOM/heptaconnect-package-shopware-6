@@ -12,7 +12,7 @@ final class BrokenActionClient extends AbstractActionClient
     {
         $path = '_info/version';
         $request = $this->generateRequest('DELETE', $path);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
         $this->parseResponse($request, $response);
     }
 }

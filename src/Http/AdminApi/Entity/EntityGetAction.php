@@ -16,7 +16,7 @@ final class EntityGetAction extends AbstractActionClient implements EntityGetAct
     {
         $request = $this->generateRequest('GET', $this->getEntityPath($criteria->getEntityName(), $criteria->getId()));
         $request = $this->addExpectedPackages($request, $criteria);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
         $result = $this->parseResponse($request, $response);
 
         return new EntityGetResult(Entity::fromAssociative($result['data']));

@@ -20,6 +20,7 @@ use Http\Discovery\Psr17FactoryDiscovery;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
@@ -133,14 +134,7 @@ final class EntityCreateTest extends AbstractActionTestCase
                 ->createResponse(204)
                 ->withAddedHeader('location', 'http://127.0.0.1/')
         );
-        $jsonStreamUtility = $this->createJsonStreamUtility();
-        $client = new EntityCreateAction(
-            $httpClient,
-            $this->createRequestFactory(),
-            $this->createApiConfigurationStorage(),
-            $jsonStreamUtility,
-            $this->createJsonResponseErrorHandler($jsonStreamUtility),
-        );
+        $client = new EntityCreateAction($this->createActionClient($httpClient));
 
         static::expectException(EntityReferenceLocationFormatInvalidException::class);
 

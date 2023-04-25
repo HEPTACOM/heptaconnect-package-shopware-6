@@ -14,7 +14,7 @@ final class ExtensionRemoveAction extends AbstractActionClient implements Extens
         $path = sprintf('_action/extension/remove/%s/%s', $payload->getExtensionType(), $payload->getExtensionName());
         $request = $this->generateRequest('DELETE', $path);
         $request = $this->addExpectedPackages($request, $payload);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
 
         $this->parseResponse($request, $response);
     }

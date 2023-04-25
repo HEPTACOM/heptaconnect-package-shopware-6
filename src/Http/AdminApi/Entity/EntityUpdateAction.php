@@ -17,7 +17,7 @@ final class EntityUpdateAction extends AbstractActionClient implements EntityUpd
         $path = $this->getEntityPath($payload->getEntityName(), $payload->getId());
         $request = $this->generateRequest('PATCH', $path, [], $payload->getPayload());
         $request = $this->addExpectedPackages($request, $payload);
-        $response = $this->getClient()->sendRequest($request);
+        $response = $this->sendAuthenticatedRequest($request);
         // to trigger exceptions
         $this->parseResponse($request, $response);
 
