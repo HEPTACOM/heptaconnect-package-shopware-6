@@ -24,7 +24,7 @@ use Heptacom\HeptaConnect\Portal\Base\Reception\Contract\ReceiverContract;
 class ProductReceiver extends ReceiverContract
 {
     private EntityCreateActionInterface $create;
-    
+
     public function __construct(EntityCreateActionInterface $create)
     {
         $this->create = $create;
@@ -34,13 +34,13 @@ class ProductReceiver extends ReceiverContract
     {
         return Product::class;
     }
-    
+
     protected function run(DatasetEntityContract $entity,ReceiveContextInterface $context): void
     {
         try {
             $payload = new EntityCreatePayload('product', [
                 'states' => ['is-download'],
-            ]); 
+            ]);
             $payload = $payload->withExpectedPackage('shopware/core', '>=6.4.20');
 
             $this->create->create($payload);
