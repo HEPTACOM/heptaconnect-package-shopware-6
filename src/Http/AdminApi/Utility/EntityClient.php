@@ -169,7 +169,7 @@ final class EntityClient
                 yield $index++ => $data;
             }
 
-            $criteria = $criteria->withPage($criteria->getPage() + 1);
+            $criteria = $criteria->withPage(($criteria->getPage() ?? 0) + 1);
         } while (\count($searchResult->getData()) < $searchResult->getTotal());
     }
 
@@ -201,7 +201,7 @@ final class EntityClient
                 yield $index++ => $data;
             }
 
-            $criteria = $criteria->withPage($criteria->getPage() + 1);
+            $criteria = $criteria->withPage(($criteria->getPage() ?? 0) + 1);
         } while (\count($searchResult->getData()) < $searchResult->getTotal());
     }
 
