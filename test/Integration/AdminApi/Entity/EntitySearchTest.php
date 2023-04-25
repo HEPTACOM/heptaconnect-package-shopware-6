@@ -29,6 +29,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterCollecti
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ExpectationFailedException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\InvalidLimitQueryException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\UnmappedFieldException;
@@ -257,7 +258,18 @@ final class EntitySearchTest extends AbstractActionTestCase
     {
         $client = $this->createAction(EntitySearchAction::class, new CriteriaFormatter());
         $criteria = (new Criteria())->withCountSort('states.id');
-        $result = $client->search(new EntitySearchCriteria('country', $criteria));
+
+        try {
+            $result = $client->search(
+                (new EntitySearchCriteria('country', $criteria))
+                    // 6.4.0 does not have the states on GB
+                    ->withAddedExpectedPackage('shopware/core', '>=6.4.1')
+            );
+        } catch (ExpectationFailedException $exception) {
+            static::expectNotToPerformAssertions();
+
+            return;
+        }
 
         $first = $result->getData()->shift();
         $second = $result->getData()->shift();
