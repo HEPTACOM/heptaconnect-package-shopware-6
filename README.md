@@ -4,9 +4,99 @@
 ## Description
 
 This HEPTAconnect package is all about communicating to Shopware 6 APIs.
-You can use it in combination with the Shopware 6 Portals.
+You can use it in combination with the Shopware 6 Portal.
 Read more in the [documentation](https://heptaconnect.io/) and have a look into the [examples section](./docs/examples).
 
+## Usage
+
+### AdminAPI - EntityClient
+
+```php
+<?php
+
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient;
+
+/** @var $entityClient EntityClient */
+$propertyGroupId = $entityClient->create('property_group', [
+    'name' => 'Color',
+    'sortingType' => 'position',
+    'displayType' => 'color',
+    'options' => [[
+        'position' => 1,
+        'name' => 'Red',
+        'colorHexCode' => '#aa0000',
+    ], [
+        'position' => 2,
+        'name' => 'Green',
+        'colorHexCode' => '#00aa00',
+    ], [
+        'position' => 3,
+        'name' => 'Blue',
+        'colorHexCode' => '#0000aa',
+    ]],
+]);
+
+$colorNamesByName = $entityClient->groupFieldByField(
+    'property_group_option',
+    'colorHexCode',
+    'name',
+    new EqualsFilter('group.id', $propertyGroupId)
+);
+var_dump($colorNamesByName);
+// array(3) {
+//   ["#0000aa"]=>
+//   string(4) "Blue"
+//   ["#00aa00"]=>
+//   string(5) "Green"
+//   ["#aa0000"]=>
+//   string(3) "Red"
+// }
+
+// paginates automatically
+foreach ($entityClient->iterate('product') as $product) {
+    // …
+}
+
+$countryIsos = $entityClient->aggregate('country', new TermsAggregation('countries', 'iso'))->buckets->getKeys();
+var_dump($countryIsos->asArray());
+// array(251) {
+//   [0]=>
+//   string(2) "AD"
+//   [1]=>
+//   string(2) "AE"
+//   [2]=>
+//   string(2) "AF"
+//   [3]=>
+//   string(2) "AG"
+//   [4]=>
+//   string(2) "AI"
+//   …
+```
+
+
+### AdminAPI - ExtensionClient
+
+```php
+<?php
+
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\ExtensionClient;
+
+/** @var $extensionClient ExtensionClient */
+// remote updating security plugin
+$extensionClient->upload('/path/to/SwagSecurityPlatform.zip');
+$extensionClient->refresh();
+$extensionClient->update('SwagSecurityPlatform');
+
+if (!$extensionClient->isInstalled('SwagSecurityPlatform')) {
+    $extensionClient->install('SwagSecurityPlatform');
+}
+
+if (!$extensionClient->isActive('SwagSecurityPlatform')) {
+    $extensionClient->activate('SwagSecurityPlatform');
+}
+```
 
 ## System requirements
 
