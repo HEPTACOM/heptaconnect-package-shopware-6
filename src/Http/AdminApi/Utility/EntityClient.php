@@ -12,6 +12,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationRes
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterContract;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreateActionInterface;
@@ -113,6 +114,15 @@ final class EntityClient
         $criteria = $criteria->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
         $criteria = $criteria->withLimit(1);
         $inAggregation = $aggregation;
+
+        if ($aggregation instanceof TermsAggregation && $aggregation->getSorting() === null) {
+            $aggregation = new TermsAggregation(
+                $aggregation->getName(),
+                $aggregation->getField(),
+                new FieldSorting($aggregation->getField()),
+                $aggregation->getAggregation()
+            );
+        }
 
         if ($filter !== null) {
             $aggregation = new FilterAggregation('filter' . $aggregation->getName(), $aggregation, new FilterCollection([
