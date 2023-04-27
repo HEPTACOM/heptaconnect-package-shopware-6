@@ -36,6 +36,8 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
 
 /**
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationBucket
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationBucketCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationContract
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResult
@@ -388,7 +390,7 @@ final class EntitySearchTest extends AbstractActionTestCase
 
         static::assertCount(3, $result->getAggregations()['countries']->entities);
         static::assertEqualsCanonicalizing(
-            \array_column($result->getAggregations()['countryIds']->buckets, 'key'),
+            $result->getAggregations()['countryIds']->buckets->getKeys()->asArray(),
             \array_column($result->getAggregations()['countries']->entities->asArray(), 'id')
         );
     }
@@ -407,9 +409,9 @@ final class EntitySearchTest extends AbstractActionTestCase
                 ->withAddedAggregation(new HistogramAggregation('created_day', 'createdAt', HistogramAggregation::INTERVAL_DAY))
         ));
 
-        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_minute']->buckets[0]['count']);
-        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_hour']->buckets[0]['count']);
-        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_day']->buckets[0]['count']);
+        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_minute']->buckets->first()->count);
+        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_hour']->buckets->first()->count);
+        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_day']->buckets->first()->count);
     }
 
     public function testEqualsFilter(): void

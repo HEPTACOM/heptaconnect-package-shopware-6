@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity;
 
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationBucketCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResult;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResultCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CriteriaFormatterInterface;
@@ -42,6 +43,12 @@ final class EntitySearchAction extends AbstractActionClient implements EntitySea
 
                     if ($entities !== null) {
                         $data['entities'] = EntityCollection::fromList($entities);
+                    }
+
+                    $buckets = $data['buckets'] ?? null;
+
+                    if ($buckets !== null) {
+                        $data['buckets'] = AggregationBucketCollection::fromList($buckets);
                     }
 
                     return new AggregationResult($name, $data);
