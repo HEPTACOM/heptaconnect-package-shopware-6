@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility;
 
 use Heptacom\HeptaConnect\Dataset\Base\ScalarCollection\StringCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\NotFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionActivate\ExtensionActivateActionInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionActivate\ExtensionActivatePayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionDeactivate\ExtensionDeactivateActionInterface;
@@ -26,6 +30,8 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\StoreP
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\StorePluginSearch\StorePluginSearchParams;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchActionInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchCriteria;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearchId\EntitySearchIdActionInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearchId\EntitySearchIdCriteria;
 use Psr\Http\Message\StreamFactoryInterface;
 
 /**
@@ -56,6 +62,8 @@ final class ExtensionClient
 
     private StorePluginSearchActionInterface $pluginSearchAction;
 
+    private EntitySearchIdActionInterface $entitySearchIdAction;
+
     private StreamFactoryInterface $streamFactory;
 
     public function __construct(
@@ -68,6 +76,7 @@ final class ExtensionClient
         ExtensionUploadActionInterface $uploadAction,
         ExtensionRemoveActionInterface $removeAction,
         EntitySearchActionInterface $entitySearchAction,
+        EntitySearchIdActionInterface $entitySearchIdAction,
         StorePluginSearchActionInterface $pluginSearchAction,
         StreamFactoryInterface $streamFactory
     ) {
@@ -80,6 +89,7 @@ final class ExtensionClient
         $this->uploadAction = $uploadAction;
         $this->removeAction = $removeAction;
         $this->entitySearchAction = $entitySearchAction;
+        $this->entitySearchIdAction = $entitySearchIdAction;
         $this->pluginSearchAction = $pluginSearchAction;
         $this->streamFactory = $streamFactory;
     }
@@ -119,18 +129,13 @@ final class ExtensionClient
      */
     public function isActive(string $extensionName): bool
     {
-        $plugins = $this->entitySearchAction->search(
-            // TODO use filter
-            new EntitySearchCriteria('plugin', new Criteria())
-        )->getData();
+        $criteria = (new Criteria())
+            ->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES)
+            ->withAndFilter(new EqualsFilter('name', $extensionName))
+            ->withAndFilter(new EqualsFilter('active', true));
+        $result = $this->entitySearchIdAction->searchIds(new EntitySearchIdCriteria('plugin', $criteria));
 
-        foreach ($plugins as $plugin) {
-            if ($plugin->name === $extensionName) {
-                return $plugin->active;
-            }
-        }
-
-        return false;
+        return $result->getTotal() > 0;
     }
 
     /**
@@ -158,18 +163,15 @@ final class ExtensionClient
      */
     public function isInstalled(string $extensionName): bool
     {
-        $plugins = $this->entitySearchAction->search(
-            // TODO use filter
-            new EntitySearchCriteria('plugin', new Criteria())
-        )->getData();
+        $criteria = (new Criteria())
+            ->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES)
+            ->withAndFilter(new EqualsFilter('name', $extensionName))
+            ->withAndFilter(new NotFilter(new FilterCollection([
+                new EqualsFilter('installedAt', null),
+            ])));
+        $result = $this->entitySearchIdAction->searchIds(new EntitySearchIdCriteria('plugin', $criteria));
 
-        foreach ($plugins as $plugin) {
-            if ($plugin->name === $extensionName) {
-                return $plugin->installedAt !== null;
-            }
-        }
-
-        return false;
+        return $result->getTotal() > 0;
     }
 
     /**
@@ -210,18 +212,12 @@ final class ExtensionClient
      */
     public function exists(string $extensionName): bool
     {
-        $plugins = $this->entitySearchAction->search(
-            // TODO use filter
-            new EntitySearchCriteria('plugin', new Criteria())
-        )->getData();
+        $criteria = (new Criteria())
+            ->withTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES)
+            ->withAndFilter(new EqualsFilter('name', $extensionName));
+        $result = $this->entitySearchIdAction->searchIds(new EntitySearchIdCriteria('plugin', $criteria));
 
-        foreach ($plugins as $plugin) {
-            if ($plugin->name === $extensionName) {
-                return true;
-            }
-        }
-
-        return false;
+        return $result->getTotal() > 0;
     }
 
     /**
@@ -231,16 +227,10 @@ final class ExtensionClient
      */
     public function listExtensions(): StringCollection
     {
-        $plugins = $this->entitySearchAction->search(
-            new EntitySearchCriteria('plugin', new Criteria())
-        )->getData();
-        $result = new StringCollection();
+        $criteria = (new Criteria())->withAddedAggregation(new TermsAggregation('name', 'name'));
+        $nameBucket = $this->entitySearchAction->search(new EntitySearchCriteria('plugin', $criteria))->getAggregations()['name'];
 
-        foreach ($plugins as $plugin) {
-            $result->push([$plugin->name]);
-        }
-
-        return $result;
+        return $nameBucket->buckets->getKeys();
     }
 
     private function getExtensionType(string $extensionName): string
