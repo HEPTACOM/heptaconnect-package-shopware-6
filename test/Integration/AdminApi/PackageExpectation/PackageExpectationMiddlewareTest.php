@@ -53,7 +53,6 @@ final class PackageExpectationMiddlewareTest extends AbstractActionTestCase
 {
     public function testExpectationsFromMiddlewareAndActionArgumentAreMerged(): void
     {
-        $jsonStreamUtility = $this->createJsonStreamUtility();
         $realClient = $this->createClient();
         $middleware = new PackageExpectationMiddleware(new PackageExpectationCollection([
             new class() implements PackageExpectationInterface {
@@ -99,7 +98,6 @@ final class PackageExpectationMiddlewareTest extends AbstractActionTestCase
 
     public function testExpectationsFromMiddlewareIsSetWhenNoExpectationInActionArgument(): void
     {
-        $jsonStreamUtility = $this->createJsonStreamUtility();
         $realClient = $this->createClient();
         $middleware = new PackageExpectationMiddleware(new PackageExpectationCollection([
             new class() implements PackageExpectationInterface {

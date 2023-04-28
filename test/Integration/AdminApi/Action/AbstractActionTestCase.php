@@ -30,6 +30,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResp
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use PHPUnit\Framework\TestCase;
@@ -54,7 +55,7 @@ abstract class AbstractActionTestCase extends TestCase
             $client,
             new Authentication(
                 new Psr16Cache(new ArrayAdapter()),
-                $this->createJsonStreamUtility(),
+                BaseFactory::createJsonStreamUtility(),
                 $this->createRequestFactory(),
                 $client,
                 $this->createApiConfigurationStorage()
@@ -82,14 +83,9 @@ abstract class AbstractActionTestCase extends TestCase
         return Psr17FactoryDiscovery::findRequestFactory();
     }
 
-    protected function createJsonStreamUtility(): JsonStreamUtility
-    {
-        return new JsonStreamUtility(Psr17FactoryDiscovery::findStreamFactory());
-    }
-
     protected function createJsonResponseErrorHandler(?JsonStreamUtility $jsonStreamUtility = null): JsonResponseErrorHandler
     {
-        $jsonStreamUtility ??= $this->createJsonStreamUtility();
+        $jsonStreamUtility ??= BaseFactory::createJsonStreamUtility();
 
         return new JsonResponseErrorHandler($jsonStreamUtility, [
             new ExpectationFailedValidator(),
@@ -121,7 +117,7 @@ abstract class AbstractActionTestCase extends TestCase
 
     protected function createActionClient(?AuthenticatedHttpClientInterface $client = null): ActionClient
     {
-        $jsonStreamUtility = $this->createJsonStreamUtility();
+        $jsonStreamUtility = BaseFactory::createJsonStreamUtility();
 
         return new ActionClient(
             $client ?? $this->createClient(),

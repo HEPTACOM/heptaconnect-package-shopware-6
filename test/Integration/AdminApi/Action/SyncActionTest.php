@@ -14,6 +14,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\Sy
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\FieldIsBlankException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\JsonResponseValidationCollectionException;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
@@ -60,7 +61,7 @@ final class SyncActionTest extends AbstractActionTestCase
 {
     public function testUpsertAndDeleteTag(): void
     {
-        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection(), $this->createJsonStreamUtility());
+        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
 
         $result = $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
             (new SyncOperation('tag', SyncOperation::ACTION_UPSERT, 'tag-upsert'))->withAddedPayload([
@@ -95,7 +96,7 @@ final class SyncActionTest extends AbstractActionTestCase
 
     public function testFailOnWronglyShapedEntitiesData(): void
     {
-        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection(), $this->createJsonStreamUtility());
+        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
 
         static::expectException(SyncResultException::class);
 
@@ -108,7 +109,7 @@ final class SyncActionTest extends AbstractActionTestCase
 
     public function testGroupExceptionsOnMultipleWronglyShapedEntitiesData(): void
     {
-        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection(), $this->createJsonStreamUtility());
+        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
 
         try {
             $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
@@ -128,7 +129,7 @@ final class SyncActionTest extends AbstractActionTestCase
 
     public function testDeleteNonExistingTags(): void
     {
-        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection(), $this->createJsonStreamUtility());
+        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
         $result = $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
             (new SyncOperation('tag', SyncOperation::ACTION_DELETE, 'tag-delete'))->withAddedPayload([
                 'id' => '00000000000000000000000000000000',
@@ -146,7 +147,7 @@ final class SyncActionTest extends AbstractActionTestCase
 
     public function testFailOnEmptyTags(): void
     {
-        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection(), $this->createJsonStreamUtility());
+        $action = $this->createAction(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
 
         try {
             $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
@@ -184,7 +185,7 @@ final class SyncActionTest extends AbstractActionTestCase
                     return $payload->withSyncOperations(new SyncOperationCollection());
                 }
             },
-        ]), $this->createJsonStreamUtility());
+        ]), BaseFactory::createJsonStreamUtility());
 
         // this would fail
         $result = $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([

@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Unit\Support;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
-use Http\Discovery\Psr17FactoryDiscovery;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -15,8 +14,8 @@ final class JsonStreamUtilityTest extends TestCase
 {
     public function testFromStreamToPayload(): void
     {
-        $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
-        $service = new JsonStreamUtility($streamFactory);
+        $streamFactory = BaseFactory::createStreamFactory();
+        $service = BaseFactory::createJsonStreamUtility();
 
         static::assertSame([
             'foo' => 'bar',
@@ -25,8 +24,7 @@ final class JsonStreamUtilityTest extends TestCase
 
     public function testFromPayloadToStream(): void
     {
-        $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
-        $service = new JsonStreamUtility($streamFactory);
+        $service = BaseFactory::createJsonStreamUtility();
 
         static::assertSame('{"foo":"bar"}', (string) $service->fromPayloadToStream([
             'foo' => 'bar',
@@ -35,8 +33,7 @@ final class JsonStreamUtilityTest extends TestCase
 
     public function testFromPayloadToStreamKeepsFloatsAsFloats(): void
     {
-        $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
-        $service = new JsonStreamUtility($streamFactory);
+        $service = BaseFactory::createJsonStreamUtility();
 
         static::assertSame('{"foo":0.0}', (string) $service->fromPayloadToStream([
             'foo' => 0.0,
@@ -45,8 +42,8 @@ final class JsonStreamUtilityTest extends TestCase
 
     public function testFromStreamToPayloadFailsWithJsonExceptionOnInvalidInput(): void
     {
-        $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
-        $service = new JsonStreamUtility($streamFactory);
+        $streamFactory = BaseFactory::createStreamFactory();
+        $service = BaseFactory::createJsonStreamUtility();
 
         static::expectException(\JsonException::class);
 
@@ -55,8 +52,7 @@ final class JsonStreamUtilityTest extends TestCase
 
     public function testFromPayloadToStreamFailsWithJsonExceptionOnInvalidInput(): void
     {
-        $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
-        $service = new JsonStreamUtility($streamFactory);
+        $service = BaseFactory::createJsonStreamUtility();
 
         static::expectException(\JsonException::class);
 
@@ -67,8 +63,7 @@ final class JsonStreamUtilityTest extends TestCase
 
     public function testFromPayloadToStreamFailsWithJsonSerializeThrowingException(): void
     {
-        $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
-        $service = new JsonStreamUtility($streamFactory);
+        $service = BaseFactory::createJsonStreamUtility();
         $jsonSerializable = $this->createMock(\JsonSerializable::class);
         $jsonSerializable->method('jsonSerialize')->willThrowException(new \RuntimeException());
 

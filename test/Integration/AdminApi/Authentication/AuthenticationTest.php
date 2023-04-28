@@ -6,8 +6,8 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Auth
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed;
-use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use PHPUnit\Framework\TestCase;
@@ -27,7 +27,7 @@ final class AuthenticationTest extends TestCase
     {
         $service = new Authentication(
             new Psr16Cache(new ArrayAdapter()),
-            new JsonStreamUtility(Psr17FactoryDiscovery::findStreamFactory()),
+            BaseFactory::createJsonStreamUtility(),
             Psr17FactoryDiscovery::findRequestFactory(),
             Psr18ClientDiscovery::find(),
             Factory::createApiConfigurationStorage(),
