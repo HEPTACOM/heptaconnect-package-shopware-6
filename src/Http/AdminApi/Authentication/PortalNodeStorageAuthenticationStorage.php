@@ -8,14 +8,14 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contrac
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationStorageInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
-use Heptacom\HeptaConnect\Portal\Base\Portal\Contract\PortalStorageInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\SimpleCache\CacheInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 
 final class PortalNodeStorageAuthenticationStorage implements AuthenticationStorageInterface
 {
-    private PortalStorageInterface $portalStorage;
+    private CacheInterface $portalStorage;
 
     private JsonStreamUtility $jsonStreamUtility;
 
@@ -26,7 +26,7 @@ final class PortalNodeStorageAuthenticationStorage implements AuthenticationStor
     private ApiConfigurationStorageInterface $apiConfigurationStorage;
 
     public function __construct(
-        PortalStorageInterface $portalStorage,
+        CacheInterface $portalStorage,
         JsonStreamUtility $jsonStreamUtility,
         RequestFactoryInterface $requestFactory,
         ClientInterface $client,

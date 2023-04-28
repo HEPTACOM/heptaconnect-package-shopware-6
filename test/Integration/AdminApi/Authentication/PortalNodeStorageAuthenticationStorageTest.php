@@ -8,10 +8,11 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Excepti
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\MemoryApiConfigurationStorage;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Portal\MemoryPortalStorage;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
@@ -24,7 +25,7 @@ final class PortalNodeStorageAuthenticationStorageTest extends TestCase
     public function testPasswordAuthentication(): void
     {
         $service = new PortalNodeStorageAuthenticationStorage(
-            new MemoryPortalStorage(),
+            new Psr16Cache(new ArrayAdapter()),
             new JsonStreamUtility(Psr17FactoryDiscovery::findStreamFactory()),
             Psr17FactoryDiscovery::findRequestFactory(),
             Psr18ClientDiscovery::find(),

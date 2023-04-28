@@ -30,13 +30,14 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResp
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\MemoryApiConfigurationStorage;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Portal\MemoryPortalStorage;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 
 abstract class AbstractActionTestCase extends TestCase
 {
@@ -52,7 +53,7 @@ abstract class AbstractActionTestCase extends TestCase
         return new AuthenticatedHttpClient(
             $client,
             new PortalNodeStorageAuthenticationStorage(
-                new MemoryPortalStorage(),
+                new Psr16Cache(new ArrayAdapter()),
                 $this->createJsonStreamUtility(),
                 $this->createRequestFactory(),
                 $client,
