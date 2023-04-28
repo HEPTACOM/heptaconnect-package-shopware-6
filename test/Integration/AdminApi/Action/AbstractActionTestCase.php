@@ -7,9 +7,9 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Acti
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthentication;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\JsonResponseValidatorInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator;
@@ -52,7 +52,7 @@ abstract class AbstractActionTestCase extends TestCase
 
         return new AuthenticatedHttpClient(
             $client,
-            new PortalNodeStorageAuthentication(
+            new Authentication(
                 new Psr16Cache(new ArrayAdapter()),
                 $this->createJsonStreamUtility(),
                 $this->createRequestFactory(),

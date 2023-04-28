@@ -13,7 +13,7 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\SimpleCache\CacheInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 
-final class PortalNodeStorageAuthentication implements AuthenticationInterface
+final class Authentication implements AuthenticationInterface
 {
     private CacheInterface $portalStorage;
 

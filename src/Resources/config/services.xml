@@ -21,12 +21,12 @@
 
         <service
             id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationInterface"
-            alias="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthentication"
+            alias="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication"
         />
 
         <service
             decorates="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationInterface"
-            id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryAuthenticationCache"
+            id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache"
         >
             <argument type="service" id=".inner"/>
         </service>

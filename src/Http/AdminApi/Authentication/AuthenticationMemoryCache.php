@@ -6,7 +6,7 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationInterface;
 
-final class MemoryAuthenticationCache implements AuthenticationInterface
+final class AuthenticationMemoryCache implements AuthenticationInterface
 {
     private AuthenticationInterface $decorated;
 

@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Authentication;
 
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryAuthenticationCache;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryAuthenticationCache
  */
-final class MemoryAuthenticationCacheTest extends TestCase
+final class AuthenticationMemoryCacheTest extends TestCase
 {
     public function testCachingLayer(): void
     {
@@ -22,7 +22,7 @@ final class MemoryAuthenticationCacheTest extends TestCase
         $decorated->expects(static::once())->method('refresh');
         $decorated->expects(static::exactly(2))->method('getAuthorizationHeader')->willReturn('value');
 
-        $service = new MemoryAuthenticationCache($decorated);
+        $service = new AuthenticationMemoryCache($decorated);
 
         static::assertSame('value', $service->getAuthorizationHeader());
         // repeat it and it will still not trigger the decorated
@@ -44,7 +44,7 @@ final class MemoryAuthenticationCacheTest extends TestCase
         $decorated = $this->createMock(AuthenticationInterface::class);
         $decorated->expects(static::once())->method('refresh')->willThrowException(new AuthenticationFailed(123));
 
-        $service = new MemoryAuthenticationCache($decorated);
+        $service = new AuthenticationMemoryCache($decorated);
 
         static::expectException(AuthenticationFailed::class);
         static::expectExceptionCode(123);
@@ -57,7 +57,7 @@ final class MemoryAuthenticationCacheTest extends TestCase
         $decorated = $this->createMock(AuthenticationInterface::class);
         $decorated->expects(static::once())->method('getAuthorizationHeader')->willThrowException(new AuthenticationFailed(123));
 
-        $service = new MemoryAuthenticationCache($decorated);
+        $service = new AuthenticationMemoryCache($decorated);
 
         static::expectException(AuthenticationFailed::class);
         static::expectExceptionCode(123);
