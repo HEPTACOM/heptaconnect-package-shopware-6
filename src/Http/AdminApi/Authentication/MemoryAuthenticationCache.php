@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationStorageInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationInterface;
 
-final class MemoryAuthenticationStorageCache implements AuthenticationStorageInterface
+final class MemoryAuthenticationCache implements AuthenticationInterface
 {
-    private AuthenticationStorageInterface $decorated;
+    private AuthenticationInterface $decorated;
 
     private ?string $header = null;
 
-    public function __construct(AuthenticationStorageInterface $decorated)
+    public function __construct(AuthenticationInterface $decorated)
     {
         $this->decorated = $decorated;
     }

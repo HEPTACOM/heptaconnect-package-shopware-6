@@ -7,9 +7,9 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\C
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed;
 
 /**
- * Access a storage, where the currently usable authentication information is stored.
+ * Calculates and provide the usable authentication information.
  */
-interface AuthenticationStorageInterface
+interface AuthenticationInterface
 {
     /**
      * Performs an authorization request with the configured credentials.

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationStorageInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
@@ -15,9 +15,9 @@ final class AuthenticatedHttpClient implements AuthenticatedHttpClientInterface
 {
     private ClientInterface $decorated;
 
-    private AuthenticationStorageInterface $authenticationStorage;
+    private AuthenticationInterface $authenticationStorage;
 
-    public function __construct(ClientInterface $decorated, AuthenticationStorageInterface $authenticationStorage)
+    public function __construct(ClientInterface $decorated, AuthenticationInterface $authenticationStorage)
     {
         $this->decorated = $decorated;
         $this->authenticationStorage = $authenticationStorage;

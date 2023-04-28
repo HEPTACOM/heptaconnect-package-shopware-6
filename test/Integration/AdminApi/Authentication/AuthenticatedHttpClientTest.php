@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Authentication;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationStorageInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationInterface;
 use Http\Discovery\Psr17FactoryDiscovery;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
@@ -25,7 +25,7 @@ final class AuthenticatedHttpClientTest extends TestCase
 
             return Psr17FactoryDiscovery::findResponseFactory()->createResponse();
         });
-        $authenticationStorage = $this->createMock(AuthenticationStorageInterface::class);
+        $authenticationStorage = $this->createMock(AuthenticationInterface::class);
         $authenticationStorage->expects(static::atLeastOnce())->method('getAuthorizationHeader')->willReturn('foobar');
 
         $service = new AuthenticatedHttpClient($httpClient, $authenticationStorage);
@@ -45,7 +45,7 @@ final class AuthenticatedHttpClientTest extends TestCase
             return Psr17FactoryDiscovery::findResponseFactory()
                 ->createResponse($auth === 'invalid' ? 401 : 200);
         });
-        $authenticationStorage = $this->createMock(AuthenticationStorageInterface::class);
+        $authenticationStorage = $this->createMock(AuthenticationInterface::class);
         $authenticationStorage->expects(static::atLeastOnce())->method('refresh');
         $authenticationStorage->expects(static::atLeastOnce())->method('getAuthorizationHeader')->willReturn('invalid', 'valid');
 

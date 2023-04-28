@@ -9,7 +9,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionC
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthenticationStorage;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\PortalNodeStorageAuthentication;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\JsonResponseValidatorInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator;
@@ -29,7 +29,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResp
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\UnmappedFieldValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\MemoryApiConfigurationStorage;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use PHPUnit\Framework\TestCase;
@@ -43,7 +43,7 @@ abstract class AbstractActionTestCase extends TestCase
 {
     protected function createApiConfigurationStorage(): ApiConfigurationStorageInterface
     {
-        return MemoryApiConfigurationStorage::createBootstrapped();
+        return Factory::createApiConfigurationStorage();
     }
 
     protected function createClient(): AuthenticatedHttpClientInterface
@@ -52,7 +52,7 @@ abstract class AbstractActionTestCase extends TestCase
 
         return new AuthenticatedHttpClient(
             $client,
-            new PortalNodeStorageAuthenticationStorage(
+            new PortalNodeStorageAuthentication(
                 new Psr16Cache(new ArrayAdapter()),
                 $this->createJsonStreamUtility(),
                 $this->createRequestFactory(),
