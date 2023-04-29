@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception;
+namespace Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception;
 
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 

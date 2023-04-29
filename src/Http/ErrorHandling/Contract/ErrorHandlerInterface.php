@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract;
+namespace Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\JsonResponseValidationCollectionException;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\JsonResponseValidationCollectionException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -15,7 +15,7 @@ interface ErrorHandlerInterface
      * When no error is found, no exception is thrown.
      *
      * @throws \Throwable
-     * @throws JsonResponseValidationCollectionException
+     * @throws \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\JsonResponseValidationCollectionException
      */
     public function throwException(RequestInterface $request, ResponseInterface $response): void;
 }

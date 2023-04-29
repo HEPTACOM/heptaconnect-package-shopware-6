@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Unit\AdminApi\ErrorHandling;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
 final class JsonResponseErrorHandlerTest extends TestCase

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract;
+namespace Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;

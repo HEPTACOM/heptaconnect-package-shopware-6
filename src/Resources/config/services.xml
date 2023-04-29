@@ -6,18 +6,31 @@
 >
     <services>
         <prototype namespace="Heptacom\HeptaConnect\Package\Shopware6\" resource="../../">
+            <exclude>../../Http/ErrorHandling/Exception/**</exclude>
             <exclude>../../Http/AdminApi/Action/Contract/**/*{Payload,Criteria}.php</exclude>
             <exclude>../../Http/AdminApi/Authentication/Exception/**</exclude>
             <exclude>../../Http/AdminApi/ErrorHandling/Exception/**</exclude>
             <exclude>../../Utility/**</exclude>
         </prototype>
+        <prototype
+            namespace="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\"
+            resource="../../Http/ErrorHandling/JsonResponseValidator/"
+        >
+            <tag name="heptaconnect.package.shopware6.admin_api.json_response_validator"/>
+        </prototype>
+        <prototype
+            namespace="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\"
+            resource="../../Http/AdminApi/ErrorHandling/JsonResponseValidator/"
+        >
+            <tag name="heptaconnect.package.shopware6.admin_api.json_response_validator"/>
+        </prototype>
 
-        <instanceof id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\JsonResponseValidatorInterface">
-            <tag name="heptaconnect.package.shopware6.json_response_validator"/>
-        </instanceof>
-        <instanceof id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\ErrorHandler">
-            <bind key="$validators" type="tagged_iterator" tag="heptaconnect.package.shopware6.json_response_validator"/>
-        </instanceof>
+        <service
+            id="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler.admin_api"
+            class="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler"
+        >
+            <bind key="$validators" type="tagged_iterator" tag="heptaconnect.package.shopware6.admin_api.json_response_validator"/>
+        </service>
 
         <service
             id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationInterface"

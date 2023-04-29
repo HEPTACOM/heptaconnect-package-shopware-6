@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling;
+namespace Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\ErrorHandlerInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\JsonResponseValidatorInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\JsonResponseValidationCollectionException;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\MalformedResponse;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\ErrorHandlerInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\JsonResponseValidationCollectionException;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\MalformedResponse;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -17,12 +17,12 @@ final class JsonResponseErrorHandler implements ErrorHandlerInterface
     private JsonStreamUtility $jsonStreamUtility;
 
     /**
-     * @var array<JsonResponseValidatorInterface>
+     * @var array<\Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface>
      */
     private iterable $validators;
 
     /**
-     * @param iterable<JsonResponseValidatorInterface> $validators
+     * @param iterable<\Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface> $validators
      */
     public function __construct(JsonStreamUtility $jsonStreamUtility, iterable $validators)
     {

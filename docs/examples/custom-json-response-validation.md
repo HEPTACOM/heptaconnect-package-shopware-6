@@ -16,8 +16,8 @@ Tag service so it is picked up as validator
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
 >
     <services>
-        <instanceof id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\JsonResponseValidatorInterface">
-            <tag name="heptaconnect.package.shopware6.json_response_validator"/>
+        <instanceof id="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface">
+            <tag name="heptaconnect.package.shopware6.admin_api.json_response_validator"/>
         </instanceof>
     </services>
 </container>
@@ -33,7 +33,7 @@ Map the portal node configuration to the Admin API services
 
 namespace Portal\Http;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Contract\JsonResponseValidatorInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
