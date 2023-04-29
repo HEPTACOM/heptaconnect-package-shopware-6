@@ -7,10 +7,12 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Acti
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionParams;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoVersionAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ExpectationFailedException;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionParams
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionResult
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoVersionAction
@@ -40,11 +42,11 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class ExpectedPackagesTest extends AbstractActionTestCase
+final class ExpectedPackagesTest extends TestCase
 {
     public function testVersionCanBeMatchedWithConstraints(): void
     {
-        $action = $this->createAction(InfoVersionAction::class);
+        $action = Factory::createActionClass(InfoVersionAction::class);
         $version = $action->getVersion(new InfoVersionParams())->getVersion();
         $params = new InfoVersionParams();
 

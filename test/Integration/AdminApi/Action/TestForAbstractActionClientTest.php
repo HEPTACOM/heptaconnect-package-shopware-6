@@ -6,10 +6,12 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Acti
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\MethodNotAllowedException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Fixture\AdminApi\BrokenActionClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
@@ -37,11 +39,11 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Fixture\AdminApi\BrokenActionCl
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class TestForAbstractActionClientTest extends AbstractActionTestCase
+final class TestForAbstractActionClientTest extends TestCase
 {
     public function testInvokeWrongMethod(): void
     {
-        $action = $this->createAction(BrokenActionClient::class);
+        $action = Factory::createActionClass(BrokenActionClient::class);
 
         static::expectException(MethodNotAllowedException::class);
 

@@ -9,10 +9,12 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionActiva
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ExtensionNotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\PluginNotFoundException;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\AbstractExtensionPayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionActivate\ExtensionActivatePayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionActivateAction
@@ -44,11 +46,11 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class ExtensionActivateActionTest extends AbstractActionTestCase
+final class ExtensionActivateActionTest extends TestCase
 {
     public function testPluginDoesNotExists(): void
     {
-        $action = $this->createAction(ExtensionActivateAction::class);
+        $action = Factory::createActionClass(ExtensionActivateAction::class);
 
         static::expectException(PluginNotFoundException::class);
 
@@ -57,7 +59,7 @@ final class ExtensionActivateActionTest extends AbstractActionTestCase
 
     public function testAppDoesNotExists(): void
     {
-        $action = $this->createAction(ExtensionActivateAction::class);
+        $action = Factory::createActionClass(ExtensionActivateAction::class);
 
         static::expectException(ExtensionNotFoundException::class);
 
@@ -66,7 +68,7 @@ final class ExtensionActivateActionTest extends AbstractActionTestCase
 
     public function testTypeDoesNotExists(): void
     {
-        $action = $this->createAction(ExtensionActivateAction::class);
+        $action = Factory::createActionClass(ExtensionActivateAction::class);
 
         static::expectException(ExtensionNotFoundException::class);
 
@@ -75,7 +77,7 @@ final class ExtensionActivateActionTest extends AbstractActionTestCase
 
     public function testTypeIsEmpty(): void
     {
-        $action = $this->createAction(ExtensionActivateAction::class);
+        $action = Factory::createActionClass(ExtensionActivateAction::class);
 
         static::expectException(NotFoundException::class);
 
@@ -84,7 +86,7 @@ final class ExtensionActivateActionTest extends AbstractActionTestCase
 
     public function testExtensionNameIsEmpty(): void
     {
-        $action = $this->createAction(ExtensionActivateAction::class);
+        $action = Factory::createActionClass(ExtensionActivateAction::class);
 
         static::expectException(NotFoundException::class);
 

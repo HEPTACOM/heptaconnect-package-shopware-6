@@ -7,10 +7,12 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Acti
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoEntitySchema\EntitySchema;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoEntitySchema\InfoEntitySchemaParams;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoEntitySchemaAction;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoEntitySchema\EntitySchema
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoEntitySchema\EntitySchemaCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoEntitySchema\InfoEntitySchemaParams
@@ -41,11 +43,11 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoEntitySchem
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class InfoEntitySchemaActionTest extends AbstractActionTestCase
+final class InfoEntitySchemaActionTest extends TestCase
 {
     public function testGetSchema(): void
     {
-        $action = $this->createAction(InfoEntitySchemaAction::class);
+        $action = Factory::createActionClass(InfoEntitySchemaAction::class);
         $result = $action->getEntitySchema(new InfoEntitySchemaParams());
 
         static::assertTrue($result->getSchemas()->hasEntity('country'));

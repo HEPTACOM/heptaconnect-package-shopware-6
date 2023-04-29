@@ -15,14 +15,15 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityUpdateAct
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Exception\EntityReferenceLocationFormatInvalidException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\WriteTypeIntendException;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
-use Http\Discovery\Psr17FactoryDiscovery;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
@@ -62,23 +63,23 @@ use Http\Discovery\Psr17FactoryDiscovery;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class EntityUpdateTest extends AbstractActionTestCase
+final class EntityUpdateTest extends TestCase
 {
     public function testUpdateTag(): void
     {
-        $create = $this->createAction(EntityCreateAction::class);
+        $create = Factory::createActionClass(EntityCreateAction::class);
         $name = \bin2hex(\random_bytes(24));
         $result = $create->create(new EntityCreatePayload('tag', [
             'name' => $name,
         ]));
 
         $newName = \bin2hex(\random_bytes(24));
-        $client = $this->createAction(EntityUpdateAction::class);
+        $client = Factory::createActionClass(EntityUpdateAction::class);
         $client->update(new EntityUpdatePayload($result->getEntityName(), $result->getId(), [
             'name' => $newName,
         ]));
 
-        $get = $this->createAction(EntityGetAction::class);
+        $get = Factory::createActionClass(EntityGetAction::class);
         static::assertSame(
             $newName,
             $get->get(
@@ -89,7 +90,7 @@ final class EntityUpdateTest extends AbstractActionTestCase
 
     public function testEntityFormatWithEntityThatContainsSeparator(): void
     {
-        $create = $this->createAction(EntityCreateAction::class);
+        $create = Factory::createActionClass(EntityCreateAction::class);
         $result = $create->create(new EntityCreatePayload('log-entry', [
             'message' => 'An test log message',
             'level' => 5,
@@ -98,7 +99,7 @@ final class EntityUpdateTest extends AbstractActionTestCase
             'extra' => [],
         ]));
 
-        $client = $this->createAction(EntityUpdateAction::class);
+        $client = Factory::createActionClass(EntityUpdateAction::class);
         $updateResult = $client->update(new EntityUpdatePayload($result->getEntityName(), $result->getId(), [
             'message' => 'A longer test log message',
         ]));
@@ -110,7 +111,7 @@ final class EntityUpdateTest extends AbstractActionTestCase
 
     public function testEntityFormatWithWrongEntityNameSeparatorFails(): void
     {
-        $client = $this->createAction(EntityUpdateAction::class);
+        $client = Factory::createActionClass(EntityUpdateAction::class);
 
         static::expectException(NotFoundException::class);
 
@@ -119,7 +120,7 @@ final class EntityUpdateTest extends AbstractActionTestCase
 
     public function testUpdatingAnEntityThatDoesNotExists(): void
     {
-        $client = $this->createAction(EntityUpdateAction::class);
+        $client = Factory::createActionClass(EntityUpdateAction::class);
 
         static::expectException(WriteTypeIntendException::class);
 
@@ -132,11 +133,11 @@ final class EntityUpdateTest extends AbstractActionTestCase
     {
         $httpClient = $this->createMock(AuthenticatedHttpClientInterface::class);
         $httpClient->method('sendRequest')->willReturn(
-            Psr17FactoryDiscovery::findResponseFactory()
+            BaseFactory::createResponseFactory()
                 ->createResponse(204)
                 ->withAddedHeader('location', 'http://127.0.0.1/')
         );
-        $client = new EntityUpdateAction($this->createActionClient($httpClient));
+        $client = new EntityUpdateAction(Factory::createActionClientUtils($httpClient));
 
         static::expectException(EntityReferenceLocationFormatInvalidException::class);
 

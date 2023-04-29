@@ -10,14 +10,15 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contrac
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\ClientMiddleware\PackageExpectationMiddleware;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract\PackageExpectationCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract\PackageExpectationInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
-use Http\Discovery\Psr17FactoryDiscovery;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionParams
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionResult
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoVersionAction
@@ -49,11 +50,11 @@ use Psr\Http\Message\ResponseInterface;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class PackageExpectationMiddlewareTest extends AbstractActionTestCase
+final class PackageExpectationMiddlewareTest extends TestCase
 {
     public function testExpectationsFromMiddlewareAndActionArgumentAreMerged(): void
     {
-        $realClient = $this->createClient();
+        $realClient = Factory::createAuthenticatedClient();
         $middleware = new PackageExpectationMiddleware(new PackageExpectationCollection([
             new class() implements PackageExpectationInterface {
                 public function getPackageExpectation(): array
@@ -63,7 +64,7 @@ final class PackageExpectationMiddlewareTest extends AbstractActionTestCase
                     ];
                 }
             },
-        ]), Psr17FactoryDiscovery::findUriFactory(), $this->createApiConfigurationStorage());
+        ]), BaseFactory::createUriFactory(), Factory::createApiConfigurationStorage());
 
         $innerClient = $this->createMock(AuthenticatedHttpClientInterface::class);
         $innerClient->method('sendRequest')
@@ -91,14 +92,14 @@ final class PackageExpectationMiddlewareTest extends AbstractActionTestCase
                 return $middlewareClient->sendRequest($request);
             });
 
-        $action = new InfoVersionAction($this->createActionClient($client));
+        $action = new InfoVersionAction(Factory::createActionClientUtils($client));
 
         $action->getVersion((new InfoVersionParams())->withAddedExpectedPackage('shopware/core', '<6.5.0'));
     }
 
     public function testExpectationsFromMiddlewareIsSetWhenNoExpectationInActionArgument(): void
     {
-        $realClient = $this->createClient();
+        $realClient = Factory::createAuthenticatedClient();
         $middleware = new PackageExpectationMiddleware(new PackageExpectationCollection([
             new class() implements PackageExpectationInterface {
                 public function getPackageExpectation(): array
@@ -108,7 +109,7 @@ final class PackageExpectationMiddlewareTest extends AbstractActionTestCase
                     ];
                 }
             },
-        ]), Psr17FactoryDiscovery::findUriFactory(), $this->createApiConfigurationStorage());
+        ]), BaseFactory::createUriFactory(), Factory::createApiConfigurationStorage());
 
         $innerClient = $this->createMock(AuthenticatedHttpClientInterface::class);
         $innerClient->method('sendRequest')
@@ -135,7 +136,7 @@ final class PackageExpectationMiddlewareTest extends AbstractActionTestCase
                 return $middlewareClient->sendRequest($request);
             });
 
-        $action = new InfoVersionAction($this->createActionClient($client));
+        $action = new InfoVersionAction(Factory::createActionClientUtils($client));
 
         $action->getVersion(new InfoVersionParams());
     }

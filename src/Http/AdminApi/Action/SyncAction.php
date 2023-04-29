@@ -11,7 +11,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\S
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncPayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncResult;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Exception\SyncResultException;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
@@ -23,7 +23,7 @@ final class SyncAction extends AbstractActionClient implements SyncActionInterfa
     private JsonStreamUtility $jsonStream;
 
     public function __construct(
-        ActionClient $actionClient,
+        ActionClientUtils $actionClient,
         SyncPayloadInterceptorCollection $syncPayloadInterceptors,
         JsonStreamUtility $jsonStream
     ) {

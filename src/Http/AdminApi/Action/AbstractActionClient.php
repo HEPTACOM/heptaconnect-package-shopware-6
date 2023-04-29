@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract\ExpectedPackagesAwareInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -14,9 +14,9 @@ use Psr\Http\Message\ResponseInterface;
  */
 abstract class AbstractActionClient
 {
-    protected ActionClient $actionClient;
+    protected ActionClientUtils $actionClient;
 
-    public function __construct(ActionClient $actionClient)
+    public function __construct(ActionClientUtils $actionClient)
     {
         $this->actionClient = $actionClient;
     }

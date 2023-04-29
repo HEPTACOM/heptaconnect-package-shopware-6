@@ -6,14 +6,14 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionUpload\ExtensionUploadActionInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionUpload\ExtensionUploadPayload;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils;
 use Psr\Http\Message\StreamFactoryInterface;
 
 final class ExtensionUploadAction extends AbstractActionClient implements ExtensionUploadActionInterface
 {
     private StreamFactoryInterface $streamFactory;
 
-    public function __construct(ActionClient $actionClient, StreamFactoryInterface $streamFactory)
+    public function __construct(ActionClientUtils $actionClient, StreamFactoryInterface $streamFactory)
     {
         parent::__construct($actionClient);
         $this->streamFactory = $streamFactory;

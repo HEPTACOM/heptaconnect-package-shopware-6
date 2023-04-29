@@ -20,8 +20,9 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\PluginNotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\PluginNotInstalledException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\ExtensionClient;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
-use Http\Discovery\Psr17FactoryDiscovery;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationBucket
@@ -42,7 +43,7 @@ use Http\Discovery\Psr17FactoryDiscovery;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\NotFilter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\AbstractExtensionPayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionRefresh\ExtensionRefreshParams
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionUninstall\ExtensionUninstallPayload
@@ -98,7 +99,7 @@ use Http\Discovery\Psr17FactoryDiscovery;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\ExtensionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class ExtensionClientTest extends AbstractActionTestCase
+final class ExtensionClientTest extends TestCase
 {
     public function testPluginLifecycle(): void
     {
@@ -176,18 +177,18 @@ final class ExtensionClientTest extends AbstractActionTestCase
     private function createEntityClient(): ExtensionClient
     {
         return new ExtensionClient(
-            $this->createAction(ExtensionRefreshAction::class),
-            $this->createAction(ExtensionActivateAction::class),
-            $this->createAction(ExtensionDeactivateAction::class),
-            $this->createAction(ExtensionInstallAction::class),
-            $this->createAction(ExtensionUninstallAction::class),
-            $this->createAction(ExtensionUpdateAction::class),
-            $this->createAction(ExtensionUploadAction::class, Psr17FactoryDiscovery::findStreamFactory()),
-            $this->createAction(ExtensionRemoveAction::class),
-            $this->createAction(EntitySearchAction::class, new CriteriaFormatter()),
-            $this->createAction(EntitySearchIdAction::class, new CriteriaFormatter()),
-            $this->createAction(StorePluginSearchAction::class),
-            Psr17FactoryDiscovery::findStreamFactory(),
+            Factory::createActionClass(ExtensionRefreshAction::class),
+            Factory::createActionClass(ExtensionActivateAction::class),
+            Factory::createActionClass(ExtensionDeactivateAction::class),
+            Factory::createActionClass(ExtensionInstallAction::class),
+            Factory::createActionClass(ExtensionUninstallAction::class),
+            Factory::createActionClass(ExtensionUpdateAction::class),
+            Factory::createActionClass(ExtensionUploadAction::class, BaseFactory::createStreamFactory()),
+            Factory::createActionClass(ExtensionRemoveAction::class),
+            Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter()),
+            Factory::createActionClass(EntitySearchIdAction::class, new CriteriaFormatter()),
+            Factory::createActionClass(StorePluginSearchAction::class),
+            BaseFactory::createStreamFactory(),
         );
     }
 

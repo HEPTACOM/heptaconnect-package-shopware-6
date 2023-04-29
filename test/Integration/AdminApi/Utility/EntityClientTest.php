@@ -15,7 +15,8 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchIdA
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityUpdateAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ResourceNotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationBucket
@@ -38,7 +39,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingContract
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
@@ -88,7 +89,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class EntityClientTest extends AbstractActionTestCase
+final class EntityClientTest extends TestCase
 {
     public function testIterateCountries(): void
     {
@@ -226,12 +227,12 @@ final class EntityClientTest extends AbstractActionTestCase
     private function createEntityClient(): EntityClient
     {
         return new EntityClient(
-            $this->createAction(EntitySearchAction::class, new CriteriaFormatter()),
-            $this->createAction(EntitySearchIdAction::class, new CriteriaFormatter()),
-            $this->createAction(EntityCreateAction::class),
-            $this->createAction(EntityGetAction::class),
-            $this->createAction(EntityUpdateAction::class),
-            $this->createAction(EntityDeleteAction::class)
+            Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter()),
+            Factory::createActionClass(EntitySearchIdAction::class, new CriteriaFormatter()),
+            Factory::createActionClass(EntityCreateAction::class),
+            Factory::createActionClass(EntityGetAction::class),
+            Factory::createActionClass(EntityUpdateAction::class),
+            Factory::createActionClass(EntityDeleteAction::class)
         );
     }
 }

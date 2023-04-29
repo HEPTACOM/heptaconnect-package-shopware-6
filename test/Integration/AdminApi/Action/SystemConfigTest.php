@@ -13,10 +13,12 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\SystemConfigBat
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\SystemConfigGetAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\SystemConfigPostAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\UnknownError;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionParams
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionResult
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\SystemConfigBatch\SystemConfigBatchPayload
@@ -53,13 +55,13 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class SystemConfigTest extends AbstractActionTestCase
+final class SystemConfigTest extends TestCase
 {
     public function testReadWriteSingleAndBatchCycle(): void
     {
-        $batchAction = $this->createAction(SystemConfigBatchAction::class);
-        $getAction = $this->createAction(SystemConfigGetAction::class);
-        $postAction = $this->createAction(SystemConfigPostAction::class);
+        $batchAction = Factory::createActionClass(SystemConfigBatchAction::class);
+        $getAction = Factory::createActionClass(SystemConfigGetAction::class);
+        $postAction = Factory::createActionClass(SystemConfigPostAction::class);
 
         $coreSettings = $getAction->getSystemConfig(new SystemConfigGetCriteria('core'))->getValues();
 
@@ -90,7 +92,7 @@ final class SystemConfigTest extends AbstractActionTestCase
 
     public function testWritingInvalidSalesChannelInBatch(): void
     {
-        $info = $this->createAction(InfoVersionAction::class)->getVersion(new InfoVersionParams())->getVersion();
+        $info = Factory::createActionClass(InfoVersionAction::class)->getVersion(new InfoVersionParams())->getVersion();
 
         // TODO we have to investigate what is happening here
         if (\version_compare($info, '6.4.1.0', '>')) {
@@ -99,7 +101,7 @@ final class SystemConfigTest extends AbstractActionTestCase
             static::expectNotToPerformAssertions();
         }
 
-        $action = $this->createAction(SystemConfigBatchAction::class);
+        $action = Factory::createActionClass(SystemConfigBatchAction::class);
 
         $action->batchSystemConfig(new SystemConfigBatchPayload([
             '00000000000000000000000000000000' => [
@@ -110,7 +112,7 @@ final class SystemConfigTest extends AbstractActionTestCase
 
     public function testWritingInvalidSalesChannelInPost(): void
     {
-        $info = $this->createAction(InfoVersionAction::class)->getVersion(new InfoVersionParams())->getVersion();
+        $info = Factory::createActionClass(InfoVersionAction::class)->getVersion(new InfoVersionParams())->getVersion();
 
         // TODO we have to investigate what is happening here
         if (\version_compare($info, '6.4.1.0', '>')) {
@@ -119,7 +121,7 @@ final class SystemConfigTest extends AbstractActionTestCase
             static::expectNotToPerformAssertions();
         }
 
-        $action = $this->createAction(SystemConfigPostAction::class);
+        $action = Factory::createActionClass(SystemConfigPostAction::class);
 
         $action->postSystemConfig(new SystemConfigPostPayload([
             'HeptaConnectPackageShopware6.config.testValue' => 'invalid',
@@ -130,14 +132,14 @@ final class SystemConfigTest extends AbstractActionTestCase
     {
         static::expectNotToPerformAssertions();
 
-        $action = $this->createAction(SystemConfigPostAction::class);
+        $action = Factory::createActionClass(SystemConfigPostAction::class);
 
         $action->postSystemConfig(new SystemConfigPostPayload([], '00000000000000000000000000000000'));
     }
 
     public function testWritingUnkeyedValuesInPost(): void
     {
-        $action = $this->createAction(SystemConfigPostAction::class);
+        $action = Factory::createActionClass(SystemConfigPostAction::class);
 
         static::expectException(UnknownError::class);
 
@@ -146,13 +148,13 @@ final class SystemConfigTest extends AbstractActionTestCase
 
     public function testReadDomainThatIsConfigurationKey(): void
     {
-        $postAction = $this->createAction(SystemConfigPostAction::class);
+        $postAction = Factory::createActionClass(SystemConfigPostAction::class);
 
         $postAction->postSystemConfig(new SystemConfigPostPayload([
             'HeptaConnectPackageShopware6.config.testValue' => 'testReadDomainThatIsConfigurationKey',
         ]));
 
-        $getAction = $this->createAction(SystemConfigGetAction::class);
+        $getAction = Factory::createActionClass(SystemConfigGetAction::class);
 
         static::assertSame([], $getAction->getSystemConfig(
             new SystemConfigGetCriteria('HeptaConnectPackageShopware6.config.testValue')

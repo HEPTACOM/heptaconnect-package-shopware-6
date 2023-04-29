@@ -8,11 +8,13 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Extens
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionUploadAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\PluginNoPluginFoundInZipException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\UnknownError;
-use Http\Discovery\Psr17FactoryDiscovery;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionUpload\ExtensionUploadPayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionUploadAction
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
@@ -43,12 +45,12 @@ use Http\Discovery\Psr17FactoryDiscovery;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class ExtensionUploadActionTest extends AbstractActionTestCase
+final class ExtensionUploadActionTest extends TestCase
 {
     public function testInvalidFileName(): void
     {
-        $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
-        $action = $this->createAction(ExtensionUploadAction::class, $streamFactory);
+        $streamFactory = BaseFactory::createStreamFactory();
+        $action = Factory::createActionClass(ExtensionUploadAction::class, $streamFactory);
 
         static::expectException(PluginNoPluginFoundInZipException::class);
 
@@ -60,8 +62,8 @@ final class ExtensionUploadActionTest extends AbstractActionTestCase
 
     public function testInvalidZipFile(): void
     {
-        $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
-        $action = $this->createAction(ExtensionUploadAction::class, $streamFactory);
+        $streamFactory = BaseFactory::createStreamFactory();
+        $action = Factory::createActionClass(ExtensionUploadAction::class, $streamFactory);
 
         static::expectException(UnknownError::class);
 

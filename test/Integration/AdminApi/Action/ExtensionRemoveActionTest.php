@@ -8,10 +8,12 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Extens
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionRemoveAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\PluginNotFoundException;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\AbstractExtensionPayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionRemove\ExtensionRemovePayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionRemoveAction
@@ -43,11 +45,11 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class ExtensionRemoveActionTest extends AbstractActionTestCase
+final class ExtensionRemoveActionTest extends TestCase
 {
     public function testPluginDoesNotExists(): void
     {
-        $action = $this->createAction(ExtensionRemoveAction::class);
+        $action = Factory::createActionClass(ExtensionRemoveAction::class);
 
         static::expectException(PluginNotFoundException::class);
 
@@ -58,7 +60,7 @@ final class ExtensionRemoveActionTest extends AbstractActionTestCase
     {
         static::expectNotToPerformAssertions();
 
-        $action = $this->createAction(ExtensionRemoveAction::class);
+        $action = Factory::createActionClass(ExtensionRemoveAction::class);
 
         $action->removeExtension(new ExtensionRemovePayload('app', 'AppThatDoesNotExists'));
     }
@@ -67,14 +69,14 @@ final class ExtensionRemoveActionTest extends AbstractActionTestCase
     {
         static::expectNotToPerformAssertions();
 
-        $action = $this->createAction(ExtensionRemoveAction::class);
+        $action = Factory::createActionClass(ExtensionRemoveAction::class);
 
         $action->removeExtension(new ExtensionRemovePayload('null', 'FooBar'));
     }
 
     public function testTypeIsEmpty(): void
     {
-        $action = $this->createAction(ExtensionRemoveAction::class);
+        $action = Factory::createActionClass(ExtensionRemoveAction::class);
 
         static::expectException(NotFoundException::class);
 
@@ -83,7 +85,7 @@ final class ExtensionRemoveActionTest extends AbstractActionTestCase
 
     public function testExtensionNameIsEmpty(): void
     {
-        $action = $this->createAction(ExtensionRemoveAction::class);
+        $action = Factory::createActionClass(ExtensionRemoveAction::class);
 
         static::expectException(NotFoundException::class);
 

@@ -13,14 +13,15 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityGetAction
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Exception\EntityReferenceLocationFormatInvalidException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\WriteTypeIntendException;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
-use Http\Discovery\Psr17FactoryDiscovery;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
@@ -57,17 +58,17 @@ use Http\Discovery\Psr17FactoryDiscovery;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class EntityCreateTest extends AbstractActionTestCase
+final class EntityCreateTest extends TestCase
 {
     public function testCreateTag(): void
     {
-        $client = $this->createAction(EntityCreateAction::class);
+        $client = Factory::createActionClass(EntityCreateAction::class);
         $name = \bin2hex(\random_bytes(24));
         $result = $client->create(new EntityCreatePayload('tag', [
             'name' => $name,
         ]));
 
-        $get = $this->createAction(EntityGetAction::class);
+        $get = Factory::createActionClass(EntityGetAction::class);
         static::assertSame(
             $name,
             $get->get(
@@ -78,7 +79,7 @@ final class EntityCreateTest extends AbstractActionTestCase
 
     public function testCreateTagWithPredefinedId(): void
     {
-        $client = $this->createAction(EntityCreateAction::class);
+        $client = Factory::createActionClass(EntityCreateAction::class);
         $id = \bin2hex(\random_bytes(16));
         $name = \bin2hex(\random_bytes(24));
         $result = $client->create(new EntityCreatePayload('tag', [
@@ -92,7 +93,7 @@ final class EntityCreateTest extends AbstractActionTestCase
 
     public function testEntityFormatWithEntityThatContainsSeparator(): void
     {
-        $client = $this->createAction(EntityCreateAction::class);
+        $client = Factory::createActionClass(EntityCreateAction::class);
         $result = $client->create(new EntityCreatePayload('log-entry', [
             'message' => 'An test log message',
             'level' => 5,
@@ -106,7 +107,7 @@ final class EntityCreateTest extends AbstractActionTestCase
 
     public function testEntityFormatWithWrongEntityNameSeparatorFails(): void
     {
-        $client = $this->createAction(EntityCreateAction::class);
+        $client = Factory::createActionClass(EntityCreateAction::class);
 
         static::expectException(NotFoundException::class);
 
@@ -115,7 +116,7 @@ final class EntityCreateTest extends AbstractActionTestCase
 
     public function testCreatingAnEntityThatAlreadyExists(): void
     {
-        $client = $this->createAction(EntityCreateAction::class);
+        $client = Factory::createActionClass(EntityCreateAction::class);
         $defaultCurrencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
 
         static::expectException(WriteTypeIntendException::class);
@@ -131,11 +132,11 @@ final class EntityCreateTest extends AbstractActionTestCase
     {
         $httpClient = $this->createMock(AuthenticatedHttpClientInterface::class);
         $httpClient->method('sendRequest')->willReturn(
-            Psr17FactoryDiscovery::findResponseFactory()
+            BaseFactory::createRequestFactory()
                 ->createResponse(204)
                 ->withAddedHeader('location', 'http://127.0.0.1/')
         );
-        $client = new EntityCreateAction($this->createActionClient($httpClient));
+        $client = new EntityCreateAction(Factory::createActionClientUtils($httpClient));
 
         static::expectException(EntityReferenceLocationFormatInvalidException::class);
 

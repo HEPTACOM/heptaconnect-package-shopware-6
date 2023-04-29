@@ -6,7 +6,6 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Unit\AdminApi\ErrorHandli
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseErrorHandler;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
-use Http\Discovery\Psr17FactoryDiscovery;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -21,8 +20,8 @@ final class JsonResponseErrorHandlerTest extends TestCase
 
         $jsonStreamUtility = BaseFactory::createJsonStreamUtility();
         $errorHandler = new JsonResponseErrorHandler($jsonStreamUtility, []);
-        $request = Psr17FactoryDiscovery::findRequestFactory()->createRequest('GET', '/');
-        $response = Psr17FactoryDiscovery::findResponseFactory()->createResponse(200, 'OK')->withBody(
+        $request = BaseFactory::createRequestFactory()->createRequest('GET', '/');
+        $response = BaseFactory::createResponseFactory()->createResponse(200, 'OK')->withBody(
             $jsonStreamUtility->fromPayloadToStream(['data' => ['foo' => 'bar']])
         );
         $errorHandler->throwException($request, $response);

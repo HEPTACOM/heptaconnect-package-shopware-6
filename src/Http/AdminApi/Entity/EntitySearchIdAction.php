@@ -6,7 +6,7 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity;
 
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CriteriaFormatterInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearchId\EntitySearchIdActionInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearchId\EntitySearchIdCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearchId\EntitySearchIdResult;
@@ -15,7 +15,7 @@ final class EntitySearchIdAction extends AbstractActionClient implements EntityS
 {
     private CriteriaFormatterInterface $criteriaFormatter;
 
-    public function __construct(ActionClient $actionClient, CriteriaFormatterInterface $criteriaFormatter)
+    public function __construct(ActionClientUtils $actionClient, CriteriaFormatterInterface $criteriaFormatter)
     {
         parent::__construct($actionClient);
         $this->criteriaFormatter = $criteriaFormatter;

@@ -15,14 +15,15 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityGetAction
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Exception\EntityReferenceLocationFormatInvalidException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ResourceNotFoundException;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
-use Http\Discovery\Psr17FactoryDiscovery;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
@@ -62,28 +63,28 @@ use Http\Discovery\Psr17FactoryDiscovery;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class EntityDeleteTest extends AbstractActionTestCase
+final class EntityDeleteTest extends TestCase
 {
     public function testDeleteTag(): void
     {
-        $create = $this->createAction(EntityCreateAction::class);
+        $create = Factory::createActionClass(EntityCreateAction::class);
         $name = \bin2hex(\random_bytes(24));
         $result = $create->create(new EntityCreatePayload('tag', [
             'name' => $name,
         ]));
 
-        $client = $this->createAction(EntityDeleteAction::class);
+        $client = Factory::createActionClass(EntityDeleteAction::class);
         $client->delete(new EntityDeleteCriteria($result->getEntityName(), $result->getId()));
 
         static::expectException(ResourceNotFoundException::class);
 
-        $get = $this->createAction(EntityGetAction::class);
+        $get = Factory::createActionClass(EntityGetAction::class);
         $get->get(new EntityGetCriteria($result->getEntityName(), $result->getId(), new Criteria()));
     }
 
     public function testEntityFormatWithEntityThatContainsSeparator(): void
     {
-        $create = $this->createAction(EntityCreateAction::class);
+        $create = Factory::createActionClass(EntityCreateAction::class);
         $result = $create->create(new EntityCreatePayload('log-entry', [
             'message' => 'An test log message',
             'level' => 5,
@@ -92,7 +93,7 @@ final class EntityDeleteTest extends AbstractActionTestCase
             'extra' => [],
         ]));
 
-        $client = $this->createAction(EntityDeleteAction::class);
+        $client = Factory::createActionClass(EntityDeleteAction::class);
         $deleteResult = $client->delete(new EntityDeleteCriteria($result->getEntityName(), $result->getId()));
 
         static::assertSame('log-entry', $result->getEntityName());
@@ -102,7 +103,7 @@ final class EntityDeleteTest extends AbstractActionTestCase
 
     public function testEntityFormatWithWrongEntityNameSeparatorFails(): void
     {
-        $client = $this->createAction(EntityDeleteAction::class);
+        $client = Factory::createActionClass(EntityDeleteAction::class);
 
         static::expectException(NotFoundException::class);
 
@@ -111,7 +112,7 @@ final class EntityDeleteTest extends AbstractActionTestCase
 
     public function testDeletingAnEntityThatDoesNotExists(): void
     {
-        $client = $this->createAction(EntityDeleteAction::class);
+        $client = Factory::createActionClass(EntityDeleteAction::class);
 
         static::expectException(ResourceNotFoundException::class);
 
@@ -122,11 +123,11 @@ final class EntityDeleteTest extends AbstractActionTestCase
     {
         $httpClient = $this->createMock(AuthenticatedHttpClientInterface::class);
         $httpClient->method('sendRequest')->willReturn(
-            Psr17FactoryDiscovery::findResponseFactory()
+            BaseFactory::createResponseFactory()
                 ->createResponse(204)
                 ->withAddedHeader('location', 'http://127.0.0.1/')
         );
-        $client = new EntityDeleteAction($this->createActionClient($httpClient));
+        $client = new EntityDeleteAction(Factory::createActionClientUtils($httpClient));
 
         static::expectException(EntityReferenceLocationFormatInvalidException::class);
 

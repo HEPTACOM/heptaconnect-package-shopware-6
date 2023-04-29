@@ -10,7 +10,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationRes
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CriteriaFormatterInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchActionInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchResult;
@@ -19,7 +19,7 @@ final class EntitySearchAction extends AbstractActionClient implements EntitySea
 {
     private CriteriaFormatterInterface $criteriaFormatter;
 
-    public function __construct(ActionClient $actionClient, CriteriaFormatterInterface $criteriaFormatter)
+    public function __construct(ActionClientUtils $actionClient, CriteriaFormatterInterface $criteriaFormatter)
     {
         parent::__construct($actionClient);
         $this->criteriaFormatter = $criteriaFormatter;

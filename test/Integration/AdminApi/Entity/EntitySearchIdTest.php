@@ -9,7 +9,8 @@ use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearchId\EntitySearchIdCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchIdAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
@@ -17,7 +18,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
@@ -49,11 +50,11 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class EntitySearchIdTest extends AbstractActionTestCase
+final class EntitySearchIdTest extends TestCase
 {
     public function testFetchIdsWithEmptyCriteria(): void
     {
-        $client = $this->createAction(EntitySearchIdAction::class, new CriteriaFormatter());
+        $client = Factory::createActionClass(EntitySearchIdAction::class, new CriteriaFormatter());
         $result = $client->searchIds(new EntitySearchIdCriteria('country', new Criteria()));
 
         static::assertNotSame([], $result->getData());
@@ -66,7 +67,7 @@ final class EntitySearchIdTest extends AbstractActionTestCase
 
     public function testEntityFormatWithEntityThatContainsSeparator(): void
     {
-        $client = $this->createAction(EntitySearchIdAction::class, new CriteriaFormatter());
+        $client = Factory::createActionClass(EntitySearchIdAction::class, new CriteriaFormatter());
         $result = $client->searchIds(new EntitySearchIdCriteria('sales-channel', new Criteria()));
 
         static::assertNotSame([], $result->getData());
@@ -79,7 +80,7 @@ final class EntitySearchIdTest extends AbstractActionTestCase
 
     public function testEntityFormatWithWrongEntityNameSeparatorFails(): void
     {
-        $client = $this->createAction(EntitySearchIdAction::class, new CriteriaFormatter());
+        $client = Factory::createActionClass(EntitySearchIdAction::class, new CriteriaFormatter());
 
         static::expectException(NotFoundException::class);
 

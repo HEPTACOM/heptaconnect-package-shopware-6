@@ -8,10 +8,12 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Extens
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionUninstallAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\PluginNotFoundException;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\AbstractExtensionPayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\ExtensionUninstall\ExtensionUninstallPayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionUninstallAction
@@ -43,11 +45,11 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class ExtensionUninstallActionTest extends AbstractActionTestCase
+final class ExtensionUninstallActionTest extends TestCase
 {
     public function testPluginDoesNotExists(): void
     {
-        $action = $this->createAction(ExtensionUninstallAction::class);
+        $action = Factory::createActionClass(ExtensionUninstallAction::class);
 
         static::expectException(PluginNotFoundException::class);
 
@@ -58,7 +60,7 @@ final class ExtensionUninstallActionTest extends AbstractActionTestCase
     {
         static::expectNotToPerformAssertions();
 
-        $action = $this->createAction(ExtensionUninstallAction::class);
+        $action = Factory::createActionClass(ExtensionUninstallAction::class);
 
         $action->uninstallExtension(new ExtensionUninstallPayload('app', 'AppThatDoesNotExists'));
     }
@@ -67,14 +69,14 @@ final class ExtensionUninstallActionTest extends AbstractActionTestCase
     {
         static::expectNotToPerformAssertions();
 
-        $action = $this->createAction(ExtensionUninstallAction::class);
+        $action = Factory::createActionClass(ExtensionUninstallAction::class);
 
         $action->uninstallExtension(new ExtensionUninstallPayload('null', 'FooBar'));
     }
 
     public function testTypeIsEmpty(): void
     {
-        $action = $this->createAction(ExtensionUninstallAction::class);
+        $action = Factory::createActionClass(ExtensionUninstallAction::class);
 
         static::expectException(NotFoundException::class);
 
@@ -83,7 +85,7 @@ final class ExtensionUninstallActionTest extends AbstractActionTestCase
 
     public function testExtensionNameIsEmpty(): void
     {
-        $action = $this->createAction(ExtensionUninstallAction::class);
+        $action = Factory::createActionClass(ExtensionUninstallAction::class);
 
         static::expectException(NotFoundException::class);
 

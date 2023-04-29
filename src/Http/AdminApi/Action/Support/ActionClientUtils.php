@@ -16,7 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * A class holding dependencies and utility methods to easily create JSON requests and parse JSON responses with meaningful exceptions.
  */
-final class ActionClient
+final class ActionClientUtils
 {
     private AuthenticatedHttpClientInterface $client;
 
@@ -105,10 +105,5 @@ final class ActionClient
         $this->errorHandler->throwException($request, $response);
 
         return $this->jsonStreamUtility->fromStreamToPayload($response->getBody());
-    }
-
-    public function getClient(): AuthenticatedHttpClientInterface
-    {
-        return $this->client;
     }
 }

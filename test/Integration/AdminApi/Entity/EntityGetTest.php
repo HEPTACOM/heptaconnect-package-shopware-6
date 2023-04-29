@@ -9,13 +9,14 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\Entity
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityGetAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ResourceNotFoundException;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\AbstractActionTestCase;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
- * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
@@ -48,11 +49,11 @@ use Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Action\Abs
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
-final class EntityGetTest extends AbstractActionTestCase
+final class EntityGetTest extends TestCase
 {
     public function testGetDefaultCurrency(): void
     {
-        $client = $this->createAction(EntityGetAction::class);
+        $client = Factory::createActionClass(EntityGetAction::class);
         $defaultCurrencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $currency = $client->get(new EntityGetCriteria('currency', $defaultCurrencyId, new Criteria()))->getEntity();
 
@@ -63,7 +64,7 @@ final class EntityGetTest extends AbstractActionTestCase
 
     public function testFailGetOnMissingEntity(): void
     {
-        $client = $this->createAction(EntityGetAction::class);
+        $client = Factory::createActionClass(EntityGetAction::class);
 
         static::expectException(ResourceNotFoundException::class);
 
@@ -72,7 +73,7 @@ final class EntityGetTest extends AbstractActionTestCase
 
     public function testFailGetOnMissingEntityName(): void
     {
-        $client = $this->createAction(EntityGetAction::class);
+        $client = Factory::createActionClass(EntityGetAction::class);
 
         static::expectException(NotFoundException::class);
 
