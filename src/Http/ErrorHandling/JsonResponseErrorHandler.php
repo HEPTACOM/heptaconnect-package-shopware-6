@@ -17,12 +17,12 @@ final class JsonResponseErrorHandler implements ErrorHandlerInterface
     private JsonStreamUtility $jsonStreamUtility;
 
     /**
-     * @var array<\Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface>
+     * @var array<JsonResponseValidatorInterface>
      */
     private iterable $validators;
 
     /**
-     * @param iterable<\Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface> $validators
+     * @param iterable<JsonResponseValidatorInterface> $validators
      */
     public function __construct(JsonStreamUtility $jsonStreamUtility, iterable $validators)
     {

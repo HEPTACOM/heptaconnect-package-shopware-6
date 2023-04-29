@@ -15,7 +15,7 @@ interface ErrorHandlerInterface
      * When no error is found, no exception is thrown.
      *
      * @throws \Throwable
-     * @throws \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\JsonResponseValidationCollectionException
+     * @throws JsonResponseValidationCollectionException
      */
     public function throwException(RequestInterface $request, ResponseInterface $response): void;
 }

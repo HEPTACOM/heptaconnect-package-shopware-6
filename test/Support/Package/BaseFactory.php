@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package;
 
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\FieldIsBlankValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\InvalidLimitQueryValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\MethodNotAllowedValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\NotFoundValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ResourceNotFoundValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ServerErrorValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\UnmappedFieldValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
@@ -51,5 +59,21 @@ final class BaseFactory
     public static function createSimpleCache(): CacheInterface
     {
         return new Psr16Cache(new ArrayAdapter());
+    }
+
+    /**
+     * @return JsonResponseValidatorInterface[]
+     */
+    public static function createJsonResponseValidators(): array
+    {
+        return [
+            new ServerErrorValidator(),
+            new FieldIsBlankValidator(),
+            new ResourceNotFoundValidator(),
+            new InvalidLimitQueryValidator(),
+            new UnmappedFieldValidator(),
+            new NotFoundValidator(),
+            new MethodNotAllowedValidator(),
+        ];
     }
 }

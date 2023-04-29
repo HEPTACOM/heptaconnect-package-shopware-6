@@ -13,7 +13,7 @@ interface EntityDeleteActionInterface
      * Deletes the requested entity.
      *
      * @throws EntityReferenceLocationFormatInvalidException when the response does not contain a reference to the new entity
-     * @throws \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\ResourceNotFoundException                     when the entity does not exist
+     * @throws ResourceNotFoundException                     when the entity does not exist
      * @throws \Throwable
      */
     public function delete(EntityDeleteCriteria $criteria): EntityDeleteResult;

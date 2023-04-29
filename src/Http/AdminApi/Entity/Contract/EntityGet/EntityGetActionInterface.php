@@ -11,7 +11,7 @@ interface EntityGetActionInterface
     /**
      * Reads the requested entity.
      *
-     * @throws \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\ResourceNotFoundException when the entity does not exist
+     * @throws ResourceNotFoundException when the entity does not exist
      * @throws \Throwable
      */
     public function get(EntityGetCriteria $criteria): EntityGetResult;
