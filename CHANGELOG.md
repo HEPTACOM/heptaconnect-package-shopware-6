@@ -130,6 +130,7 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 - Add contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\ContextTokenAwareInterface` and base implementation `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Support\ContextTokenAwareTrait` to make structs aware of optional context tokens, so it can be applied to requests
 - Add contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\ContextTokenRequiredInterface` and base implementation `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Support\ContextTokenRequiredTrait` to make structs aware of required context tokens, so it can be applied to requests
 - Add service `Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler.store_api` of type `\Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler` to validate Store API responses
+- Add base class `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\AbstractActionClient` with extracted dependencies in `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Support\ActionClientUtils` for services to work with Shopware action endpoints
 - Add JSON response validator `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\ErrorHandling\JsonResponseValidator\CustomerNotLoggedInValidator` to convert a customer not logged in error into `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\ErrorHandling\Exception\CustomerNotLoggedInValidator`
 
 ### Changed
