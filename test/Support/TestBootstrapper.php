@@ -14,6 +14,10 @@ final class TestBootstrapper
 
     private ?string $adminApiPassword = null;
 
+    private ?string $storeApiUrl = null;
+
+    private ?string $storeApiAccessKey = null;
+
     private function __construct()
     {
     }
@@ -32,6 +36,8 @@ final class TestBootstrapper
         $this->adminApiUrl = $this->env('TEST_ADMIN_API_URL');
         $this->adminApiUsername = $this->env('TEST_ADMIN_API_USERNAME');
         $this->adminApiPassword = $this->env('TEST_ADMIN_API_PASSWORD');
+        $this->storeApiUrl = $this->env('TEST_STORE_API_URL');
+        $this->storeApiAccessKey = $this->env('TEST_STORE_API_ACCESS_KEY');
 
         return $this;
     }
@@ -49,6 +55,16 @@ final class TestBootstrapper
     public function getAdminApiPassword(): ?string
     {
         return $this->adminApiPassword;
+    }
+
+    public function getStoreApiUrl(): ?string
+    {
+        return $this->storeApiUrl;
+    }
+
+    public function getStoreApiAccessKey(): ?string
+    {
+        return $this->storeApiAccessKey;
     }
 
     private function env(string $key): ?string

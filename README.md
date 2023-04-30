@@ -125,6 +125,7 @@ Thank you for considering contributing to this package! Be sure to sign the [CLA
 1. Check and fix code style `make cs-fix && make cs`
 2. Setup Shopware 6 instance for testing. Checkout [dockware.io](https://dockware.io) for a Shopware 6 development instance
    * Set `TEST_ADMIN_API_URL`, `TEST_ADMIN_API_USERNAME`, `TEST_ADMIN_API_PASSWORD` to point to your Shopware 6 instance 
+   * Optionally set `TEST_STORE_API_URL`, `TEST_STORE_API_ACCESS_KEY` to point to your Shopware 6 instance. If not set the Admin API credentials will be used to create the data 
 3. Check tests `make -e test`
 4. Check whether test code coverage is same or higher `make -e coverage`
 5. Check whether tests can find future obscurities `make -e infection`
