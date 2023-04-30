@@ -97,39 +97,27 @@ final class ReadmeTest extends TestCase
         ]);
 
         $colorNamesByName = $entityClient->groupFieldByField('property_group_option', 'colorHexCode', 'name', new EqualsFilter('group.id', $propertyGroupId));
-        ob_start();
-        var_dump($colorNamesByName);
-        $output = trim(ob_get_clean());
+        $output = \var_export($colorNamesByName, true);
 
         $varDump = <<<'DUMP'
-array(3) {
-  ["#0000aa"]=>
-  string(4) "Blue"
-  ["#00aa00"]=>
-  string(5) "Green"
-  ["#aa0000"]=>
-  string(3) "Red"
-}
+array (
+  '#0000aa' => 'Blue',
+  '#00aa00' => 'Green',
+  '#aa0000' => 'Red',
+)
 DUMP;
         static::assertSame($varDump, $output);
 
         $countryIsos = $entityClient->aggregate('country', new TermsAggregation('countries', 'iso'))->buckets->getKeys();
-        ob_start();
-        var_dump($countryIsos->asArray());
-        $output = trim(ob_get_clean());
+        $output = \var_export($countryIsos->asArray(), true);
 
         $varDump = <<<'DUMP'
-array(250) {
-  [0]=>
-  string(2) "AD"
-  [1]=>
-  string(2) "AE"
-  [2]=>
-  string(2) "AF"
-  [3]=>
-  string(2) "AG"
-  [4]=>
-  string(2) "AI"
+array (
+  0 => 'AD',
+  1 => 'AE',
+  2 => 'AF',
+  3 => 'AG',
+  4 => 'AI',
 DUMP;
         static::assertStringStartsWith($varDump, $output);
     }

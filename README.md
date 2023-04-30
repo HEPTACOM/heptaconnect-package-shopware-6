@@ -44,15 +44,12 @@ $colorNamesByName = $entityClient->groupFieldByField(
     'name',
     new EqualsFilter('group.id', $propertyGroupId)
 );
-var_dump($colorNamesByName);
-// array(3) {
-//   ["#0000aa"]=>
-//   string(4) "Blue"
-//   ["#00aa00"]=>
-//   string(5) "Green"
-//   ["#aa0000"]=>
-//   string(3) "Red"
-// }
+var_export($colorNamesByName);
+// array (
+//   '#0000aa' => 'Blue',
+//   '#00aa00' => 'Green',
+//   '#aa0000' => 'Red',
+// )
 
 // paginates automatically
 foreach ($entityClient->iterate('product') as $product) {
@@ -60,18 +57,13 @@ foreach ($entityClient->iterate('product') as $product) {
 }
 
 $countryIsos = $entityClient->aggregate('country', new TermsAggregation('countries', 'iso'))->buckets->getKeys();
-var_dump($countryIsos->asArray());
-// array(250) {
-//   [0]=>
-//   string(2) "AD"
-//   [1]=>
-//   string(2) "AE"
-//   [2]=>
-//   string(2) "AF"
-//   [3]=>
-//   string(2) "AG"
-//   [4]=>
-//   string(2) "AI"
+var_export($countryIsos->asArray());
+// array (
+//   0 => 'AD',
+//   1 => 'AE',
+//   2 => 'AF',
+//   3 => 'AG',
+//   4 => 'AI',
 //   …
 ```
 
