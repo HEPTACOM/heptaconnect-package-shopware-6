@@ -72,5 +72,10 @@
             "ocramius/package-versions": true,
             "php-http/discovery": true
         }
+    },
+    "extra": {
+        "unused": [
+            "symfony/polyfill-php80"
+        ]
     }
 }
