@@ -14,6 +14,8 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityCreateAct
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\AbstractActionClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Support\ActionClientUtils;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\ApiConfiguration;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\AuthenticatedHttpClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Authentication;
@@ -34,6 +36,27 @@ final class Factory
     public static function createApiConfigurationStorage(): ApiConfigurationStorageInterface
     {
         return new MemoryApiConfigurationStorage(self::createApiConfiguration());
+    }
+
+    /**
+     * @template TActionClass of AbstractActionClient
+     *
+     * @param class-string<TActionClass> $actionClass
+     *
+     * @return AbstractActionClient&TActionClass
+     */
+    public static function createActionClass(string $actionClass, ...$args): AbstractActionClient
+    {
+        return new $actionClass(
+            new ActionClientUtils(
+                self::createAuthenticatedClient(),
+                BaseFactory::createRequestFactory(),
+                self::createApiConfigurationStorage(),
+                BaseFactory::createJsonStreamUtility(),
+                self::createJsonResponseErrorHandler(),
+            ),
+            ...$args,
+        );
     }
 
     public static function createAuthenticatedClient(): AuthenticatedHttpClient

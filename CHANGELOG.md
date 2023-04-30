@@ -132,6 +132,7 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 - Add service `Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler.store_api` of type `\Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler` to validate Store API responses
 - Add base class `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\AbstractActionClient` with extracted dependencies in `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Support\ActionClientUtils` for services to work with Shopware action endpoints
 - Add JSON response validator `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\ErrorHandling\JsonResponseValidator\CustomerNotLoggedInValidator` to convert a customer not logged in error into `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\ErrorHandling\Exception\CustomerNotLoggedInValidator`
+- Add service to get a Store API context as implementation `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\ContextGetAction` for contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\ContextGet\ContextGetActionInterface` with `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\ContextGet\ContextGetCriteria` and `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\ContextGet\ContextGetResult`
 
 ### Changed
 
