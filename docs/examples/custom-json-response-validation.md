@@ -6,7 +6,7 @@ Add custom JSON response validation to support errors, that are not known in sto
 
 ###### src/Resources/services.xml
 
-Tag service so it is picked up as validator
+Tag service so it is picked up as validator. Depending on the tag it impacts communication with the Admin API or the Store API.
 
 ```xml
 <?xml version="1.0" ?>
@@ -18,6 +18,7 @@ Tag service so it is picked up as validator
     <services>
         <instanceof id="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface">
             <tag name="heptaconnect.package.shopware6.admin_api.json_response_validator"/>
+            <tag name="heptaconnect.package.shopware6.store_api.json_response_validator"/>
         </instanceof>
     </services>
 </container>

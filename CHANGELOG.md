@@ -83,6 +83,7 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 - Add exception code `1680447702` to `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait` when a version constraint is empty
 - Add HTTP client middleware `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\ClientMiddleware\PackageExpectationMiddleware` to ensure every request to the Shopware Admin API have all expected packages as part of the request
 - Add base class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient` with extracted dependencies in `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils` for services to work with Shopware action endpoints
+- Add service `Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler.admin_api` of type `\Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler` to validate Admin API responses
 - Add JSON response validator `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator` to convert generic 417 response into `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ExpectationFailedException`
 - Add JSON response validator `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExtensionInstallValidator` to convert a generic extension install error into `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ExtensionInstallException`
 - Add JSON response validator `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExtensionNotFoundValidator` to convert an extension not found error into `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ExtensionNotFoundException`
@@ -121,6 +122,8 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\AdminApiPackageExpectationRegistrationCompilerPass` to automatically tag all `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract\PackageExpectationInterface` with the tag `heptaconnect.package.shopware6.admin_api.package_expectation`
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient` to have a single dependency for common entity actions
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\ExtensionClient` to have a single dependency for common extension actions
+- Add service `Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler.store_api` of type `\Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler` to validate Store API responses
+- Add JSON response validator `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\ErrorHandling\JsonResponseValidator\CustomerNotLoggedInValidator` to convert a customer not logged in error into `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\ErrorHandling\Exception\CustomerNotLoggedInValidator`
 
 ### Changed
 
