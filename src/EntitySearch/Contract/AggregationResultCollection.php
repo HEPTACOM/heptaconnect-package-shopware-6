@@ -32,6 +32,29 @@ final class AggregationResultCollection extends AbstractObjectCollection
         }
     }
 
+    public static function fromList(array $values): AggregationResultCollection
+    {
+        return new AggregationResultCollection(\array_map(
+            static function (string $name, array $data): AggregationResult {
+                $entities = $data['entities'] ?? null;
+
+                if ($entities !== null) {
+                    $data['entities'] = EntityCollection::fromList($entities);
+                }
+
+                $buckets = $data['buckets'] ?? null;
+
+                if ($buckets !== null) {
+                    $data['buckets'] = AggregationBucketCollection::fromList($buckets);
+                }
+
+                return new AggregationResult($name, $data);
+            },
+            \array_keys($values),
+            $values
+        ));
+    }
+
     protected function getT(): string
     {
         return AggregationResult::class;

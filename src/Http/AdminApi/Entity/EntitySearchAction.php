@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity;
 
-use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationBucketCollection;
-use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResult;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResultCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CriteriaFormatterInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection;
@@ -32,30 +30,11 @@ final class EntitySearchAction extends AbstractActionClient implements EntitySea
         $request = $this->addExpectedPackages($request, $criteria);
         $response = $this->sendAuthenticatedRequest($request);
         $result = $this->parseResponse($request, $response);
-        $aggregations = $result['aggregations'] ?? [];
 
         return new EntitySearchResult(
             EntityCollection::fromList($result['data']),
             $result['total'],
-            new AggregationResultCollection(\array_map(
-                static function (string $name, array $data): AggregationResult {
-                    $entities = $data['entities'] ?? null;
-
-                    if ($entities !== null) {
-                        $data['entities'] = EntityCollection::fromList($entities);
-                    }
-
-                    $buckets = $data['buckets'] ?? null;
-
-                    if ($buckets !== null) {
-                        $data['buckets'] = AggregationBucketCollection::fromList($buckets);
-                    }
-
-                    return new AggregationResult($name, $data);
-                },
-                \array_keys($aggregations),
-                $aggregations,
-            ))
+            AggregationResultCollection::fromList($result['aggregations'] ?? [])
         );
     }
 }
