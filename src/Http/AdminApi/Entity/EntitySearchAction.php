@@ -19,9 +19,9 @@ final class EntitySearchAction extends AbstractActionClient implements EntitySea
 {
     private CriteriaFormatterInterface $criteriaFormatter;
 
-    public function __construct(ActionClientUtils $actionClient, CriteriaFormatterInterface $criteriaFormatter)
+    public function __construct(ActionClientUtils $actionClientUtils, CriteriaFormatterInterface $criteriaFormatter)
     {
-        parent::__construct($actionClient);
+        parent::__construct($actionClientUtils);
         $this->criteriaFormatter = $criteriaFormatter;
     }
 

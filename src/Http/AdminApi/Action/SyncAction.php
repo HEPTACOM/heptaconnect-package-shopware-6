@@ -23,11 +23,11 @@ final class SyncAction extends AbstractActionClient implements SyncActionInterfa
     private JsonStreamUtility $jsonStream;
 
     public function __construct(
-        ActionClientUtils $actionClient,
+        ActionClientUtils $actionClientUtils,
         SyncPayloadInterceptorCollection $syncPayloadInterceptors,
         JsonStreamUtility $jsonStream
     ) {
-        parent::__construct($actionClient);
+        parent::__construct($actionClientUtils);
         $this->syncPayloadInterceptors = $syncPayloadInterceptors;
         $this->jsonStream = $jsonStream;
     }

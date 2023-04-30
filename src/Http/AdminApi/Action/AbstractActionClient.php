@@ -14,11 +14,11 @@ use Psr\Http\Message\ResponseInterface;
  */
 abstract class AbstractActionClient
 {
-    protected ActionClientUtils $actionClient;
+    protected ActionClientUtils $actionClientUtils;
 
-    public function __construct(ActionClientUtils $actionClient)
+    public function __construct(ActionClientUtils $actionClientUtils)
     {
-        $this->actionClient = $actionClient;
+        $this->actionClientUtils = $actionClientUtils;
     }
 
     protected function generateRequest(
@@ -27,14 +27,14 @@ abstract class AbstractActionClient
         array $params = [],
         ?array $payload = null
     ): RequestInterface {
-        return $this->actionClient->generateRequest($method, $path, $params, $payload);
+        return $this->actionClientUtils->generateRequest($method, $path, $params, $payload);
     }
 
     protected function addExpectedPackages(
         RequestInterface $request,
         ExpectedPackagesAwareInterface $expectedPackagesAware
     ): RequestInterface {
-        return $this->actionClient->addExpectedPackages($request, $expectedPackagesAware);
+        return $this->actionClientUtils->addExpectedPackages($request, $expectedPackagesAware);
     }
 
     /**
@@ -42,11 +42,11 @@ abstract class AbstractActionClient
      */
     protected function parseResponse(RequestInterface $request, ResponseInterface $response): ?array
     {
-        return $this->actionClient->parseResponse($request, $response);
+        return $this->actionClientUtils->parseResponse($request, $response);
     }
 
     protected function sendAuthenticatedRequest(RequestInterface $request): ResponseInterface
     {
-        return $this->actionClient->sendAuthenticatedRequest($request);
+        return $this->actionClientUtils->sendAuthenticatedRequest($request);
     }
 }

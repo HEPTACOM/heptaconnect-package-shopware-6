@@ -13,9 +13,9 @@ final class ExtensionUploadAction extends AbstractActionClient implements Extens
 {
     private StreamFactoryInterface $streamFactory;
 
-    public function __construct(ActionClientUtils $actionClient, StreamFactoryInterface $streamFactory)
+    public function __construct(ActionClientUtils $actionClientUtils, StreamFactoryInterface $streamFactory)
     {
-        parent::__construct($actionClient);
+        parent::__construct($actionClientUtils);
         $this->streamFactory = $streamFactory;
     }
 

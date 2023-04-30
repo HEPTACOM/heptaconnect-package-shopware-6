@@ -15,9 +15,9 @@ final class EntitySearchIdAction extends AbstractActionClient implements EntityS
 {
     private CriteriaFormatterInterface $criteriaFormatter;
 
-    public function __construct(ActionClientUtils $actionClient, CriteriaFormatterInterface $criteriaFormatter)
+    public function __construct(ActionClientUtils $actionClientUtils, CriteriaFormatterInterface $criteriaFormatter)
     {
-        parent::__construct($actionClient);
+        parent::__construct($actionClientUtils);
         $this->criteriaFormatter = $criteriaFormatter;
     }
 

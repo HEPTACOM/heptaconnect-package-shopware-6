@@ -31,6 +31,9 @@
         >
             <bind key="$validators" type="tagged_iterator" tag="heptaconnect.package.shopware6.admin_api.json_response_validator"/>
         </service>
+        <service id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils">
+            <bind key="$errorHandler" type="service" id="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler.admin_api"/>
+        </service>
 
         <service
             id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationInterface"
