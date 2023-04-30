@@ -119,7 +119,7 @@ DUMP;
         $output = trim(ob_get_clean());
 
         $varDump = <<<'DUMP'
-array(251) {
+array(250) {
   [0]=>
   string(2) "AD"
   [1]=>

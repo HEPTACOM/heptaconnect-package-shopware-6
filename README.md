@@ -61,7 +61,7 @@ foreach ($entityClient->iterate('product') as $product) {
 
 $countryIsos = $entityClient->aggregate('country', new TermsAggregation('countries', 'iso'))->buckets->getKeys();
 var_dump($countryIsos->asArray());
-// array(251) {
+// array(250) {
 //   [0]=>
 //   string(2) "AD"
 //   [1]=>
