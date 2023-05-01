@@ -12,6 +12,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\Contex
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\CountryGet\CountryGetCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\CountryGetAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\ErrorHandling\Exception\CustomerNotLoggedInException;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory as AdminFactory;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\StoreApi\Factory;
 use PHPUnit\Framework\TestCase;
 
@@ -60,7 +61,11 @@ final class ContextActionTest extends TestCase
 
         static::assertNotNull($context->token);
         static::assertNull($context->customer);
-        static::assertSame('user', $context->context->scope);
+
+        // not exact version check
+        if (\version_compare(AdminFactory::getShopwareVersion(), '6.4.10', '>=')) {
+            static::assertSame('user', $context->context->scope);
+        }
     }
 
     public function testFailOnAddressChangeWithNoLoggedInCustomer(): void

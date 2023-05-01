@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\InfoVersion\InfoVersionParams;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\InfoVersionAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient;
@@ -30,6 +32,23 @@ use Psr\Http\Message\ResponseInterface;
 
 final class Factory
 {
+    private static ?string $shopwareVersion = null;
+
+    public static function getShopwareVersion(): string
+    {
+        $result = static::$shopwareVersion;
+
+        if ($result === null) {
+            $shopwareVersion = self::createActionClass(InfoVersionAction::class)
+                ->getVersion(new InfoVersionParams())
+                ->getVersion();
+            $result = $shopwareVersion;
+            static::$shopwareVersion = $result;
+        }
+
+        return $result;
+    }
+
     public static function createApiConfigurationStorage(): ApiConfigurationStorageInterface
     {
         return new MemoryApiConfigurationStorage(new ApiConfiguration(
