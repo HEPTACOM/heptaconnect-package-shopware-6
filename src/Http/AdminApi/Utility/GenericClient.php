@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Generic\GenericActionInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Generic\GenericPayload;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Generic\GenericActionInterface as AdminActionInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Generic\GenericPayload as AdminPayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\Support\Action\Generic\AbstractGenericClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\Support\Action\Generic\AbstractGenericPayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\Support\Action\Generic\AbstractGenericResult;
@@ -16,20 +16,20 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\Support\Action\Generic\Abstract
  */
 final class GenericClient extends AbstractGenericClient
 {
-    private GenericActionInterface $generic;
+    private AdminActionInterface $generic;
 
-    public function __construct(GenericActionInterface $generic)
+    public function __construct(AdminActionInterface $generic)
     {
         $this->generic = $generic;
     }
 
     protected function generatePayload(string $path, string $method): AbstractGenericPayload
     {
-        return new GenericPayload($path, $method);
+        return new AdminPayload($path, $method);
     }
 
     /**
-     * @param GenericPayload $payload
+     * @param AdminPayload $payload
      */
     protected function sendGenericRequest(AbstractGenericPayload $payload): AbstractGenericResult
     {
