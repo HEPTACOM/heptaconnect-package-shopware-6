@@ -39,7 +39,7 @@ final class CountryGetAction extends AbstractActionClient implements CountryGetA
             AggregationResultCollection::fromList($aggregations),
             $result['total'],
             $result['page'],
-            $result['limit'],
+            $result['limit'] ?? null,
             // states are not present in ~ <=6.4.5
             new StringCollection($result['states'] ?? [])
         );

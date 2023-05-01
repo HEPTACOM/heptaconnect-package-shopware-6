@@ -23,7 +23,7 @@ final class CountryGetResult implements AttachmentAwareInterface
 
     private int $page;
 
-    private int $limit;
+    private ?int $limit;
 
     private StringCollection $states;
 
@@ -32,7 +32,7 @@ final class CountryGetResult implements AttachmentAwareInterface
         AggregationResultCollection $aggregations,
         ?int $total,
         int $page,
-        int $limit,
+        ?int $limit,
         StringCollection $states
     ) {
         $this->attachments = new AttachmentCollection();
@@ -64,7 +64,7 @@ final class CountryGetResult implements AttachmentAwareInterface
         return $this->page;
     }
 
-    public function getLimit(): int
+    public function getLimit(): ?int
     {
         return $this->limit;
     }
