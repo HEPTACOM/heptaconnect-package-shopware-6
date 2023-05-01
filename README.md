@@ -128,6 +128,30 @@ $client->post('_action/order/00000000000000000000000000000000/state/complete', [
 ```
 
 
+### StoreAPI - GenericClient
+
+```php
+<?php
+
+use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Utility\GenericClient;
+
+/** @var $client GenericClient */
+// low amount of parameters
+var_export($client->get('context')['token']);
+// 12c9a85D538b4795877A95aC908987db
+
+// different methods
+var_export(\array_column($client->post('country')['data'], 'iso'));
+// array (
+//   0 => 'AD',
+//   1 => 'AE',
+//   2 => 'AF',
+//   3 => 'AG',
+//   4 => 'AI',
+//   …
+```
+
+
 ## System requirements
 
 * PHP 7.4 or above
