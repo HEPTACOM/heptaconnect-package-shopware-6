@@ -92,7 +92,7 @@ final class ContextActionTest extends TestCase
         $country = Factory::createActionClass(CountryGetAction::class, new CriteriaFormatter());
         $countries = $country->getCountries(new CountryGetCriteria());
 
-        static::assertGreaterThan(1, $countries->getData()->count());
+        static::assertGreaterThan(1, $countries->getElements()->count());
 
         $defaultContext = $get->getContext(new ContextGetCriteria(null))->getContext();
         $unknownContext = $get->getContext(new ContextGetCriteria($defaultContext->token))->getContext();
@@ -112,10 +112,10 @@ final class ContextActionTest extends TestCase
 
         static::assertSame($storedContextToken, $storedContext->token);
 
-        $newCountryId = $countries->getData()->first()->id;
+        $newCountryId = $countries->getElements()->first()->id;
 
         if ($newCountryId === $storedContext->shippingLocation->country->id) {
-            $newCountryId = $countries->getData()->last()->id;
+            $newCountryId = $countries->getElements()->last()->id;
         }
 
         static::assertNotSame($storedContext->shippingLocation->country->id, $newCountryId);
