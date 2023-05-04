@@ -216,14 +216,14 @@ final class EntityClient
     }
 
     /**
-     * Reads the first id matched from the criteria.
+     * Reads the first id matched from the condition.
      *
      * @return string|string[]|null
      */
-    public function getFirstId(string $entityName, Criteria $criteria)
+    public function getFirstId(string $entityName, FilterContract $filter)
     {
         $entityName = LetterCase::fromUnderscoreToDash($entityName);
-        $criteria = $criteria->withLimit(1)->withPage(1);
+        $criteria = (new Criteria())->withLimit(1)->withPage(1)->withAndFilter($filter);
         $searchResult = $this->searchIdAction->searchIds(new EntitySearchIdCriteria($entityName, $criteria));
 
         return $searchResult->getData()[0] ?? null;

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Utility;
 
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AndFilter;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FilterCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityCreateAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityDeleteAction;
@@ -137,7 +139,7 @@ final class EntityClientTest extends TestCase
     public function testGetFirstCountry(): void
     {
         $client = $this->createEntityClient();
-        $countryId = $client->getFirstId('country', new Criteria());
+        $countryId = $client->getFirstId('country', new AndFilter(new FilterCollection()));
 
         static::assertIsString($countryId);
 
