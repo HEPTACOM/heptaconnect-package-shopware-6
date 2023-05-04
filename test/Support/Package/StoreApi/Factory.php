@@ -70,6 +70,7 @@ final class Factory
     public static function createApiConfiguration(): ApiConfiguration
     {
         $result = self::$apiConfiguration;
+        $salesChannelTypeStorefront = '8a243080f92e4c719546314b577cf82b';
 
         if ($result === null) {
             $adminUrl = TestBootstrapper::instance()->getAdminApiUrl();
@@ -92,7 +93,7 @@ final class Factory
                         'domains',
                         static fn (Criteria $criteria): Criteria => $criteria->withAndFilter(new PrefixFilter('url', $baseUrl))
                     )
-                    ->withAndFilter(new EqualsFilter('type.iconName', 'regular-storefront'));
+                    ->withAndFilter(new EqualsFilter('type.id', $salesChannelTypeStorefront));
                 $salesChannel = $entitySearch->search(new EntitySearchCriteria('sales-channel', $salesChannelCriteria))->getData()->first();
                 $url = $salesChannel['domains'][0]['url'] ?? null;
 

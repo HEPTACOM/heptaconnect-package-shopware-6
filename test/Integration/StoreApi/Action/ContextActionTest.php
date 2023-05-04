@@ -12,6 +12,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\Contex
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\CountryGet\CountryGetCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\CountryGetAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\ErrorHandling\Exception\CustomerNotLoggedInException;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory as AdminFactory;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\StoreApi\Factory;
 use PHPUnit\Framework\TestCase;
 
@@ -48,6 +49,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Authentication
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\MemoryApiConfigurationStorage
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
 final class ContextActionTest extends TestCase
@@ -59,7 +61,11 @@ final class ContextActionTest extends TestCase
 
         static::assertNotNull($context->token);
         static::assertNull($context->customer);
-        static::assertSame('user', $context->context->scope);
+
+        // not exact version check
+        if (\version_compare(AdminFactory::getShopwareVersion(), '6.4.10', '>=')) {
+            static::assertSame('user', $context->context->scope);
+        }
     }
 
     public function testFailOnAddressChangeWithNoLoggedInCustomer(): void
@@ -86,7 +92,7 @@ final class ContextActionTest extends TestCase
         $country = Factory::createActionClass(CountryGetAction::class, new CriteriaFormatter());
         $countries = $country->getCountries(new CountryGetCriteria());
 
-        static::assertGreaterThan(1, $countries->getData()->count());
+        static::assertGreaterThan(1, $countries->getElements()->count());
 
         $defaultContext = $get->getContext(new ContextGetCriteria(null))->getContext();
         $unknownContext = $get->getContext(new ContextGetCriteria($defaultContext->token))->getContext();
@@ -106,10 +112,10 @@ final class ContextActionTest extends TestCase
 
         static::assertSame($storedContextToken, $storedContext->token);
 
-        $newCountryId = $countries->getData()->first()->id;
+        $newCountryId = $countries->getElements()->first()->id;
 
         if ($newCountryId === $storedContext->shippingLocation->country->id) {
-            $newCountryId = $countries->getData()->last()->id;
+            $newCountryId = $countries->getElements()->last()->id;
         }
 
         static::assertNotSame($storedContext->shippingLocation->country->id, $newCountryId);

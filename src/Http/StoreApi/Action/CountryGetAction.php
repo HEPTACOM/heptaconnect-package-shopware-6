@@ -32,15 +32,15 @@ final class CountryGetAction extends AbstractActionClient implements CountryGetA
         $request = $this->addContextToken($request, $criteria);
         $response = $this->sendAuthenticatedRequest($request);
         $result = $this->parseResponse($request, $response);
-        $aggregations = $result['aggregations'] ?? [];
 
         return new CountryGetResult(
             EntityCollection::fromList($result['elements']),
-            AggregationResultCollection::fromList($aggregations),
+            AggregationResultCollection::fromList($result['aggregations'] ?? []),
             $result['total'],
             $result['page'],
-            $result['limit'],
-            new StringCollection($result['states'])
+            $result['limit'] ?? null,
+            // states are not present in ~ <=6.4.5
+            new StringCollection($result['states'] ?? [])
         );
     }
 }

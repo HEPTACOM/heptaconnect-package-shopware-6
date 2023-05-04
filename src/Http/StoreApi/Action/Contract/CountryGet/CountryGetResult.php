@@ -15,7 +15,7 @@ final class CountryGetResult implements AttachmentAwareInterface
 {
     use AttachmentAwareTrait;
 
-    private EntityCollection $data;
+    private EntityCollection $elements;
 
     private AggregationResultCollection $aggregations;
 
@@ -23,20 +23,20 @@ final class CountryGetResult implements AttachmentAwareInterface
 
     private int $page;
 
-    private int $limit;
+    private ?int $limit;
 
     private StringCollection $states;
 
     public function __construct(
-        EntityCollection $data,
+        EntityCollection $elements,
         AggregationResultCollection $aggregations,
         ?int $total,
         int $page,
-        int $limit,
+        ?int $limit,
         StringCollection $states
     ) {
         $this->attachments = new AttachmentCollection();
-        $this->data = $data;
+        $this->elements = $elements;
         $this->aggregations = $aggregations;
         $this->total = $total;
         $this->page = $page;
@@ -44,9 +44,9 @@ final class CountryGetResult implements AttachmentAwareInterface
         $this->states = $states;
     }
 
-    public function getData(): EntityCollection
+    public function getElements(): EntityCollection
     {
-        return $this->data;
+        return $this->elements;
     }
 
     public function getAggregations(): AggregationResultCollection
@@ -64,7 +64,7 @@ final class CountryGetResult implements AttachmentAwareInterface
         return $this->page;
     }
 
-    public function getLimit(): int
+    public function getLimit(): ?int
     {
         return $this->limit;
     }

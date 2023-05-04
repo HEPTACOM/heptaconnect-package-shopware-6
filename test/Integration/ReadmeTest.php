@@ -7,6 +7,8 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\GenericAction;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityCreateAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityDeleteAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityGetAction;
@@ -14,8 +16,12 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAct
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchIdAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityUpdateAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\GenericClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
+use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationBucket
@@ -37,6 +43,9 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\SortingContract
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Generic\GenericPayload
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Generic\GenericResult
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\GenericAction
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
@@ -61,6 +70,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\GenericClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\FieldIsBlankValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\InvalidLimitQueryValidator
@@ -69,6 +79,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ResourceNotFoundValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ServerErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\UnmappedFieldValidator
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\LetterCase
  */
@@ -122,6 +133,70 @@ DUMP;
         static::assertStringStartsWith($varDump, $output);
     }
 
+    public function testGenericClientExample(): void
+    {
+        $client = $this->createGenericClient();
+        // low amount of parameters
+        $output = \var_export($client->get('_info/version'), true);
+        $version = Factory::getShopwareVersion();
+        $varDump = <<<DUMP
+array (
+  'version' => '$version',
+)
+DUMP;
+
+        static::assertSame($varDump, $output);
+
+        // query parameters
+        $systemConfig = $client->get('_action/system-config', [
+            'domain' => 'core.update',
+        ]);
+        \ksort($systemConfig);
+        $output = var_export($systemConfig, true);
+        $varDump = <<<'DUMP'
+array (
+  'core.update.apiUri' => 'https://update-api.shopware.com',
+  'core.update.channel' => 'stable',
+  'core.update.code' => '',
+)
+DUMP;
+        static::assertSame($varDump, $output);
+
+        $client = $this->createMock(AuthenticatedHttpClientInterface::class);
+        $client->method('sendRequest')->willReturnCallback(static function (RequestInterface $request): ResponseInterface {
+            static::assertSame('application/json', $request->getHeaderLine('content-type'));
+            static::assertSame('{"key":"value"}', (string) $request->getBody());
+
+            return BaseFactory::createResponseFactory()
+                ->createResponse()
+                ->withBody(BaseFactory::createJsonStreamUtility()->fromPayloadToStream([]));
+        });
+
+        $client = $this->createGenericClient($client);
+
+        // JSON body
+        $client->post('_action/system-config', [
+            'key' => 'value',
+        ]);
+
+        $client = $this->createMock(AuthenticatedHttpClientInterface::class);
+        $client->method('sendRequest')->willReturnCallback(static function (RequestInterface $request): ResponseInterface {
+            static::assertSame('1', $request->getHeaderLine('sw-skip-trigger-flow'));
+
+            return BaseFactory::createResponseFactory()
+                ->createResponse()
+                ->withBody(BaseFactory::createJsonStreamUtility()->fromPayloadToStream([]));
+        });
+
+        $client = $this->createGenericClient($client);
+
+        // header support
+        $client->post('_action/order/00000000000000000000000000000000/state/complete', [], [], [
+            // do not run flows to silently update order state
+            'sw-skip-trigger-flow' => '1',
+        ]);
+    }
+
     private function createEntityClient(): EntityClient
     {
         return new EntityClient(
@@ -132,5 +207,10 @@ DUMP;
             Factory::createActionClass(EntityUpdateAction::class),
             Factory::createActionClass(EntityDeleteAction::class)
         );
+    }
+
+    private function createGenericClient(?AuthenticatedHttpClientInterface $client = null): GenericClient
+    {
+        return new GenericClient(new GenericAction(Factory::createActionClientUtils($client)));
     }
 }
