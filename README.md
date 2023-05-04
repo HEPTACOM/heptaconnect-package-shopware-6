@@ -102,7 +102,7 @@ See the attached [CHANGELOG.md](./CHANGELOG.md) file for a complete version hist
 
 ## ADR
 
-See the [Architecture Decision Records](./docs/adr/) to understand decisions made, that influence the structure of this project
+See the [Architecture Decision Records](./docs/adr/) to understand decisions made, that influence the structure of this project.
 
 
 ## Additional development requirements

@@ -12,7 +12,7 @@ This increases the work to do on updating a package, which can lead to not updat
 
 Flow components work on datasets.
 Without flow components there is no requirement on a specific dataset.
-When this package makes less use of HEPTAconnect portal automations, a depending project will less likely break due to no changes on existing data flows and not introduce unexpected data flows.
+This package will make less use of HEPTAconnect portal automations, so a depending project can break less likely due to no changes on existing data flows and not introduce unexpected data flows.
 
 
 ## Consequences
