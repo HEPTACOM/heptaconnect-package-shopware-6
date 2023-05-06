@@ -14,6 +14,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValid
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ResourceNotFoundValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ServerErrorValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\UnmappedFieldValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
@@ -78,6 +79,7 @@ final class BaseFactory
             new UnmappedFieldValidator(),
             new NotFoundValidator(),
             new MethodNotAllowedValidator(),
+            new WriteUnexpectedFieldValidator(),
         ];
     }
 }

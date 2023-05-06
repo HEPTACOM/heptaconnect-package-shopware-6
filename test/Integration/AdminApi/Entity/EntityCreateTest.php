@@ -5,21 +5,31 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Integration\AdminApi\Entity;
 
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreatePayload;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityGet\EntityGetCriteria;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityCreateAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityGetAction;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Exception\EntityReferenceLocationFormatInvalidException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\WriteTypeIntendException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\NotFoundException;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\WriteUnexpectedFieldException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationResultCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\EntityCollection
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\AbstractFieldFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Filter\EqualsFilter
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\AbstractActionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
@@ -27,12 +37,15 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\AbstractEntitySearchCriteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreatePayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreateResult
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityGet\EntityGetCriteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityGet\EntityGetResult
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchResult
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityCreateAction
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityGetAction
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Exception\EntityReferenceLocationFormatInvalidException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\WriteTypeIntendException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator
@@ -48,6 +61,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\NotFoundException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\ResourceNotFoundException
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\WriteUnexpectedFieldException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\CartMissingOrderRelationValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\FieldIsBlankValidator
@@ -58,6 +72,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ResourceNotFoundValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ServerErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\UnmappedFieldValidator
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  */
@@ -144,5 +159,83 @@ final class EntityCreateTest extends TestCase
         static::expectException(EntityReferenceLocationFormatInvalidException::class);
 
         $client->create(new EntityCreatePayload('entity', []));
+    }
+
+    public function testFailWritingOrderWhenApiAliasKeyIsGivenOnJsonField(): void
+    {
+        $entitySearch = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $action = Factory::createActionClass(EntityCreateAction::class);
+        $salesChannelTypeStorefront = '8a243080f92e4c719546314b577cf82b';
+        $salesChannelCriteria = (new Criteria())
+            ->withLimit(1)
+            ->withAddedAssociation('currency')
+            ->withAndFilter(new EqualsFilter('type.id', $salesChannelTypeStorefront));
+        $salesChannel = $entitySearch->search(new EntitySearchCriteria('sales-channel', $salesChannelCriteria))->getData()->first();
+
+        $salutationId = $entitySearch->search(new EntitySearchCriteria(
+            'salutation',
+            (new Criteria())
+                ->withAndFilter(new EqualsFilter('salutationKey', 'mr'))
+        ))->getData()->first()->id;
+
+        $order = [
+            'salesChannelId' => $salesChannel->id,
+            'orderNumber' => \bin2hex(\random_bytes(16)),
+            'orderCustomer' => [
+                'customerNumber' => \bin2hex(\random_bytes(16)),
+                'salesChannelId' => $salesChannel->id,
+                'firstName' => 'Firstname',
+                'lastName' => 'Lastname',
+                'salutationId' => $salutationId,
+                'email' => \bin2hex(\random_bytes(16)) . '@test.test',
+            ],
+            'lineItems' => [],
+            'orderDateTime' => (new \DateTimeImmutable())->format('c'),
+            'currencyId' => $salesChannel->currencyId,
+            'billingAddress' => [
+                'countryId' => $salesChannel->countryId,
+                'salutationId' => $salutationId,
+                'firstName' => 'Firstname',
+                'lastName' => 'Lastname',
+                'street' => 'Street',
+                'zipcode' => '12345',
+                'city' => 'City',
+            ],
+            'currencyFactor' => 1.0,
+            'stateId' => $entitySearch->search(new EntitySearchCriteria(
+                'state-machine-state',
+                (new Criteria())
+                    ->withAndFilter(new EqualsFilter('stateMachine.technicalName', 'order.state'))
+                    ->withAndFilter(new EqualsFilter('technicalName', 'open'))
+            ))->getData()->first()->id,
+            'shippingCosts' => [
+                'unitPrice' => 0.0,
+                'totalPrice' => 0.0,
+                'quantity' => 0,
+                'calculatedTaxes' => [],
+                'taxRules' => [],
+            ],
+            'deliveries' => [],
+            'transactions' => [],
+            // this will fail due to apiAlias key
+            'totalRounding' => $salesChannel->currency->totalRounding->getArrayCopy(),
+            'itemRounding' => \array_diff_key(
+                $salesChannel->currency->itemRounding->getArrayCopy(),
+                ['apiAlias' => true]
+            ),
+            'price' => [
+                'netPrice' => 0,
+                'totalPrice' => 0,
+                'rawTotal' => 0,
+                'calculatedTaxes' => [],
+                'taxRules' => [],
+                'positionPrice' => 0,
+                'taxStatus' => 'gross',
+            ],
+        ];
+
+        static::expectException(WriteUnexpectedFieldException::class);
+
+        $action->create(new EntityCreatePayload('order', $order));
     }
 }
