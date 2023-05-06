@@ -31,6 +31,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\Entity
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ExpectationFailedException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\InvalidLimitQueryException;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\InvalidUuidException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\UnmappedFieldException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
@@ -92,11 +93,13 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\InvalidLimitQueryException
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\InvalidUuidException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\NotFoundException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\UnmappedFieldException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\FieldIsBlankValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\InvalidLimitQueryValidator
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\InvalidUuidValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\MethodNotAllowedValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\NotFoundValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ResourceNotFoundValidator
@@ -591,5 +594,14 @@ final class EntitySearchTest extends TestCase
                 static::assertMatchesRegularExpression('/^.+-[AB]/', $state->shortCode);
             }
         }
+    }
+
+    public function testQueryNonUuidOnIdField(): void
+    {
+        $action = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+
+        static::expectException(InvalidUuidException::class);
+
+        $action->search(new EntitySearchCriteria('country-state', (new Criteria())->withAndFilter(new EqualsFilter('countryId', 'abcdefghijklmnopqrstuvwxyz'))));
     }
 }

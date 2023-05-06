@@ -7,6 +7,7 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\FieldIsBlankValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\InvalidLimitQueryValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\InvalidUuidValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\MethodNotAllowedValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\NotFoundValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ResourceNotFoundValidator;
@@ -71,6 +72,7 @@ final class BaseFactory
             new FieldIsBlankValidator(),
             new ResourceNotFoundValidator(),
             new InvalidLimitQueryValidator(),
+            new InvalidUuidValidator(),
             new UnmappedFieldValidator(),
             new NotFoundValidator(),
             new MethodNotAllowedValidator(),
