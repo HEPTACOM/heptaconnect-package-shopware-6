@@ -15,6 +15,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityCreateAct
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\StateMachineInvalidEntityIdException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\CartMissingOrderRelationException;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\UnknownError;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
 use PHPUnit\Framework\TestCase;
 
@@ -59,6 +60,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\CartMissingOrderRelationException
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\UnknownError
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\CartMissingOrderRelationValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\FieldIsBlankValidator
@@ -95,7 +97,11 @@ final class EntityStateTransitionActionTest extends TestCase
         unset($payload['orderCustomer']);
         $orderId = $entityCreate->create(new EntityCreatePayload('order', $payload))->getId();
 
-        static::expectException(CartMissingOrderRelationException::class);
+        if (\version_compare(Factory::getShopwareVersion(), '6.4.10', '>=')) {
+            static::expectException(UnknownError::class);
+        } else {
+            static::expectException(CartMissingOrderRelationException::class);
+        }
 
         $action->transitionState(new EntityStateTransitionPayload('order', $orderId, 'process'));
     }
@@ -126,16 +132,43 @@ final class EntityStateTransitionActionTest extends TestCase
                 ->withAndFilter(new EqualsFilter('salutationKey', 'mr'))
         ))->getData()->first()->id;
 
+        $customerEmail = \bin2hex(\random_bytes(16)) . '@test.test';
+        $customerNumber = \bin2hex(\random_bytes(16));
+        $addressId = \bin2hex(\random_bytes(16));
+
         return [
             'salesChannelId' => $salesChannel->id,
             'orderNumber' => \bin2hex(\random_bytes(16)),
             'orderCustomer' => [
-                'customerNumber' => \bin2hex(\random_bytes(16)),
+                'customerNumber' => $customerNumber,
                 'salesChannelId' => $salesChannel->id,
                 'firstName' => 'Firstname',
                 'lastName' => 'Lastname',
                 'salutationId' => $salutationId,
-                'email' => \bin2hex(\random_bytes(16)) . '@test.test',
+                'email' => $customerEmail,
+                // only needed for newer Shopware (~6.4.20) versions
+                'customer' => [
+                    'customerNumber' => $customerNumber,
+                    'groupId' => $entitySearch->search(new EntitySearchCriteria('customer-group', new Criteria()))->getData()->first()->id,
+                    'defaultPaymentMethodId' => $entitySearch->search(new EntitySearchCriteria('payment-method', new Criteria()))->getData()->first()->id,
+                    'salesChannelId' => $salesChannel->id,
+                    'firstName' => 'Firstname',
+                    'lastName' => 'Lastname',
+                    'salutationId' => $salutationId,
+                    'email' => $customerEmail,
+                    'defaultShippingAddressId' => $addressId,
+                    'defaultBillingAddressId' => $addressId,
+                    'addresses' => [[
+                        'id' => $addressId,
+                        'firstName' => 'Firstname',
+                        'lastName' => 'Lastname',
+                        'salutationId' => $salutationId,
+                        'countryId' => $salesChannel->countryId,
+                        'street' => 'Street',
+                        'zipcode' => '12345',
+                        'city' => 'City',
+                    ]],
+                ],
             ],
             'lineItems' => [],
             'orderDateTime' => (new \DateTimeImmutable())->format('c'),
