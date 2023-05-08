@@ -80,7 +80,13 @@ final class JsonResponseErrorHandler implements ErrorHandlerInterface
         $result = [];
 
         if (isset($response['errors'])) {
-            $result = \array_merge($result, $response['errors']);
+            $errors = $response['errors'];
+
+            if ($errors !== [] && \key($errors) !== 0) {
+                $errors = \array_merge([], ...\array_values($errors));
+            }
+
+            $result = \array_merge($result, $errors);
         }
 
         if (!isset($response['data'])) {
@@ -93,7 +99,13 @@ final class JsonResponseErrorHandler implements ErrorHandlerInterface
                     continue;
                 }
 
-                $result = \array_merge($result, $value['errors']);
+                $errors = $value['errors'];
+
+                if ($errors !== [] && \key($errors) !== 0) {
+                    $errors = \array_merge([], ...\array_values($errors));
+                }
+
+                $result = \array_merge($result, $errors);
             }
         }
 
