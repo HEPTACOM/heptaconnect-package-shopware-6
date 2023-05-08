@@ -14,6 +14,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authent
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\DocumentNumberAlreadyExistsValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExtensionInstallValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExtensionNotFoundValidator;
@@ -115,6 +116,7 @@ final class Factory
             new PluginNotActivatedValidator(),
             new InvalidTypeValidator(),
             new StateMachineInvalidEntityIdValidator(),
+            new DocumentNumberAlreadyExistsValidator(),
             new class() implements JsonResponseValidatorInterface {
                 public function validate(array $body, ?array $error, RequestInterface $request, ResponseInterface $response): void
                 {
