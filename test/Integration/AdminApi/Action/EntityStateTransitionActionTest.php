@@ -97,7 +97,7 @@ final class EntityStateTransitionActionTest extends TestCase
         unset($payload['orderCustomer']);
         $orderId = $entityCreate->create(new EntityCreatePayload('order', $payload))->getId();
 
-        if (\version_compare(Factory::getShopwareVersion(), '6.4.10', '>=')) {
+        if (\version_compare(Factory::getShopwareVersion(), '6.4.16', '>=')) {
             static::expectException(UnknownError::class);
         } else {
             static::expectException(CartMissingOrderRelationException::class);
