@@ -27,9 +27,10 @@ trait ExpectedPackagesAwareTrait
         $this->validateExpectedPackageName($package);
         $this->validateExpectedPackageConstraint($constraint);
 
-        $this->expectedPackages[$package] = [$constraint];
+        $that = clone $this;
+        $that->expectedPackages[$package] = [$constraint];
 
-        return $this;
+        return $that;
     }
 
     /**
@@ -40,9 +41,10 @@ trait ExpectedPackagesAwareTrait
         $this->validateExpectedPackageName($package);
         $this->validateExpectedPackageConstraint($constraint);
 
-        $this->expectedPackages[$package][] = $constraint;
+        $that = clone $this;
+        $that->expectedPackages[$package][] = $constraint;
 
-        return $this;
+        return $that;
     }
 
     /**
@@ -52,9 +54,10 @@ trait ExpectedPackagesAwareTrait
     {
         $this->validateExpectedPackageName($package);
 
-        unset($this->expectedPackages[$package]);
+        $that = clone $this;
+        unset($that->expectedPackages[$package]);
 
-        return $this;
+        return $that;
     }
 
     /**
@@ -62,9 +65,10 @@ trait ExpectedPackagesAwareTrait
      */
     public function withoutExpectedPackages(): self
     {
-        $this->expectedPackages = [];
+        $that = clone $this;
+        $that->expectedPackages = [];
 
-        return $this;
+        return $that;
     }
 
     /**
