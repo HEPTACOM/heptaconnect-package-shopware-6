@@ -75,11 +75,9 @@ final class SyncActionTest extends TestCase
     {
         $action = Factory::createActionClass(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
 
-        $result = $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
-            (new SyncOperation('tag', SyncOperation::ACTION_UPSERT, 'tag-upsert'))->withAddedPayload([
-                'name' => 'random-tag-' . \bin2hex(\random_bytes(8)),
-            ]),
-        ])));
+        $result = $action->sync((new SyncPayload())->withSyncOperation('tag', SyncOperation::ACTION_UPSERT, [
+            'name' => 'random-tag-' . \bin2hex(\random_bytes(8)),
+        ], 'tag-upsert'));
 
         static::assertTrue($result->getOperationResults()->hasKey('tag-upsert'));
 
@@ -92,11 +90,9 @@ final class SyncActionTest extends TestCase
 
         static::assertIsString($tagId);
 
-        $result = $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
-            (new SyncOperation('tag', SyncOperation::ACTION_DELETE, 'tag-delete'))->withAddedPayload([
-                'id' => $tagId,
-            ]),
-        ])));
+        $result = $action->sync((new SyncPayload())->withSyncOperation('tag', SyncOperation::ACTION_DELETE, [
+            'id' => $tagId,
+        ], 'tag-delete'));
 
         static::assertTrue($result->getOperationResults()->hasKey('tag-delete'));
 
@@ -112,11 +108,9 @@ final class SyncActionTest extends TestCase
 
         static::expectException(SyncResultException::class);
 
-        $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
-            (new SyncOperation('tag', SyncOperation::ACTION_UPSERT, 'tag-upsert'))->withAddedPayload([
-                'random-tag-' . \bin2hex(\random_bytes(8)),
-            ]),
-        ])));
+        $action->sync((new SyncPayload())->withSyncOperation('tag', SyncOperation::ACTION_UPSERT, [
+            'random-tag-' . \bin2hex(\random_bytes(8)),
+        ]));
     }
 
     public function testGroupExceptionsOnMultipleWronglyShapedEntitiesData(): void
@@ -142,11 +136,9 @@ final class SyncActionTest extends TestCase
     public function testDeleteNonExistingTags(): void
     {
         $action = Factory::createActionClass(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
-        $result = $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
-            (new SyncOperation('tag', SyncOperation::ACTION_DELETE, 'tag-delete'))->withAddedPayload([
-                'id' => '00000000000000000000000000000000',
-            ]),
-        ])));
+        $result = $action->sync((new SyncPayload())->withSyncOperation('tag', SyncOperation::ACTION_DELETE, [
+            'id' => '00000000000000000000000000000000',
+        ], 'tag-delete'));
 
         static::assertTrue($result->getOperationResults()->hasKey('tag-delete'));
 
@@ -200,11 +192,9 @@ final class SyncActionTest extends TestCase
         ]), BaseFactory::createJsonStreamUtility());
 
         // this would fail
-        $result = $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
-            (new SyncOperation('tag', SyncOperation::ACTION_UPSERT, 'tags-upsert'))->withAddedPayload([
-                'name' => '',
-            ]),
-        ])));
+        $result = $action->sync((new SyncPayload())->withSyncOperation('tag', SyncOperation::ACTION_UPSERT, [
+            'name' => '',
+        ]));
 
         static::assertTrue($result->getOperationResults()->isEmpty());
     }

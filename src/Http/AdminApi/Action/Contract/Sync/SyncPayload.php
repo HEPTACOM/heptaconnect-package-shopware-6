@@ -30,6 +30,7 @@ final class SyncPayload implements AttachmentAwareInterface, ExpectedPackagesAwa
     public function __construct()
     {
         $this->attachments = new AttachmentCollection();
+        $this->syncOperations = new SyncOperationCollection();
     }
 
     public function getSyncOperations(): SyncOperationCollection
@@ -43,6 +44,17 @@ final class SyncPayload implements AttachmentAwareInterface, ExpectedPackagesAwa
         $that->syncOperations = $syncOperations;
 
         return $that;
+    }
+
+    public function withSyncOperation(string $entityName, string $action, array $payload, ?string $key = null): self
+    {
+        $ops = new SyncOperationCollection($this->getSyncOperations());
+        $key ??= $entityName . \bin2hex(\random_bytes(16));
+        $ops->push([
+            (new SyncOperation($entityName, $action, $key))->withAddedPayload($payload),
+        ]);
+
+        return $this->withSyncOperations($ops);
     }
 
     public function getSingleOperation(): ?bool
