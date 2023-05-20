@@ -17,6 +17,7 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 
 - Add composer dependency `heptacom/heptaconnect-portal-base: >=0.9.4 <0.10`, `heptacom/heptaconnect-dataset-base: >=0.9.4 <0.10` and `symfony/dependency-injection: ^4.4 || ^5.0` to make use of HEPTAconnect portal and package tools
 - Add composer dependency `psr/http-client: ^1.0`, `psr/http-factory: ^1.0` and `psr/http-message: ^1.0` as HTTP request and responses needs to be handled
+- Add composer dependency `psr/container": ">=1 <3` as a containers are used and an implementation is provided
 - Add composer dependency `symfony/polyfill-php80: *` to use PHP 8.0 functions already with PHP 7.4 code
 - Add composer dependency `ext-json: *` as JSON requests and responses needs to be sent and parsed
 - Add composer dependency `ext-mbstring: *` as Unicode texts are processed
@@ -133,6 +134,8 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 - Add base classes `\Heptacom\HeptaConnect\Package\Shopware6\Http\Support\Action\Generic\AbstractGenericClient`, `\Heptacom\HeptaConnect\Package\Shopware6\Http\Support\Action\Generic\AbstractGenericPayload` and `\Heptacom\HeptaConnect\Package\Shopware6\Http\Support\Action\Generic\AbstractGenericResult` to build generic API clients
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\AdminApiSyncPayloadInterceptorRegistrationCompilerPass` to automatically tag all `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorInterface` with the tag `heptaconnect.package.shopware6.admin_api.sync_payload_interceptor`
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\AdminApiPackageExpectationRegistrationCompilerPass` to automatically tag all `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract\PackageExpectationInterface` with the tag `heptaconnect.package.shopware6.admin_api.package_expectation`
+- Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer` to provide a PSR-11 container, when one is needed with previously instantiated service objects
+- Add exception `\Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\Exception\ServiceNotFoundException` for scenarios, when a requested service is not found
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient` to have a single dependency for common entity actions
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\ExtensionClient` to have a single dependency for common extension actions
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\GenericClient` to have a generic API client for any request
