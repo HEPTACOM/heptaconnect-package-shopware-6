@@ -23,6 +23,9 @@ definitions:
         shopware-6-4-20:
             <<: *shopware-6-service
             image: dockware/play:6.4.20.0
+        shopware-6-5-0:
+            <<: *shopware-6-service
+            image: dockware/play:6.5.0.0
     steps:
         -   step: &default-step
                 caches:
@@ -153,6 +156,11 @@ definitions:
                 services:
                     - shopware-6-4-20
                 name: Test coverage (6.4.20.0)
+        -   step: &test-coverage-6-5-0
+                <<: *test-coverage-6-4-0
+                services:
+                    - shopware-6-5-0
+                name: Test coverage (6.5.0.0)
         -   step: &test-code-style-php
                 <<: *default-step
                 name: ECS (Code style)
@@ -229,6 +237,7 @@ pipelines:
                     -   step: *test-coverage-6-4-10
                     -   step: *test-coverage-6-4-15
                     -   step: *test-coverage-6-4-20
+                    -   step: *test-coverage-6-5-0
                     -   step: *test-code-style-composer-normalize
                     -   step: *test-code-style-composer-unused
                     -   step: *test-code-style-json
@@ -241,6 +250,7 @@ pipelines:
                     -   step: *test-coverage-6-4-10
                     -   step: *test-coverage-6-4-15
                     -   step: *test-coverage-6-4-20
+                    -   step: *test-coverage-6-5-0
                     -   step: *test-code-style-composer-unused
             -   parallel: &steps-blocking-non-min-php-version-tests
                     -   step: *test-unit-high-install-80
