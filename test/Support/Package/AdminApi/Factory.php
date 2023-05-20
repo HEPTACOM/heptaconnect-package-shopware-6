@@ -26,6 +26,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResp
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\PluginNotInstalledValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
@@ -105,8 +106,8 @@ final class Factory
 
     public static function createJsonResponseErrorHandler(): JsonResponseErrorHandler
     {
-        return new JsonResponseErrorHandler(BaseFactory::createJsonStreamUtility(), [
-            ...BaseFactory::createJsonResponseValidators(),
+        $validators = new JsonResponseValidatorCollection(BaseFactory::createJsonResponseValidators());
+        $validators->push([
             new ExpectationFailedValidator(),
             new ExtensionNotFoundValidator(),
             new ExtensionInstallValidator(),
@@ -128,5 +129,7 @@ final class Factory
                 }
             },
         ]);
+
+        return new JsonResponseErrorHandler(BaseFactory::createJsonStreamUtility(), $validators);
     }
 }

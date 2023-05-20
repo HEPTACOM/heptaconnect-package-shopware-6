@@ -12,6 +12,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\Entity
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityCreateAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\AbstractActionClient;
@@ -122,8 +123,8 @@ final class Factory
 
     public static function createJsonResponseErrorHandler(): JsonResponseErrorHandler
     {
-        return new JsonResponseErrorHandler(BaseFactory::createJsonStreamUtility(), [
-            ...BaseFactory::createJsonResponseValidators(),
+        $validators = new JsonResponseValidatorCollection(BaseFactory::createJsonResponseValidators());
+        $validators->push([
             new CustomerNotLoggedInValidator(),
             new class() implements JsonResponseValidatorInterface {
                 public function validate(array $body, ?array $error, RequestInterface $request, ResponseInterface $response): void
@@ -134,5 +135,7 @@ final class Factory
                 }
             },
         ]);
+
+        return new JsonResponseErrorHandler(BaseFactory::createJsonStreamUtility(), $validators);
     }
 }

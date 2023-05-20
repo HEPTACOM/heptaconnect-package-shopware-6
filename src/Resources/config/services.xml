@@ -40,6 +40,12 @@
             id="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler.admin_api"
             class="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler"
         >
+            <bind key="$validators" type="service" id="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection.admin_api"/>
+        </service>
+        <service
+            id="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection.admin_api"
+            class="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection"
+        >
             <bind key="$validators" type="tagged_iterator" tag="heptaconnect.package.shopware6.admin_api.json_response_validator"/>
         </service>
         <service id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils">
@@ -49,6 +55,12 @@
         <service
             id="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler.store_api"
             class="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler"
+        >
+            <bind key="$validators" type="service" id="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection.store_api"/>
+        </service>
+        <service
+            id="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection.store_api"
+            class="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection"
         >
             <bind key="$validators" type="tagged_iterator" tag="heptaconnect.package.shopware6.store_api.json_response_validator"/>
         </service>

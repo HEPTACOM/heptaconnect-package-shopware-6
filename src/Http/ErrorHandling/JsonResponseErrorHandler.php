@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\ErrorHandlerInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\JsonResponseValidationCollectionException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\MalformedResponse;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
@@ -16,21 +16,12 @@ final class JsonResponseErrorHandler implements ErrorHandlerInterface
 {
     private JsonStreamUtility $jsonStreamUtility;
 
-    /**
-     * @var array<JsonResponseValidatorInterface>
-     */
-    private iterable $validators;
+    private JsonResponseValidatorCollection $validators;
 
-    /**
-     * @param iterable<JsonResponseValidatorInterface> $validators
-     */
-    public function __construct(JsonStreamUtility $jsonStreamUtility, iterable $validators)
+    public function __construct(JsonStreamUtility $jsonStreamUtility, JsonResponseValidatorCollection $validators)
     {
         $this->jsonStreamUtility = $jsonStreamUtility;
-        $this->validators = \iterable_to_array(\iterable_map(
-            $validators,
-            static fn (JsonResponseValidatorInterface $validator): JsonResponseValidatorInterface => $validator
-        ));
+        $this->validators = $validators;
     }
 
     public function throwException(RequestInterface $request, ResponseInterface $response): void
