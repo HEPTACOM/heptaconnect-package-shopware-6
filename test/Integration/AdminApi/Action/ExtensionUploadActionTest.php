@@ -9,7 +9,6 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\ExtensionUpload
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\PluginNoPluginFoundInZipException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\UnknownError;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,6 +19,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\PluginNoPluginFoundInZipException
@@ -36,6 +36,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\UnknownError
@@ -54,13 +55,16 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class ExtensionUploadActionTest extends TestCase
 {
     public function testInvalidFileName(): void
     {
-        $streamFactory = BaseFactory::createStreamFactory();
-        $action = Factory::createActionClass(ExtensionUploadAction::class, $streamFactory);
+        $factory = Factory::createAdminApiFactory();
+        $streamFactory = $factory->getBaseFactory()->getStreamFactory();
+        $action = new ExtensionUploadAction($factory->getActionClientUtils(), $streamFactory);
 
         static::expectException(PluginNoPluginFoundInZipException::class);
 
@@ -72,8 +76,9 @@ final class ExtensionUploadActionTest extends TestCase
 
     public function testInvalidZipFile(): void
     {
-        $streamFactory = BaseFactory::createStreamFactory();
-        $action = Factory::createActionClass(ExtensionUploadAction::class, $streamFactory);
+        $factory = Factory::createAdminApiFactory();
+        $streamFactory = $factory->getBaseFactory()->getStreamFactory();
+        $action = new ExtensionUploadAction($factory->getActionClientUtils(), $streamFactory);
 
         static::expectException(UnknownError::class);
 

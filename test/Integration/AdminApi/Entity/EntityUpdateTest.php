@@ -16,7 +16,6 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Exception\Entit
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\WriteTypeIntendException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,6 +26,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreatePayload
@@ -53,6 +53,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\NotFoundException
@@ -72,24 +73,27 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class EntityUpdateTest extends TestCase
 {
     public function testUpdateTag(): void
     {
-        $create = Factory::createActionClass(EntityCreateAction::class);
+        $actionClientUtils = Factory::createAdminApiFactory()->getActionClientUtils();
+        $create = new EntityCreateAction($actionClientUtils);
         $name = \bin2hex(\random_bytes(24));
         $result = $create->create(new EntityCreatePayload('tag', [
             'name' => $name,
         ]));
 
         $newName = \bin2hex(\random_bytes(24));
-        $client = Factory::createActionClass(EntityUpdateAction::class);
+        $client = new EntityUpdateAction($actionClientUtils);
         $client->update(new EntityUpdatePayload($result->getEntityName(), $result->getId(), [
             'name' => $newName,
         ]));
 
-        $get = Factory::createActionClass(EntityGetAction::class);
+        $get = new EntityGetAction($actionClientUtils);
         static::assertSame(
             $newName,
             $get->get(
@@ -100,7 +104,8 @@ final class EntityUpdateTest extends TestCase
 
     public function testEntityFormatWithEntityThatContainsSeparator(): void
     {
-        $create = Factory::createActionClass(EntityCreateAction::class);
+        $actionClientUtils = Factory::createAdminApiFactory()->getActionClientUtils();
+        $create = new EntityCreateAction($actionClientUtils);
         $result = $create->create(new EntityCreatePayload('log-entry', [
             'message' => 'An test log message',
             'level' => 5,
@@ -109,7 +114,7 @@ final class EntityUpdateTest extends TestCase
             'extra' => [],
         ]));
 
-        $client = Factory::createActionClass(EntityUpdateAction::class);
+        $client = new EntityUpdateAction($actionClientUtils);
         $updateResult = $client->update(new EntityUpdatePayload($result->getEntityName(), $result->getId(), [
             'message' => 'A longer test log message',
         ]));
@@ -121,7 +126,7 @@ final class EntityUpdateTest extends TestCase
 
     public function testEntityFormatWithWrongEntityNameSeparatorFails(): void
     {
-        $client = Factory::createActionClass(EntityUpdateAction::class);
+        $client = new EntityUpdateAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         static::expectException(NotFoundException::class);
 
@@ -130,7 +135,7 @@ final class EntityUpdateTest extends TestCase
 
     public function testUpdatingAnEntityThatDoesNotExists(): void
     {
-        $client = Factory::createActionClass(EntityUpdateAction::class);
+        $client = new EntityUpdateAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         static::expectException(WriteTypeIntendException::class);
 
@@ -142,12 +147,16 @@ final class EntityUpdateTest extends TestCase
     public function testReceivingAnInvalidEntityReference(): void
     {
         $httpClient = $this->createMock(AuthenticatedHttpClientInterface::class);
+        $adminApiFactory = Factory::createAdminApiFactory([
+            AuthenticatedHttpClientInterface::class => $httpClient,
+        ]);
+        $client = new EntityUpdateAction($adminApiFactory->getActionClientUtils());
         $httpClient->method('sendRequest')->willReturn(
-            BaseFactory::createResponseFactory()
+            $adminApiFactory->getBaseFactory()
+                ->getResponseFactory()
                 ->createResponse(204)
                 ->withAddedHeader('location', 'http://127.0.0.1/')
         );
-        $client = new EntityUpdateAction(Factory::createActionClientUtils($httpClient));
 
         static::expectException(EntityReferenceLocationFormatInvalidException::class);
 

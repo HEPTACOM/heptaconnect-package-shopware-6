@@ -21,7 +21,6 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\PluginNotInstalledException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\ExtensionClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -65,6 +64,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\AbstractEntitySearchCriteria
@@ -88,6 +88,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\ExtensionClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
@@ -108,6 +109,8 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\LetterCase
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class ExtensionClientTest extends TestCase
 {
@@ -186,19 +189,23 @@ final class ExtensionClientTest extends TestCase
 
     private function createEntityClient(): ExtensionClient
     {
+        $factory = Factory::createAdminApiFactory();
+        $actionClientUtils = $factory->getActionClientUtils();
+        $streamFactory = $factory->getBaseFactory()->getStreamFactory();
+
         return new ExtensionClient(
-            Factory::createActionClass(ExtensionRefreshAction::class),
-            Factory::createActionClass(ExtensionActivateAction::class),
-            Factory::createActionClass(ExtensionDeactivateAction::class),
-            Factory::createActionClass(ExtensionInstallAction::class),
-            Factory::createActionClass(ExtensionUninstallAction::class),
-            Factory::createActionClass(ExtensionUpdateAction::class),
-            Factory::createActionClass(ExtensionUploadAction::class, BaseFactory::createStreamFactory()),
-            Factory::createActionClass(ExtensionRemoveAction::class),
-            Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter()),
-            Factory::createActionClass(EntitySearchIdAction::class, new CriteriaFormatter()),
-            Factory::createActionClass(StorePluginSearchAction::class),
-            BaseFactory::createStreamFactory(),
+            new ExtensionRefreshAction($actionClientUtils),
+            new ExtensionActivateAction($actionClientUtils),
+            new ExtensionDeactivateAction($actionClientUtils),
+            new ExtensionInstallAction($actionClientUtils),
+            new ExtensionUninstallAction($actionClientUtils),
+            new ExtensionUpdateAction($actionClientUtils),
+            new ExtensionUploadAction($actionClientUtils, $streamFactory),
+            new ExtensionRemoveAction($actionClientUtils),
+            new EntitySearchAction($actionClientUtils, new CriteriaFormatter()),
+            new EntitySearchIdAction($actionClientUtils, new CriteriaFormatter()),
+            new StorePluginSearchAction($actionClientUtils),
+            $streamFactory,
         );
     }
 

@@ -9,6 +9,15 @@ Read more in the [documentation](https://heptaconnect.io/) and have a look into 
 
 ## Usage
 
+### Installation
+
+1. `composer require heptacom/heptaconnect-package-shopware-6`
+2. Use guide for specific situation:
+   * [Usage in HEPTAconnect](docs/examples/use-package-in-portal.md)
+   * [Standalone usage](docs/examples/use-package-without-framework.md)
+3. Follow examples below
+
+
 ### AdminAPI - EntityClient
 
 ```php

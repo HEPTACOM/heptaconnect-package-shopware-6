@@ -20,6 +20,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ExtensionNotFoundException
@@ -37,6 +38,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler
@@ -54,12 +56,14 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class ExtensionUninstallActionTest extends TestCase
 {
     public function testPluginDoesNotExists(): void
     {
-        $action = Factory::createActionClass(ExtensionUninstallAction::class);
+        $action = new ExtensionUninstallAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         static::expectException(PluginNotFoundException::class);
 
@@ -70,7 +74,7 @@ final class ExtensionUninstallActionTest extends TestCase
     {
         static::expectNotToPerformAssertions();
 
-        $action = Factory::createActionClass(ExtensionUninstallAction::class);
+        $action = new ExtensionUninstallAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         $action->uninstallExtension(new ExtensionUninstallPayload('app', 'AppThatDoesNotExists'));
     }
@@ -79,14 +83,14 @@ final class ExtensionUninstallActionTest extends TestCase
     {
         static::expectNotToPerformAssertions();
 
-        $action = Factory::createActionClass(ExtensionUninstallAction::class);
+        $action = new ExtensionUninstallAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         $action->uninstallExtension(new ExtensionUninstallPayload('null', 'FooBar'));
     }
 
     public function testTypeIsEmpty(): void
     {
-        $action = Factory::createActionClass(ExtensionUninstallAction::class);
+        $action = new ExtensionUninstallAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         static::expectException(NotFoundException::class);
 
@@ -95,7 +99,7 @@ final class ExtensionUninstallActionTest extends TestCase
 
     public function testExtensionNameIsEmpty(): void
     {
-        $action = Factory::createActionClass(ExtensionUninstallAction::class);
+        $action = new ExtensionUninstallAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         static::expectException(NotFoundException::class);
 

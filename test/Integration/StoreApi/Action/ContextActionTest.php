@@ -55,14 +55,18 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Authentication
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\MemoryApiConfigurationStorage
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Utility\DependencyInjection\StoreApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class ContextActionTest extends TestCase
 {
     public function testGet(): void
     {
-        $action = Factory::createActionClass(ContextGetAction::class);
+        $actionClientUtils = Factory::createStoreApiFactory()->getActionClientUtils();
+        $action = new ContextGetAction($actionClientUtils);
         $context = $action->getContext(new ContextGetCriteria(null))->getContext();
 
         static::assertNotNull($context->token);
@@ -76,8 +80,9 @@ final class ContextActionTest extends TestCase
 
     public function testFailOnAddressChangeWithNoLoggedInCustomer(): void
     {
-        $get = Factory::createActionClass(ContextGetAction::class);
-        $update = Factory::createActionClass(ContextUpdateAction::class);
+        $actionClientUtils = Factory::createStoreApiFactory()->getActionClientUtils();
+        $get = new ContextGetAction($actionClientUtils);
+        $update = new ContextUpdateAction($actionClientUtils);
 
         $defaultContext = $get->getContext(new ContextGetCriteria(null))->getContext();
 
@@ -93,9 +98,10 @@ final class ContextActionTest extends TestCase
 
     public function testChangeCountry(): void
     {
-        $get = Factory::createActionClass(ContextGetAction::class);
-        $update = Factory::createActionClass(ContextUpdateAction::class);
-        $country = Factory::createActionClass(CountryGetAction::class, new CriteriaFormatter());
+        $actionClientUtils = Factory::createStoreApiFactory()->getActionClientUtils();
+        $get = new ContextGetAction($actionClientUtils);
+        $update = new ContextUpdateAction($actionClientUtils);
+        $country = new CountryGetAction($actionClientUtils, new CriteriaFormatter());
         $countries = $country->getCountries(new CountryGetCriteria());
 
         static::assertGreaterThan(1, $countries->getElements()->count());

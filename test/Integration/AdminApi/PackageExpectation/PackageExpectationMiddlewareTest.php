@@ -11,7 +11,6 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Cli
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract\PackageExpectationCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract\PackageExpectationInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -25,6 +24,7 @@ use Psr\Http\Message\ResponseInterface;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\DocumentNumberAlreadyExistsValidator
@@ -42,6 +42,7 @@ use Psr\Http\Message\ResponseInterface;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\ClientMiddleware\PackageExpectationMiddleware
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract\PackageExpectationCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler
@@ -59,12 +60,14 @@ use Psr\Http\Message\ResponseInterface;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class PackageExpectationMiddlewareTest extends TestCase
 {
     public function testExpectationsFromMiddlewareAndActionArgumentAreMerged(): void
     {
-        $realClient = Factory::createAuthenticatedClient();
+        $factory = Factory::createAdminApiFactory();
         $middleware = new PackageExpectationMiddleware(new PackageExpectationCollection([
             new class() implements PackageExpectationInterface {
                 public function getPackageExpectation(): array
@@ -74,18 +77,18 @@ final class PackageExpectationMiddlewareTest extends TestCase
                     ];
                 }
             },
-        ]), BaseFactory::createUriFactory(), Factory::createApiConfigurationStorage());
+        ]), $factory->getBaseFactory()->getUriFactory(), $factory->getApiConfigurationStorage());
 
         $innerClient = $this->createMock(AuthenticatedHttpClientInterface::class);
         $innerClient->method('sendRequest')
-            ->willReturnCallback(function (RequestInterface $request) use ($realClient): ResponseInterface {
+            ->willReturnCallback(function (RequestInterface $request) use ($factory): ResponseInterface {
                 $packages = $request->getHeaderLine('sw-expect-packages');
 
                 static::assertStringContainsString(',', $packages);
                 static::assertStringContainsString('<6.5.0', $packages);
                 static::assertStringContainsString('>=6.4.0', $packages);
 
-                return $realClient->sendRequest($request);
+                return $factory->getAuthenticatedClient()->sendRequest($request);
             });
 
         $middlewareClient = $this->createMock(AuthenticatedHttpClientInterface::class);
@@ -102,14 +105,16 @@ final class PackageExpectationMiddlewareTest extends TestCase
                 return $middlewareClient->sendRequest($request);
             });
 
-        $action = new InfoVersionAction(Factory::createActionClientUtils($client));
+        $action = new InfoVersionAction(Factory::createAdminApiFactory([
+            AuthenticatedHttpClientInterface::class => $client,
+        ])->getActionClientUtils());
 
         $action->getVersion((new InfoVersionParams())->withAddedExpectedPackage('shopware/core', '<6.5.0'));
     }
 
     public function testExpectationsFromMiddlewareIsSetWhenNoExpectationInActionArgument(): void
     {
-        $realClient = Factory::createAuthenticatedClient();
+        $factory = Factory::createAdminApiFactory();
         $middleware = new PackageExpectationMiddleware(new PackageExpectationCollection([
             new class() implements PackageExpectationInterface {
                 public function getPackageExpectation(): array
@@ -119,16 +124,16 @@ final class PackageExpectationMiddlewareTest extends TestCase
                     ];
                 }
             },
-        ]), BaseFactory::createUriFactory(), Factory::createApiConfigurationStorage());
+        ]), $factory->getBaseFactory()->getUriFactory(), $factory->getApiConfigurationStorage());
 
         $innerClient = $this->createMock(AuthenticatedHttpClientInterface::class);
         $innerClient->method('sendRequest')
-            ->willReturnCallback(function (RequestInterface $request) use ($realClient): ResponseInterface {
+            ->willReturnCallback(function (RequestInterface $request) use ($factory): ResponseInterface {
                 $packages = $request->getHeaderLine('sw-expect-packages');
 
                 static::assertStringContainsString('>=6.4.0', $packages);
 
-                return $realClient->sendRequest($request);
+                return $factory->getAuthenticatedClient()->sendRequest($request);
             });
 
         $middlewareClient = $this->createMock(AuthenticatedHttpClientInterface::class);
@@ -146,7 +151,9 @@ final class PackageExpectationMiddlewareTest extends TestCase
                 return $middlewareClient->sendRequest($request);
             });
 
-        $action = new InfoVersionAction(Factory::createActionClientUtils($client));
+        $action = new InfoVersionAction(Factory::createAdminApiFactory([
+            AuthenticatedHttpClientInterface::class => $client,
+        ])->getActionClientUtils());
 
         $action->getVersion(new InfoVersionParams());
     }

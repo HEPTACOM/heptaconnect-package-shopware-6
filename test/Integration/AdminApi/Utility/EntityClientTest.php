@@ -47,6 +47,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\AbstractEntitySearchCriteria
@@ -82,6 +83,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
@@ -102,6 +104,8 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\LetterCase
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class EntityClientTest extends TestCase
 {
@@ -240,13 +244,15 @@ final class EntityClientTest extends TestCase
 
     private function createEntityClient(): EntityClient
     {
+        $actionClientUtils = Factory::createAdminApiFactory()->getActionClientUtils();
+
         return new EntityClient(
-            Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter()),
-            Factory::createActionClass(EntitySearchIdAction::class, new CriteriaFormatter()),
-            Factory::createActionClass(EntityCreateAction::class),
-            Factory::createActionClass(EntityGetAction::class),
-            Factory::createActionClass(EntityUpdateAction::class),
-            Factory::createActionClass(EntityDeleteAction::class)
+            new EntitySearchAction($actionClientUtils, new CriteriaFormatter()),
+            new EntitySearchIdAction($actionClientUtils, new CriteriaFormatter()),
+            new EntityCreateAction($actionClientUtils),
+            new EntityGetAction($actionClientUtils),
+            new EntityUpdateAction($actionClientUtils),
+            new EntityDeleteAction($actionClientUtils)
         );
     }
 }

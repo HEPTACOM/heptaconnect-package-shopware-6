@@ -20,6 +20,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityGet\EntityGetCriteria
@@ -39,6 +40,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\NotFoundException
@@ -58,12 +60,14 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class EntityGetTest extends TestCase
 {
     public function testGetDefaultCurrency(): void
     {
-        $client = Factory::createActionClass(EntityGetAction::class);
+        $client = new EntityGetAction(Factory::createAdminApiFactory()->getActionClientUtils());
         $defaultCurrencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $currency = $client->get(new EntityGetCriteria('currency', $defaultCurrencyId, new Criteria()))->getEntity();
 
@@ -74,7 +78,7 @@ final class EntityGetTest extends TestCase
 
     public function testFailGetOnMissingEntity(): void
     {
-        $client = Factory::createActionClass(EntityGetAction::class);
+        $client = new EntityGetAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         static::expectException(ResourceNotFoundException::class);
 
@@ -83,7 +87,7 @@ final class EntityGetTest extends TestCase
 
     public function testFailGetOnMissingEntityName(): void
     {
-        $client = Factory::createActionClass(EntityGetAction::class);
+        $client = new EntityGetAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         static::expectException(NotFoundException::class);
 

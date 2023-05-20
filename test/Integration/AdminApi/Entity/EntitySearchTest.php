@@ -75,6 +75,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\AbstractEntitySearchCriteria
@@ -94,6 +95,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\InvalidLimitQueryException
@@ -115,12 +117,14 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class EntitySearchTest extends TestCase
 {
     public function testFetchEntityWithEmptyCriteria(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria('country', new Criteria()));
 
         static::assertNotSame([], $result->getData()->asArray());
@@ -135,7 +139,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFetchEntityWithLimitCriteria(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria('country', (new Criteria())->withLimit(1)));
 
         static::assertNotSame([], $result->getData()->asArray());
@@ -144,7 +148,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFetchWithDontTotalCriteria(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(
             new EntitySearchCriteria(
                 'country',
@@ -161,7 +165,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFetchWithExactTotalCriteria(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(
             new EntitySearchCriteria(
                 'country',
@@ -178,7 +182,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFetchWithNextPageTotalCriteria(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(
             new EntitySearchCriteria(
                 'country',
@@ -196,7 +200,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFetchWithSearchTerm(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(
             new EntitySearchCriteria(
                 'country',
@@ -220,7 +224,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFetchWithIncludes(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria(
             'country',
             (new Criteria())->withAddedIncludes('country', ['id', 'iso'])->withLimit(1)
@@ -239,7 +243,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFetchWithEmptyIncludes(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria(
             'country',
             (new Criteria())->withAddedIncludes('country', [])->withLimit(1)
@@ -256,7 +260,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFetchWithIdSorting(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $criteria = (new Criteria())->withFieldSort('id');
         $ascResult = $client->search(new EntitySearchCriteria('country', $criteria));
         $descResult = $client->search(new EntitySearchCriteria(
@@ -272,7 +276,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFetchWithCountSorting(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $criteria = (new Criteria())->withCountSort('states.id');
 
         try {
@@ -298,7 +302,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFetchWithGrouping(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $criteria = (new Criteria())->withAddedGroupField('countryId');
         $groupedResults = $client->search(new EntitySearchCriteria('country-state', $criteria));
         $criteria = $criteria->withoutGroupField('countryId');
@@ -310,7 +314,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFetchWithInvalidLimitParameter(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
 
         static::expectException(InvalidLimitQueryException::class);
 
@@ -319,7 +323,7 @@ final class EntitySearchTest extends TestCase
 
     public function testEntityFormatWithEntityThatContainsSeparator(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria('sales-channel', new Criteria()));
 
         foreach ($result->getData() as $entity) {
@@ -329,7 +333,7 @@ final class EntitySearchTest extends TestCase
 
     public function testEntityFormatWithWrongEntityNameSeparatorFails(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
 
         static::expectException(NotFoundException::class);
 
@@ -338,7 +342,7 @@ final class EntitySearchTest extends TestCase
 
     public function testCountAggregation(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria(
             'country',
             (new Criteria())
@@ -352,7 +356,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFilteredCountAggregation(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria(
             'country-state',
             (new Criteria())
@@ -371,7 +375,7 @@ final class EntitySearchTest extends TestCase
 
     public function testStatisticsAggregation(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria(
             'country',
             (new Criteria())
@@ -392,7 +396,7 @@ final class EntitySearchTest extends TestCase
 
     public function testEntityAggregation(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria(
             'country-state',
             (new Criteria())
@@ -411,7 +415,7 @@ final class EntitySearchTest extends TestCase
 
     public function testHistogramAggregation(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria(
             'country-state',
             (new Criteria())
@@ -430,7 +434,7 @@ final class EntitySearchTest extends TestCase
 
     public function testEqualsFilter(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria(
             'country',
             (new Criteria())
@@ -443,7 +447,7 @@ final class EntitySearchTest extends TestCase
 
     public function testEqualsAnyFilterAndCompareAgainstEqualsOrFilter(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $orCriteria = (new Criteria())
             ->withOrFilter(new EqualsFilter('iso', 'DE'))
             ->withOrFilter(new EqualsFilter('iso', 'NL'));
@@ -475,7 +479,7 @@ final class EntitySearchTest extends TestCase
 
     public function testPositionRangeFilterAgainstNotInverseRange(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $resultGt = $client->search(new EntitySearchCriteria(
             'payment-method',
             (new Criteria())
@@ -508,7 +512,7 @@ final class EntitySearchTest extends TestCase
 
     public function testPostFilterWithPrefixFilter(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria(
             'country-state',
             (new Criteria())
@@ -520,7 +524,7 @@ final class EntitySearchTest extends TestCase
 
     public function testFilterOnNonExistingField(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
 
         static::expectException(UnmappedFieldException::class);
 
@@ -533,7 +537,7 @@ final class EntitySearchTest extends TestCase
 
     public function testScoringQueries(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $result = $client->search(new EntitySearchCriteria(
             'country-state',
             (new Criteria())
@@ -552,7 +556,7 @@ final class EntitySearchTest extends TestCase
 
     public function testAssociationCountryLoadsStates(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $criteria = (new Criteria())
             ->withAddedAssociations(new StringCollection([
                 'states',
@@ -574,7 +578,7 @@ final class EntitySearchTest extends TestCase
 
     public function testAssociationCountryLoadsFirstThreeStatesSortedByName(): void
     {
-        $client = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $client = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $criteria = (new Criteria())
             ->withAddedAssociations(new StringCollection([
                 'states',
@@ -606,7 +610,7 @@ final class EntitySearchTest extends TestCase
 
     public function testQueryNonUuidOnIdField(): void
     {
-        $action = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $action = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
 
         static::expectException(InvalidUuidException::class);
 

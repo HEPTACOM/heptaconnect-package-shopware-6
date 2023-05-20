@@ -16,7 +16,6 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Exception\Entit
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\ResourceNotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,6 +26,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreatePayload
@@ -53,6 +53,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\NotFoundException
@@ -72,29 +73,33 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class EntityDeleteTest extends TestCase
 {
     public function testDeleteTag(): void
     {
-        $create = Factory::createActionClass(EntityCreateAction::class);
+        $actionClientUtils = Factory::createAdminApiFactory()->getActionClientUtils();
+        $create = new EntityCreateAction($actionClientUtils);
         $name = \bin2hex(\random_bytes(24));
         $result = $create->create(new EntityCreatePayload('tag', [
             'name' => $name,
         ]));
 
-        $client = Factory::createActionClass(EntityDeleteAction::class);
+        $client = new EntityDeleteAction($actionClientUtils);
         $client->delete(new EntityDeleteCriteria($result->getEntityName(), $result->getId()));
 
         static::expectException(ResourceNotFoundException::class);
 
-        $get = Factory::createActionClass(EntityGetAction::class);
+        $get = new EntityGetAction($actionClientUtils);
         $get->get(new EntityGetCriteria($result->getEntityName(), $result->getId(), new Criteria()));
     }
 
     public function testEntityFormatWithEntityThatContainsSeparator(): void
     {
-        $create = Factory::createActionClass(EntityCreateAction::class);
+        $actionClientUtils = Factory::createAdminApiFactory()->getActionClientUtils();
+        $create = new EntityCreateAction($actionClientUtils);
         $result = $create->create(new EntityCreatePayload('log-entry', [
             'message' => 'An test log message',
             'level' => 5,
@@ -103,7 +108,7 @@ final class EntityDeleteTest extends TestCase
             'extra' => [],
         ]));
 
-        $client = Factory::createActionClass(EntityDeleteAction::class);
+        $client = new EntityDeleteAction($actionClientUtils);
         $deleteResult = $client->delete(new EntityDeleteCriteria($result->getEntityName(), $result->getId()));
 
         static::assertSame('log-entry', $result->getEntityName());
@@ -113,7 +118,7 @@ final class EntityDeleteTest extends TestCase
 
     public function testEntityFormatWithWrongEntityNameSeparatorFails(): void
     {
-        $client = Factory::createActionClass(EntityDeleteAction::class);
+        $client = new EntityDeleteAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         static::expectException(NotFoundException::class);
 
@@ -122,7 +127,7 @@ final class EntityDeleteTest extends TestCase
 
     public function testDeletingAnEntityThatDoesNotExists(): void
     {
-        $client = Factory::createActionClass(EntityDeleteAction::class);
+        $client = new EntityDeleteAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         static::expectException(ResourceNotFoundException::class);
 
@@ -132,12 +137,16 @@ final class EntityDeleteTest extends TestCase
     public function testReceivingAnInvalidEntityReference(): void
     {
         $httpClient = $this->createMock(AuthenticatedHttpClientInterface::class);
+        $adminApiFactory = Factory::createAdminApiFactory([
+            AuthenticatedHttpClientInterface::class => $httpClient,
+        ]);
         $httpClient->method('sendRequest')->willReturn(
-            BaseFactory::createResponseFactory()
+            $adminApiFactory->getBaseFactory()
+                ->getResponseFactory()
                 ->createResponse(204)
                 ->withAddedHeader('location', 'http://127.0.0.1/')
         );
-        $client = new EntityDeleteAction(Factory::createActionClientUtils($httpClient));
+        $client = new EntityDeleteAction($adminApiFactory->getActionClientUtils());
 
         static::expectException(EntityReferenceLocationFormatInvalidException::class);
 

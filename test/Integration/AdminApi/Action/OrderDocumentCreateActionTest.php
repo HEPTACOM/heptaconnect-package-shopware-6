@@ -19,7 +19,6 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\MediaDuplicatedFileNameException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\MediaFileTypeNotSupportedException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -43,6 +42,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\AbstractEntitySearchCriteria
@@ -65,6 +65,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\MediaDuplicatedFileNameException
@@ -84,14 +85,17 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class OrderDocumentCreateActionTest extends TestCase
 {
     public function testCreateInvoice(): void
     {
-        $action = Factory::createActionClass(OrderDocumentCreateAction::class, BaseFactory::createJsonStreamUtility());
-        $create = Factory::createActionClass(EntityCreateAction::class);
-        $search = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $factory = Factory::createAdminApiFactory();
+        $action = new OrderDocumentCreateAction($factory->getActionClientUtils(), $factory->getBaseFactory()->getJsonStreamUtility());
+        $create = new EntityCreateAction($factory->getActionClientUtils());
+        $search = new EntitySearchAction($factory->getActionClientUtils(), new CriteriaFormatter());
         $orderId = $create->create(new EntityCreatePayload('order', $this->getOrderPayload()))->getId();
         $result = $action->createDocuments(
             (new OrderDocumentCreatePayload('invoice'))
@@ -115,8 +119,9 @@ final class OrderDocumentCreateActionTest extends TestCase
 
     public function testCreateTwoInvoicesForTheSameOrder(): void
     {
-        $action = Factory::createActionClass(OrderDocumentCreateAction::class, BaseFactory::createJsonStreamUtility());
-        $create = Factory::createActionClass(EntityCreateAction::class);
+        $factory = Factory::createAdminApiFactory();
+        $action = new OrderDocumentCreateAction($factory->getActionClientUtils(), $factory->getBaseFactory()->getJsonStreamUtility());
+        $create = new EntityCreateAction($factory->getActionClientUtils());
         $orderId = $create->create(new EntityCreatePayload('order', $this->getOrderPayload()))->getId();
         $result = $action->createDocuments(
             (new OrderDocumentCreatePayload('invoice'))
@@ -131,8 +136,9 @@ final class OrderDocumentCreateActionTest extends TestCase
 
     public function testCreateTwoInvoicesForTheDifferentOrder(): void
     {
-        $action = Factory::createActionClass(OrderDocumentCreateAction::class, BaseFactory::createJsonStreamUtility());
-        $create = Factory::createActionClass(EntityCreateAction::class);
+        $factory = Factory::createAdminApiFactory();
+        $action = new OrderDocumentCreateAction($factory->getActionClientUtils(), $factory->getBaseFactory()->getJsonStreamUtility());
+        $create = new EntityCreateAction($factory->getActionClientUtils());
         $orderId1 = $create->create(new EntityCreatePayload('order', $this->getOrderPayload()))->getId();
         $orderId2 = $create->create(new EntityCreatePayload('order', $this->getOrderPayload()))->getId();
         $result = $action->createDocuments(
@@ -150,8 +156,9 @@ final class OrderDocumentCreateActionTest extends TestCase
 
     public function testCreateTwoInvoicesForTheDifferentOrderButWithSameDocumentNumber(): void
     {
-        $action = Factory::createActionClass(OrderDocumentCreateAction::class, BaseFactory::createJsonStreamUtility());
-        $create = Factory::createActionClass(EntityCreateAction::class);
+        $factory = Factory::createAdminApiFactory();
+        $action = new OrderDocumentCreateAction($factory->getActionClientUtils(), $factory->getBaseFactory()->getJsonStreamUtility());
+        $create = new EntityCreateAction($factory->getActionClientUtils());
         $orderId1 = $create->create(new EntityCreatePayload('order', $this->getOrderPayload()))->getId();
         $orderId2 = $create->create(new EntityCreatePayload('order', $this->getOrderPayload()))->getId();
         $documentNumber = \bin2hex(\random_bytes(16));
@@ -177,8 +184,9 @@ final class OrderDocumentCreateActionTest extends TestCase
 
     public function testFailCreateTwoInvoicesWithUnsupportedFileTypeButSucceedOne(): void
     {
-        $action = Factory::createActionClass(OrderDocumentCreateAction::class, BaseFactory::createJsonStreamUtility());
-        $create = Factory::createActionClass(EntityCreateAction::class);
+        $factory = Factory::createAdminApiFactory();
+        $action = new OrderDocumentCreateAction($factory->getActionClientUtils(), $factory->getBaseFactory()->getJsonStreamUtility());
+        $create = new EntityCreateAction($factory->getActionClientUtils());
         $orderId1 = $create->create(new EntityCreatePayload('order', $this->getOrderPayload()))->getId();
         $orderId2 = $create->create(new EntityCreatePayload('order', $this->getOrderPayload()))->getId();
         $result = $action->createDocuments(
@@ -202,7 +210,7 @@ final class OrderDocumentCreateActionTest extends TestCase
     private function getOrderPayload(): array
     {
         $salesChannelTypeStorefront = '8a243080f92e4c719546314b577cf82b';
-        $entitySearch = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $entitySearch = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $salesChannelCriteria = (new Criteria())
             ->withLimit(1)
             ->withAddedAssociation('currency')

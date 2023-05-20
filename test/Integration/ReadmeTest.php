@@ -18,7 +18,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityUpdateAct
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\GenericClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
+use Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -50,6 +50,7 @@ use Psr\Http\Message\ResponseInterface;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\AbstractEntitySearchCriteria
@@ -72,6 +73,7 @@ use Psr\Http\Message\ResponseInterface;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\GenericClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
@@ -94,6 +96,8 @@ use Psr\Http\Message\ResponseInterface;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\Action\Generic\AbstractGenericResult
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\LetterCase
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class ReadmeTest extends TestCase
 {
@@ -147,6 +151,7 @@ DUMP;
 
     public function testGenericClientExample(): void
     {
+        $baseFactory = new BaseFactory();
         $client = $this->createGenericClient();
         // low amount of parameters
         $output = \var_export($client->get('_info/version'), true);
@@ -175,13 +180,13 @@ DUMP;
         static::assertSame($varDump, $output);
 
         $client = $this->createMock(AuthenticatedHttpClientInterface::class);
-        $client->method('sendRequest')->willReturnCallback(static function (RequestInterface $request): ResponseInterface {
+        $client->method('sendRequest')->willReturnCallback(static function (RequestInterface $request) use ($baseFactory): ResponseInterface {
             static::assertSame('application/json', $request->getHeaderLine('content-type'));
             static::assertSame('{"key":"value"}', (string) $request->getBody());
 
-            return BaseFactory::createResponseFactory()
+            return $baseFactory->getResponseFactory()
                 ->createResponse()
-                ->withBody(BaseFactory::createJsonStreamUtility()->fromPayloadToStream([]));
+                ->withBody($baseFactory->getJsonStreamUtility()->fromPayloadToStream([]));
         });
 
         $client = $this->createGenericClient($client);
@@ -192,12 +197,12 @@ DUMP;
         ]);
 
         $client = $this->createMock(AuthenticatedHttpClientInterface::class);
-        $client->method('sendRequest')->willReturnCallback(static function (RequestInterface $request): ResponseInterface {
+        $client->method('sendRequest')->willReturnCallback(static function (RequestInterface $request) use ($baseFactory): ResponseInterface {
             static::assertSame('1', $request->getHeaderLine('sw-skip-trigger-flow'));
 
-            return BaseFactory::createResponseFactory()
+            return $baseFactory->getResponseFactory()
                 ->createResponse()
-                ->withBody(BaseFactory::createJsonStreamUtility()->fromPayloadToStream([]));
+                ->withBody($baseFactory->getJsonStreamUtility()->fromPayloadToStream([]));
         });
 
         $client = $this->createGenericClient($client);
@@ -211,18 +216,28 @@ DUMP;
 
     private function createEntityClient(): EntityClient
     {
+        $actionClientUtils = Factory::createAdminApiFactory()->getActionClientUtils();
+
         return new EntityClient(
-            Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter()),
-            Factory::createActionClass(EntitySearchIdAction::class, new CriteriaFormatter()),
-            Factory::createActionClass(EntityCreateAction::class),
-            Factory::createActionClass(EntityGetAction::class),
-            Factory::createActionClass(EntityUpdateAction::class),
-            Factory::createActionClass(EntityDeleteAction::class)
+            new EntitySearchAction($actionClientUtils, new CriteriaFormatter()),
+            new EntitySearchIdAction($actionClientUtils, new CriteriaFormatter()),
+            new EntityCreateAction($actionClientUtils),
+            new EntityGetAction($actionClientUtils),
+            new EntityUpdateAction($actionClientUtils),
+            new EntityDeleteAction($actionClientUtils)
         );
     }
 
     private function createGenericClient(?AuthenticatedHttpClientInterface $client = null): GenericClient
     {
-        return new GenericClient(new GenericAction(Factory::createActionClientUtils($client)));
+        if ($client !== null) {
+            $actionClientUtils = Factory::createAdminApiFactory([
+                AuthenticatedHttpClientInterface::class => $client,
+            ])->getActionClientUtils();
+        } else {
+            $actionClientUtils = Factory::createAdminApiFactory()->getActionClientUtils();
+        }
+
+        return new GenericClient(new GenericAction($actionClientUtils));
     }
 }

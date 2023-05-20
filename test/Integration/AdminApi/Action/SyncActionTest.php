@@ -15,7 +15,6 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\Sy
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\FieldIsBlankException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\JsonResponseValidationCollectionException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -32,6 +31,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorCollection
@@ -48,6 +48,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\FieldIsBlankException
@@ -68,12 +69,15 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class SyncActionTest extends TestCase
 {
     public function testUpsertAndDeleteTag(): void
     {
-        $action = Factory::createActionClass(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
+        $factory = Factory::createAdminApiFactory();
+        $action = new SyncAction($factory->getActionClientUtils(), new SyncPayloadInterceptorCollection(), $factory->getBaseFactory()->getJsonStreamUtility());
 
         $result = $action->sync((new SyncPayload())->withSyncOperation('tag', SyncOperation::ACTION_UPSERT, [
             'name' => 'random-tag-' . \bin2hex(\random_bytes(8)),
@@ -104,7 +108,8 @@ final class SyncActionTest extends TestCase
 
     public function testFailOnWronglyShapedEntitiesData(): void
     {
-        $action = Factory::createActionClass(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
+        $factory = Factory::createAdminApiFactory();
+        $action = new SyncAction($factory->getActionClientUtils(), new SyncPayloadInterceptorCollection(), $factory->getBaseFactory()->getJsonStreamUtility());
 
         static::expectException(SyncResultException::class);
 
@@ -115,7 +120,8 @@ final class SyncActionTest extends TestCase
 
     public function testGroupExceptionsOnMultipleWronglyShapedEntitiesData(): void
     {
-        $action = Factory::createActionClass(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
+        $factory = Factory::createAdminApiFactory();
+        $action = new SyncAction($factory->getActionClientUtils(), new SyncPayloadInterceptorCollection(), $factory->getBaseFactory()->getJsonStreamUtility());
 
         try {
             $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
@@ -135,7 +141,8 @@ final class SyncActionTest extends TestCase
 
     public function testDeleteNonExistingTags(): void
     {
-        $action = Factory::createActionClass(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
+        $factory = Factory::createAdminApiFactory();
+        $action = new SyncAction($factory->getActionClientUtils(), new SyncPayloadInterceptorCollection(), $factory->getBaseFactory()->getJsonStreamUtility());
         $result = $action->sync((new SyncPayload())->withSyncOperation('tag', SyncOperation::ACTION_DELETE, [
             'id' => '00000000000000000000000000000000',
         ], 'tag-delete'));
@@ -151,7 +158,8 @@ final class SyncActionTest extends TestCase
 
     public function testFailOnEmptyTags(): void
     {
-        $action = Factory::createActionClass(SyncAction::class, new SyncPayloadInterceptorCollection(), BaseFactory::createJsonStreamUtility());
+        $factory = Factory::createAdminApiFactory();
+        $action = new SyncAction($factory->getActionClientUtils(), new SyncPayloadInterceptorCollection(), $factory->getBaseFactory()->getJsonStreamUtility());
 
         try {
             $action->sync((new SyncPayload())->withSyncOperations(new SyncOperationCollection([
@@ -182,14 +190,15 @@ final class SyncActionTest extends TestCase
 
     public function testSyncPayloadInterceptor(): void
     {
-        $action = Factory::createActionClass(SyncAction::class, new SyncPayloadInterceptorCollection([
+        $factory = Factory::createAdminApiFactory();
+        $action = new SyncAction($factory->getActionClientUtils(), new SyncPayloadInterceptorCollection([
             new class() implements SyncPayloadInterceptorInterface {
                 public function intercept(SyncPayload $payload): SyncPayload
                 {
                     return $payload->withSyncOperations(new SyncOperationCollection());
                 }
             },
-        ]), BaseFactory::createJsonStreamUtility());
+        ]), $factory->getBaseFactory()->getJsonStreamUtility());
 
         // this would fail
         $result = $action->sync((new SyncPayload())->withSyncOperation('tag', SyncOperation::ACTION_UPSERT, [

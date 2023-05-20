@@ -17,7 +17,8 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 
 - Add composer dependency `heptacom/heptaconnect-portal-base: >=0.9.4 <0.10`, `heptacom/heptaconnect-dataset-base: >=0.9.4 <0.10` and `symfony/dependency-injection: ^4.4 || ^5.0` to make use of HEPTAconnect portal and package tools
 - Add composer dependency `psr/http-client: ^1.0`, `psr/http-factory: ^1.0` and `psr/http-message: ^1.0` as HTTP request and responses needs to be handled
-- Add composer dependency `psr/container": ">=1 <3` as a containers are used and an implementation is provided
+- Add composer dependency `psr/container: >=1 <3` as a containers are used and an implementation is provided
+- Add composer dependency `psr/simple-cache: @stable` and `psr/simple-cache-implementation` and as caching is used as temporary storage
 - Add composer dependency `symfony/polyfill-php80: *` to use PHP 8.0 functions already with PHP 7.4 code
 - Add composer dependency `ext-json: *` as JSON requests and responses needs to be sent and parsed
 - Add composer dependency `ext-mbstring: *` as Unicode texts are processed
@@ -136,9 +137,11 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\AdminApiPackageExpectationRegistrationCompilerPass` to automatically tag all `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Contract\PackageExpectationInterface` with the tag `heptaconnect.package.shopware6.admin_api.package_expectation`
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer` to provide a PSR-11 container, when one is needed with previously instantiated service objects
 - Add exception `\Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\Exception\ServiceNotFoundException` for scenarios, when a requested service is not found
+- Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory` to provide a central point of factorizing shared dependencies. It can be used together with a container built with a HEPTAconnect portal
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\EntityClient` to have a single dependency for common entity actions
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\ExtensionClient` to have a single dependency for common extension actions
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\GenericClient` to have a generic API client for any request
+- Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory` to provide a central point of factorizing shared dependencies for Admin API classes
 - Add implementation `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Authentication` for contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\AuthenticationInterface` to provide authentication information to communicate with Shopware 6 Store API
 - Add implementation `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\AuthenticationMemoryCache` as decorator for `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\AuthenticationInterface` to hold authentication information in-memory to reduce calls to any I/O dependant storage
 - Add contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\ApiConfigurationStorageInterface` to provide `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\ApiConfiguration`, that is used to identify and authenticate against a Shopware Store API
@@ -154,6 +157,7 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 - Add service to update a Store API context as implementation `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\ContextUpdateAction` for contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\ContextUpdate\ContextUpdateActionInterface` with `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\ContextUpdate\ContextUpdatePayload` and `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\ContextUpdate\ContextUpdateResult`
 - Add service to read countries as implementation `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\CountryGetAction` for contract `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\CountryGet\CountryGetActionInterface` with `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\CountryGet\CountryGetCriteria` and `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Contract\CountryGet\CountryGetResult`
 - Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Utility\GenericClient` to have a generic API client for any request
+- Add utility class `\Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Utility\DependencyInjection\StoreApiFactory` to provide a central point of factorizing shared dependencies for Store API classes
 
 ### Changed
 

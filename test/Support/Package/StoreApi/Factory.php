@@ -14,19 +14,12 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityCreateAct
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\AbstractActionClient;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Support\ActionClientUtils;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\ApiConfiguration;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\AuthenticatedHttpClient;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Authentication;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\AuthenticationMemoryCache;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\ApiConfigurationStorageInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\MemoryApiConfigurationStorage;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\ErrorHandling\JsonResponseValidator\CustomerNotLoggedInValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Utility\DependencyInjection\StoreApiFactory;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory as AdminFactory;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\TestBootstrapper;
+use Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory;
+use Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -34,54 +27,43 @@ final class Factory
 {
     private static ?ApiConfiguration $apiConfiguration = null;
 
-    public static function createApiConfigurationStorage(): ApiConfigurationStorageInterface
+    public static function createStoreApiFactory(array $services = []): StoreApiFactory
     {
-        return new MemoryApiConfigurationStorage(self::createApiConfiguration());
-    }
+        $apiConfiguration = self::createApiConfiguration();
+        $emptyStoreApiFactory = new StoreApiFactory($apiConfiguration);
+        $validators = new JsonResponseValidatorCollection($emptyStoreApiFactory->getJsonResponseValidatorCollection());
+        $validators->push([
+            new class() implements JsonResponseValidatorInterface {
+                public function validate(array $body, ?array $error, RequestInterface $request, ResponseInterface $response): void
+                {
+                    if ($error !== null) {
+                        throw new \RuntimeException('Found error, that is not yet covered by a validator');
+                    }
+                }
+            },
+        ]);
 
-    /**
-     * @template TActionClass of AbstractActionClient
-     *
-     * @param class-string<TActionClass> $actionClass
-     *
-     * @return AbstractActionClient&TActionClass
-     */
-    public static function createActionClass(string $actionClass, ...$args): AbstractActionClient
-    {
-        return new $actionClass(
-            new ActionClientUtils(
-                self::createAuthenticatedClient(),
-                BaseFactory::createRequestFactory(),
-                self::createApiConfigurationStorage(),
-                BaseFactory::createJsonStreamUtility(),
-                self::createJsonResponseErrorHandler(),
-            ),
-            ...$args,
-        );
-    }
-
-    public static function createAuthenticatedClient(): AuthenticatedHttpClient
-    {
-        return new AuthenticatedHttpClient(
-            BaseFactory::createHttpClient(),
-            new AuthenticationMemoryCache(new Authentication(self::createApiConfiguration()))
-        );
+        return new StoreApiFactory($apiConfiguration, new BaseFactory(new SyntheticServiceContainer([
+            JsonResponseValidatorCollection::class . '.store_api' => $validators,
+        ] + $services)));
     }
 
     public static function createApiConfiguration(): ApiConfiguration
     {
+        $baseFactory = new BaseFactory();
         $result = self::$apiConfiguration;
         $salesChannelTypeStorefront = '8a243080f92e4c719546314b577cf82b';
 
         if ($result === null) {
             $adminUrl = TestBootstrapper::instance()->getAdminApiUrl();
-            $baseUrl = (string) BaseFactory::createUriFactory()->createUri($adminUrl)->withPath('');
+            $baseUrl = (string) $baseFactory->getUriFactory()->createUri($adminUrl)->withPath('');
             $storeApiUrl = TestBootstrapper::instance()->getStoreApiUrl();
             $accessKey = TestBootstrapper::instance()->getStoreApiAccessKey();
 
             if ($storeApiUrl === null || $accessKey === null) {
-                $entitySearch = AdminFactory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
-                $entityCreate = AdminFactory::createActionClass(EntityCreateAction::class);
+                $actionClientUtils = AdminFactory::createAdminApiFactory()->getActionClientUtils();
+                $entitySearch = new EntitySearchAction($actionClientUtils, new CriteriaFormatter());
+                $entityCreate = new EntityCreateAction($actionClientUtils);
 
                 $snippetCriteria = (new Criteria())
                     ->withLimit(1)
@@ -119,23 +101,5 @@ final class Factory
         }
 
         return $result;
-    }
-
-    public static function createJsonResponseErrorHandler(): JsonResponseErrorHandler
-    {
-        $validators = new JsonResponseValidatorCollection(BaseFactory::createJsonResponseValidators());
-        $validators->push([
-            new CustomerNotLoggedInValidator(),
-            new class() implements JsonResponseValidatorInterface {
-                public function validate(array $body, ?array $error, RequestInterface $request, ResponseInterface $response): void
-                {
-                    if ($error !== null) {
-                        throw new \RuntimeException('Found error, that is not yet covered by a validator');
-                    }
-                }
-            },
-        ]);
-
-        return new JsonResponseErrorHandler(BaseFactory::createJsonStreamUtility(), $validators);
     }
 }

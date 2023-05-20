@@ -19,7 +19,6 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exceptio
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\NotFoundException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\WriteUnexpectedFieldException;
 use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\AdminApi\Factory;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -36,6 +35,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\AbstractEntitySearchCriteria
@@ -62,6 +62,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\NotFoundException
@@ -82,18 +83,21 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class EntityCreateTest extends TestCase
 {
     public function testCreateTag(): void
     {
-        $client = Factory::createActionClass(EntityCreateAction::class);
+        $actionClientUtils = Factory::createAdminApiFactory()->getActionClientUtils();
+        $client = new EntityCreateAction($actionClientUtils);
         $name = \bin2hex(\random_bytes(24));
         $result = $client->create(new EntityCreatePayload('tag', [
             'name' => $name,
         ]));
 
-        $get = Factory::createActionClass(EntityGetAction::class);
+        $get = new EntityGetAction($actionClientUtils);
         static::assertSame(
             $name,
             $get->get(
@@ -104,7 +108,7 @@ final class EntityCreateTest extends TestCase
 
     public function testCreateTagWithPredefinedId(): void
     {
-        $client = Factory::createActionClass(EntityCreateAction::class);
+        $client = new EntityCreateAction(Factory::createAdminApiFactory()->getActionClientUtils());
         $id = \bin2hex(\random_bytes(16));
         $name = \bin2hex(\random_bytes(24));
         $result = $client->create(new EntityCreatePayload('tag', [
@@ -118,7 +122,7 @@ final class EntityCreateTest extends TestCase
 
     public function testEntityFormatWithEntityThatContainsSeparator(): void
     {
-        $client = Factory::createActionClass(EntityCreateAction::class);
+        $client = new EntityCreateAction(Factory::createAdminApiFactory()->getActionClientUtils());
         $result = $client->create(new EntityCreatePayload('log-entry', [
             'message' => 'An test log message',
             'level' => 5,
@@ -132,7 +136,7 @@ final class EntityCreateTest extends TestCase
 
     public function testEntityFormatWithWrongEntityNameSeparatorFails(): void
     {
-        $client = Factory::createActionClass(EntityCreateAction::class);
+        $client = new EntityCreateAction(Factory::createAdminApiFactory()->getActionClientUtils());
 
         static::expectException(NotFoundException::class);
 
@@ -141,7 +145,7 @@ final class EntityCreateTest extends TestCase
 
     public function testCreatingAnEntityThatAlreadyExists(): void
     {
-        $client = Factory::createActionClass(EntityCreateAction::class);
+        $client = new EntityCreateAction(Factory::createAdminApiFactory()->getActionClientUtils());
         $defaultCurrencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
 
         static::expectException(WriteTypeIntendException::class);
@@ -156,12 +160,16 @@ final class EntityCreateTest extends TestCase
     public function testReceivingAnInvalidEntityReference(): void
     {
         $httpClient = $this->createMock(AuthenticatedHttpClientInterface::class);
+        $adminApiFactory = Factory::createAdminApiFactory([
+            AuthenticatedHttpClientInterface::class => $httpClient,
+        ]);
         $httpClient->method('sendRequest')->willReturn(
-            BaseFactory::createRequestFactory()
+            $adminApiFactory->getBaseFactory()
+                ->getRequestFactory()
                 ->createResponse(204)
                 ->withAddedHeader('location', 'http://127.0.0.1/')
         );
-        $client = new EntityCreateAction(Factory::createActionClientUtils($httpClient));
+        $client = new EntityCreateAction($adminApiFactory->getActionClientUtils());
 
         static::expectException(EntityReferenceLocationFormatInvalidException::class);
 
@@ -170,8 +178,9 @@ final class EntityCreateTest extends TestCase
 
     public function testFailWritingOrderWhenApiAliasKeyIsGivenOnJsonField(): void
     {
-        $entitySearch = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
-        $action = Factory::createActionClass(EntityCreateAction::class);
+        $actionClientUtils = Factory::createAdminApiFactory()->getActionClientUtils();
+        $entitySearch = new EntitySearchAction($actionClientUtils, new CriteriaFormatter());
+        $action = new EntityCreateAction($actionClientUtils);
         $salesChannelTypeStorefront = '8a243080f92e4c719546314b577cf82b';
         $salesChannelCriteria = (new Criteria())
             ->withLimit(1)

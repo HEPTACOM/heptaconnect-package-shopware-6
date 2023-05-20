@@ -36,6 +36,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Exception\AuthenticationFailed
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\AbstractEntitySearchCriteria
@@ -58,6 +59,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\StateMachineInvalidEntityIdValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\WriteTypeIntendErrorValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\PackageExpectation\Support\ExpectedPackagesAwareTrait
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection\AdminApiFactory
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\AbstractRequestException
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\CartMissingOrderRelationException
@@ -77,13 +79,16 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\Support\AbstractShopwareClientUtils
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class EntityStateTransitionActionTest extends TestCase
 {
     public function testTransitionOrder(): void
     {
-        $action = Factory::createActionClass(EntityStateTransitionAction::class);
-        $entityCreate = Factory::createActionClass(EntityCreateAction::class);
+        $actionClientUtils = Factory::createAdminApiFactory()->getActionClientUtils();
+        $action = new EntityStateTransitionAction($actionClientUtils);
+        $entityCreate = new EntityCreateAction($actionClientUtils);
         $orderId = $entityCreate->create(new EntityCreatePayload('order', $this->getOrderPayload()))->getId();
         $result = $action->transitionState(new EntityStateTransitionPayload('order', $orderId, 'process'));
 
@@ -92,8 +97,9 @@ final class EntityStateTransitionActionTest extends TestCase
 
     public function testTransitionOrderFailsOnMissingOrderCustomer(): void
     {
-        $action = Factory::createActionClass(EntityStateTransitionAction::class);
-        $entityCreate = Factory::createActionClass(EntityCreateAction::class);
+        $actionClientUtils = Factory::createAdminApiFactory()->getActionClientUtils();
+        $action = new EntityStateTransitionAction($actionClientUtils);
+        $entityCreate = new EntityCreateAction($actionClientUtils);
         $payload = $this->getOrderPayload();
         unset($payload['orderCustomer']);
         $orderId = $entityCreate->create(new EntityCreatePayload('order', $payload))->getId();
@@ -109,7 +115,7 @@ final class EntityStateTransitionActionTest extends TestCase
 
     public function testTransitionOrderFailsWithoutValidOrderId(): void
     {
-        $action = Factory::createActionClass(EntityStateTransitionAction::class);
+        $action = new EntityStateTransitionAction(Factory::createAdminApiFactory()->getActionClientUtils());
         $orderId = '00000000000000000000000000000000';
 
         static::expectException(StateMachineInvalidEntityIdException::class);
@@ -120,7 +126,7 @@ final class EntityStateTransitionActionTest extends TestCase
     private function getOrderPayload(): array
     {
         $salesChannelTypeStorefront = '8a243080f92e4c719546314b577cf82b';
-        $entitySearch = Factory::createActionClass(EntitySearchAction::class, new CriteriaFormatter());
+        $entitySearch = new EntitySearchAction(Factory::createAdminApiFactory()->getActionClientUtils(), new CriteriaFormatter());
         $salesChannelCriteria = (new Criteria())
             ->withLimit(1)
             ->withAddedAssociation('currency')

@@ -6,12 +6,14 @@ namespace Heptacom\HeptaConnect\Package\Shopware6\Test\Unit\AdminApi\ErrorHandli
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Contract\JsonResponseValidatorCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler;
-use Heptacom\HeptaConnect\Package\Shopware6\Test\Support\Package\BaseFactory;
+use Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\SyntheticServiceContainer
  */
 final class JsonResponseErrorHandlerTest extends TestCase
 {
@@ -19,10 +21,11 @@ final class JsonResponseErrorHandlerTest extends TestCase
     {
         static::expectNotToPerformAssertions();
 
-        $jsonStreamUtility = BaseFactory::createJsonStreamUtility();
+        $baseFactory = new BaseFactory();
+        $jsonStreamUtility = $baseFactory->getJsonStreamUtility();
         $errorHandler = new JsonResponseErrorHandler($jsonStreamUtility, new JsonResponseValidatorCollection());
-        $request = BaseFactory::createRequestFactory()->createRequest('GET', '/');
-        $response = BaseFactory::createResponseFactory()->createResponse(200, 'OK')->withBody(
+        $request = $baseFactory->getRequestFactory()->createRequest('GET', '/');
+        $response = $baseFactory->getResponseFactory()->createResponse(200, 'OK')->withBody(
             $jsonStreamUtility->fromPayloadToStream(['data' => ['foo' => 'bar']])
         );
         $errorHandler->throwException($request, $response);
