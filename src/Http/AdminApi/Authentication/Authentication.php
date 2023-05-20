@@ -102,10 +102,15 @@ final class Authentication implements AuthenticationInterface
     public function getAuthorizationHeader(): string
     {
         try {
-            $oauthData = \iterable_to_array($this->portalStorage->getMultiple([
+            $oauthData = [];
+            $storageHits = $this->portalStorage->getMultiple([
                 'oauth.token_type',
                 'oauth.access_token',
-            ]));
+            ]);
+
+            foreach ($storageHits as $key => $value) {
+                $oauthData[$key] = $value;
+            }
         } catch (InvalidArgumentException $exception) {
             throw new AuthenticationFailed(1680350600, $exception);
         }

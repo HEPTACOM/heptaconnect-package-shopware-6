@@ -28,7 +28,6 @@
         "php": ">=7.4",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "bentools/iterable-functions": ">=1.4 <2",
         "heptacom/heptaconnect-dataset-base": ">=0.9.4 <0.10",
         "heptacom/heptaconnect-portal-base": ">=0.9.4 <0.10",
         "psr/http-client": "^1.0",

@@ -15,7 +15,7 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 
 ### Added
 
-- Add composer dependency `heptacom/heptaconnect-portal-base: >=0.9.4 <0.10`, `heptacom/heptaconnect-dataset-base: >=0.9.4 <0.10`, `bentools/iterable-functions: >=1.4 <2` and `symfony/dependency-injection: ^4.4 || ^5.0` to make use of HEPTAconnect portal and package tools
+- Add composer dependency `heptacom/heptaconnect-portal-base: >=0.9.4 <0.10`, `heptacom/heptaconnect-dataset-base: >=0.9.4 <0.10` and `symfony/dependency-injection: ^4.4 || ^5.0` to make use of HEPTAconnect portal and package tools
 - Add composer dependency `psr/http-client: ^1.0`, `psr/http-factory: ^1.0` and `psr/http-message: ^1.0` as HTTP request and responses needs to be handled
 - Add composer dependency `symfony/polyfill-php80: *` to use PHP 8.0 functions already with PHP 7.4 code
 - Add composer dependency `ext-json: *` as JSON requests and responses needs to be sent and parsed
