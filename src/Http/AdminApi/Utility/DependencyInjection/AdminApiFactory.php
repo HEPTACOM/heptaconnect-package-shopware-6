@@ -37,6 +37,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValid
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\MethodNotAllowedValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\NotFoundValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ResourceNotFoundValidator;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ScopeNotFoundValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\ServerErrorValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\UnmappedFieldValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator;
@@ -83,6 +84,7 @@ final class AdminApiFactory
             new ServerErrorValidator(),
             new FieldIsBlankValidator(),
             new ResourceNotFoundValidator(),
+            new ScopeNotFoundValidator(),
             new InvalidLimitQueryValidator(),
             new InvalidUuidValidator(),
             new UnmappedFieldValidator(),
