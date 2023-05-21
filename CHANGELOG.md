@@ -15,7 +15,7 @@ The version numbers are structured like `GENERATION.MAJOR.MINOR.PATCH`:
 
 ### Added
 
-- Add composer dependency `heptacom/heptaconnect-portal-base: >=0.9.4 <0.10`, `heptacom/heptaconnect-dataset-base: >=0.9.4 <0.10` and `symfony/dependency-injection: ^4.4 || ^5.0` to make use of HEPTAconnect portal and package tools
+- Add composer dependency `heptacom/heptaconnect-dataset-base: >=0.9.4 <0.10` and `symfony/dependency-injection: ^4.4 || ^5.0` to make use of HEPTAconnect tools
 - Add composer dependency `psr/http-client: ^1.0`, `psr/http-factory: ^1.0` and `psr/http-message: ^1.0` as HTTP request and responses needs to be handled
 - Add composer dependency `psr/container: >=1 <3` as a containers are used and an implementation is provided
 - Add composer dependency `psr/simple-cache: @stable` and `psr/simple-cache-implementation` and as caching is used as temporary storage
