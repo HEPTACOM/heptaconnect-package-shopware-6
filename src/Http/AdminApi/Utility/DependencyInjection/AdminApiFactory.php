@@ -81,7 +81,6 @@ final class AdminApiFactory
 
         return new JsonResponseValidatorCollection([
             new CartMissingOrderRelationValidator(),
-            new ServerErrorValidator(),
             new FieldIsBlankValidator(),
             new ResourceNotFoundValidator(),
             new ScopeNotFoundValidator(),
@@ -106,6 +105,8 @@ final class AdminApiFactory
             new StateMachineInvalidEntityIdValidator(),
             new InvalidDocumentFileGeneratorTypeValidator(),
             new DocumentNumberAlreadyExistsValidator(),
+            // not exclusive, but should be last resort
+            new ServerErrorValidator(),
         ]);
     }
 

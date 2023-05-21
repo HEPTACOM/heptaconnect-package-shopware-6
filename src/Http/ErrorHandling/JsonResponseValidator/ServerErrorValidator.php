@@ -25,8 +25,14 @@ final class ServerErrorValidator implements JsonResponseValidatorInterface
             $title = $error['title'] ?? '';
             $detail = $error['detail'] ?? '';
 
-            if ($code === '0' && $status === '500' && $title === 'Internal Server Error') {
-                throw new UnknownError($request, $response, \trim($title . \PHP_EOL . $detail));
+            if ($status === '500' && $title === 'Internal Server Error') {
+                $numCode = 0;
+
+                if (\is_numeric($code)) {
+                    $numCode = (int) $code;
+                }
+
+                throw new UnknownError($request, $response, \trim($title . \PHP_EOL . $detail), $numCode);
             }
         }
     }

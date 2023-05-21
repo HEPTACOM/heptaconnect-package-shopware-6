@@ -70,7 +70,6 @@ final class StoreApiFactory
 
         return new JsonResponseValidatorCollection([
             new CartMissingOrderRelationValidator(),
-            new ServerErrorValidator(),
             new FieldIsBlankValidator(),
             new ResourceNotFoundValidator(),
             new ScopeNotFoundValidator(),
@@ -84,6 +83,8 @@ final class StoreApiFactory
             new MediaDuplicatedFileNameValidator(),
             // exclusive
             new CustomerNotLoggedInValidator(),
+            // not exclusive, but should be last resort
+            new ServerErrorValidator(),
         ]);
     }
 
