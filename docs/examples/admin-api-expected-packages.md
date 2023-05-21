@@ -1,4 +1,4 @@
-# Use AdminAPI package expectations per request
+# Use AdminAPI package expectations
 
 Use package expectations with the Admin API, that are applicable for a single request:
 
