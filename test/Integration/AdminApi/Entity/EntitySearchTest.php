@@ -15,6 +15,7 @@ use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\Mi
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\StatisticsAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\SumAggregation;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Aggregation\TermsAggregation;
+use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\AggregationBucketCollection;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Criteria;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\Entity;
 use Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\FieldSorting;
@@ -309,7 +310,7 @@ final class EntitySearchTest extends TestCase
         $criteria = $criteria->withoutGroupField('countryId');
         $nonGroupedResults = $client->search(new EntitySearchCriteria('country-state', $criteria));
 
-        static::assertSame(3, $groupedResults->getTotal());
+        static::assertSame($this->getCountCountriesWithStates(), $groupedResults->getTotal());
         static::assertGreaterThan($groupedResults->getTotal(), $nonGroupedResults->getTotal());
     }
 
@@ -407,7 +408,7 @@ final class EntitySearchTest extends TestCase
                 ->withAddedAggregation(new TermsAggregation('countryIds', 'countryId'))
         ));
 
-        static::assertCount(3, $result->getAggregations()['countries']->entities);
+        static::assertCount($this->getCountCountriesWithStates(), $result->getAggregations()['countries']->entities);
         static::assertEqualsCanonicalizing(
             $result->getAggregations()['countryIds']->buckets->getKeys()->asArray(),
             \array_column($result->getAggregations()['countries']->entities->asArray(), 'id')
@@ -428,9 +429,9 @@ final class EntitySearchTest extends TestCase
                 ->withAddedAggregation(new HistogramAggregation('created_day', 'createdAt', HistogramAggregation::INTERVAL_DAY))
         ));
 
-        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_minute']->buckets->first()->count);
-        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_hour']->buckets->first()->count);
-        static::assertSame($result->getAggregations()['count']->count, $result->getAggregations()['created_day']->buckets->first()->count);
+        static::assertSame($result->getAggregations()['count']->count, $this->sumBucketCounts($result->getAggregations()['created_minute']->buckets));
+        static::assertSame($result->getAggregations()['count']->count, $this->sumBucketCounts($result->getAggregations()['created_hour']->buckets));
+        static::assertSame($result->getAggregations()['count']->count, $this->sumBucketCounts($result->getAggregations()['created_day']->buckets));
     }
 
     public function testEqualsFilter(): void
@@ -570,7 +571,7 @@ final class EntitySearchTest extends TestCase
 
         $result = $client->search(new EntitySearchCriteria('country', $criteria));
 
-        static::assertSame(3, $result->getTotal());
+        static::assertSame($this->getCountCountriesWithStates(), $result->getTotal());
 
         foreach ($result->getData() as $country) {
             static::assertNotEmpty($country->states);
@@ -598,13 +599,14 @@ final class EntitySearchTest extends TestCase
 
         $result = $client->search(new EntitySearchCriteria('country', $criteria));
 
-        static::assertSame(3, $result->getTotal());
+        static::assertSame($this->getCountCountriesWithStates(), $result->getTotal());
 
         foreach ($result->getData() as $country) {
             static::assertCount(3, $country->states);
 
             foreach ($country->states as $state) {
-                static::assertMatchesRegularExpression('/^.+-[AB]/', $state->shortCode);
+                // Canada state start first with letter M
+                static::assertMatchesRegularExpression('/^(.+-[AB]|CA-[MNO])/', $state->shortCode);
             }
         }
     }
@@ -616,5 +618,28 @@ final class EntitySearchTest extends TestCase
         static::expectException(InvalidUuidException::class);
 
         $action->search(new EntitySearchCriteria('country-state', (new Criteria())->withAndFilter(new EqualsFilter('countryId', 'abcdefghijklmnopqrstuvwxyz'))));
+    }
+
+    private function sumBucketCounts(AggregationBucketCollection $buckets): int
+    {
+        $result = 0;
+
+        foreach ($buckets as $bucket) {
+            $result += $bucket->count;
+        }
+
+        return $result;
+    }
+
+    private function getCountCountriesWithStates(): int
+    {
+        if (\version_compare(Factory::getShopwareVersion(), '6.5.0.0', '>=')) {
+            // Canada, Germany, UK, USA
+
+            return 4;
+        }
+
+        // Germany, UK, USA
+        return 3;
     }
 }
