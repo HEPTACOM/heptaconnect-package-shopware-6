@@ -18,8 +18,8 @@ final class MediaFileTypeNotSupportedValidator implements JsonResponseValidatorI
         $title = $error['title'] ?? '';
 
         if ($status === '400' && $code === 'CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED' && $title === 'Bad Request') {
-            $extension = $error['meta']['parameters']['extension'];
-            $mediaId = $error['meta']['parameters']['mediaId'];
+            $extension = $error['meta']['parameters']['extension'] ?? '';
+            $mediaId = $error['meta']['parameters']['mediaId'] ?? '';
 
             throw new MediaFileTypeNotSupportedException($request, $response, $extension, $mediaId);
         }
