@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Utility\DependencyInjection;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils as AdminActionClientUtils;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\ApiConfiguration as AdminApiConfiguration;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticatedHttpClient as AdminAuthenticatedHttpClient;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Authentication;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\AuthenticationMemoryCache;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\ApiConfigurationStorageInterface as AdminApiConfigurationStorageInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticatedHttpClientInterface as AdminAuthenticatedHttpClientInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\Contract\AuthenticationInterface as AdminAuthenticationInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Authentication\MemoryApiConfigurationStorage;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\DocumentNumberAlreadyExistsValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\JsonResponseValidator\ExpectationFailedValidator;
@@ -49,17 +49,17 @@ use Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFact
  */
 final class AdminApiFactory
 {
-    private ApiConfiguration $apiConfiguration;
+    private AdminApiConfiguration $apiConfiguration;
 
     private BaseFactory $baseFactory;
 
-    public function __construct(ApiConfiguration $apiConfiguration, ?BaseFactory $baseFactory = null)
+    public function __construct(AdminApiConfiguration $apiConfiguration, ?BaseFactory $baseFactory = null)
     {
         $this->apiConfiguration = $apiConfiguration;
         $this->baseFactory = $baseFactory ?? new BaseFactory();
     }
 
-    public function getApiConfiguration(): ApiConfiguration
+    public function getApiConfiguration(): AdminApiConfiguration
     {
         return $this->apiConfiguration;
     }
@@ -134,23 +134,23 @@ final class AdminApiFactory
         );
     }
 
-    public function getAuthenticatedClient(): AuthenticatedHttpClientInterface
+    public function getAuthenticatedClient(): AdminAuthenticatedHttpClientInterface
     {
-        if ($this->getBaseFactory()->getContainer()->has(AuthenticatedHttpClientInterface::class)) {
-            return $this->getBaseFactory()->getContainer()->get(AuthenticatedHttpClientInterface::class);
+        if ($this->getBaseFactory()->getContainer()->has(AdminAuthenticatedHttpClientInterface::class)) {
+            return $this->getBaseFactory()->getContainer()->get(AdminAuthenticatedHttpClientInterface::class);
         }
 
-        if ($this->getBaseFactory()->getContainer()->has(AuthenticatedHttpClient::class)) {
-            return $this->getBaseFactory()->getContainer()->get(AuthenticatedHttpClient::class);
+        if ($this->getBaseFactory()->getContainer()->has(AdminAuthenticatedHttpClient::class)) {
+            return $this->getBaseFactory()->getContainer()->get(AdminAuthenticatedHttpClient::class);
         }
 
-        return new AuthenticatedHttpClient($this->getBaseFactory()->getHttpClient(), $this->getAuthentication());
+        return new AdminAuthenticatedHttpClient($this->getBaseFactory()->getHttpClient(), $this->getAuthentication());
     }
 
-    public function getAuthentication(): AuthenticationInterface
+    public function getAuthentication(): AdminAuthenticationInterface
     {
-        if ($this->getBaseFactory()->getContainer()->has(AuthenticationInterface::class)) {
-            return $this->getBaseFactory()->getContainer()->get(AuthenticationInterface::class);
+        if ($this->getBaseFactory()->getContainer()->has(AdminAuthenticationInterface::class)) {
+            return $this->getBaseFactory()->getContainer()->get(AdminAuthenticationInterface::class);
         }
 
         if ($this->getBaseFactory()->getContainer()->has(AuthenticationMemoryCache::class)) {
@@ -172,10 +172,10 @@ final class AdminApiFactory
         );
     }
 
-    public function getApiConfigurationStorage(): ApiConfigurationStorageInterface
+    public function getApiConfigurationStorage(): AdminApiConfigurationStorageInterface
     {
-        if ($this->getBaseFactory()->getContainer()->has(ApiConfigurationStorageInterface::class)) {
-            return $this->getBaseFactory()->getContainer()->get(ApiConfigurationStorageInterface::class);
+        if ($this->getBaseFactory()->getContainer()->has(AdminApiConfigurationStorageInterface::class)) {
+            return $this->getBaseFactory()->getContainer()->get(AdminApiConfigurationStorageInterface::class);
         }
 
         if ($this->getBaseFactory()->getContainer()->has(MemoryApiConfigurationStorage::class)) {
@@ -185,13 +185,13 @@ final class AdminApiFactory
         return new MemoryApiConfigurationStorage($this->getApiConfiguration());
     }
 
-    public function getActionClientUtils(): ActionClientUtils
+    public function getActionClientUtils(): AdminActionClientUtils
     {
-        if ($this->getBaseFactory()->getContainer()->has(ActionClientUtils::class)) {
-            return $this->getBaseFactory()->getContainer()->get(ActionClientUtils::class);
+        if ($this->getBaseFactory()->getContainer()->has(AdminActionClientUtils::class)) {
+            return $this->getBaseFactory()->getContainer()->get(AdminActionClientUtils::class);
         }
 
-        return new ActionClientUtils(
+        return new AdminActionClientUtils(
             $this->getAuthenticatedClient(),
             $this->getBaseFactory()->getRequestFactory(),
             $this->getApiConfigurationStorage(),

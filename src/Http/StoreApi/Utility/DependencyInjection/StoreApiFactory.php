@@ -21,13 +21,13 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValid
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\UnmappedFieldValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseValidator\WriteUnexpectedFieldValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Action\Support\ActionClientUtils;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\ApiConfiguration;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\AuthenticatedHttpClient;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Authentication;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\ApiConfiguration as StoreApiConfiguration;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\AuthenticatedHttpClient as StoreAuthenticatedHttpClient;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Authentication as StoreAuthentication;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\AuthenticationMemoryCache;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\ApiConfigurationStorageInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\AuthenticatedHttpClientInterface;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\AuthenticationInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\ApiConfigurationStorageInterface as StoreApiConfigurationStorageInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\AuthenticatedHttpClientInterface as StoreAuthenticatedHttpClientInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\AuthenticationInterface as StoreAuthenticationInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\MemoryApiConfigurationStorage;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\ErrorHandling\JsonResponseValidator\CustomerNotLoggedInValidator;
 use Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFactory;
@@ -38,17 +38,17 @@ use Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection\BaseFact
  */
 final class StoreApiFactory
 {
-    private ApiConfiguration $apiConfiguration;
+    private StoreApiConfiguration $apiConfiguration;
 
     private BaseFactory $baseFactory;
 
-    public function __construct(ApiConfiguration $apiConfiguration, ?BaseFactory $baseFactory = null)
+    public function __construct(StoreApiConfiguration $apiConfiguration, ?BaseFactory $baseFactory = null)
     {
         $this->apiConfiguration = $apiConfiguration;
         $this->baseFactory = $baseFactory ?? new BaseFactory();
     }
 
-    public function getApiConfiguration(): ApiConfiguration
+    public function getApiConfiguration(): StoreApiConfiguration
     {
         return $this->apiConfiguration;
     }
@@ -112,40 +112,40 @@ final class StoreApiFactory
         );
     }
 
-    public function getAuthentication(): AuthenticationInterface
+    public function getAuthentication(): StoreAuthenticationInterface
     {
-        if ($this->getBaseFactory()->getContainer()->has(AuthenticationInterface::class)) {
-            return $this->getBaseFactory()->getContainer()->get(AuthenticationInterface::class);
+        if ($this->getBaseFactory()->getContainer()->has(StoreAuthenticationInterface::class)) {
+            return $this->getBaseFactory()->getContainer()->get(StoreAuthenticationInterface::class);
         }
 
         if ($this->getBaseFactory()->getContainer()->has(AuthenticationMemoryCache::class)) {
             return $this->getBaseFactory()->getContainer()->get(AuthenticationMemoryCache::class);
         }
 
-        if ($this->getBaseFactory()->getContainer()->has(Authentication::class)) {
-            return $this->getBaseFactory()->getContainer()->get(Authentication::class);
+        if ($this->getBaseFactory()->getContainer()->has(StoreAuthentication::class)) {
+            return $this->getBaseFactory()->getContainer()->get(StoreAuthentication::class);
         }
 
-        return new AuthenticationMemoryCache(new Authentication($this->getApiConfigurationStorage()->getConfiguration()));
+        return new AuthenticationMemoryCache(new StoreAuthentication($this->getApiConfigurationStorage()->getConfiguration()));
     }
 
-    public function getAuthenticatedClient(): AuthenticatedHttpClientInterface
+    public function getAuthenticatedClient(): StoreAuthenticatedHttpClientInterface
     {
-        if ($this->getBaseFactory()->getContainer()->has(AuthenticatedHttpClientInterface::class)) {
-            return $this->getBaseFactory()->getContainer()->get(AuthenticatedHttpClientInterface::class);
+        if ($this->getBaseFactory()->getContainer()->has(StoreAuthenticatedHttpClientInterface::class)) {
+            return $this->getBaseFactory()->getContainer()->get(StoreAuthenticatedHttpClientInterface::class);
         }
 
-        if ($this->getBaseFactory()->getContainer()->has(AuthenticatedHttpClient::class)) {
-            return $this->getBaseFactory()->getContainer()->get(AuthenticatedHttpClient::class);
+        if ($this->getBaseFactory()->getContainer()->has(StoreAuthenticatedHttpClient::class)) {
+            return $this->getBaseFactory()->getContainer()->get(StoreAuthenticatedHttpClient::class);
         }
 
-        return new AuthenticatedHttpClient($this->getBaseFactory()->getHttpClient(), $this->getAuthentication());
+        return new StoreAuthenticatedHttpClient($this->getBaseFactory()->getHttpClient(), $this->getAuthentication());
     }
 
-    public function getApiConfigurationStorage(): ApiConfigurationStorageInterface
+    public function getApiConfigurationStorage(): StoreApiConfigurationStorageInterface
     {
-        if ($this->getBaseFactory()->getContainer()->has(ApiConfigurationStorageInterface::class)) {
-            return $this->getBaseFactory()->getContainer()->get(ApiConfigurationStorageInterface::class);
+        if ($this->getBaseFactory()->getContainer()->has(StoreApiConfigurationStorageInterface::class)) {
+            return $this->getBaseFactory()->getContainer()->get(StoreApiConfigurationStorageInterface::class);
         }
 
         if ($this->getBaseFactory()->getContainer()->has(MemoryApiConfigurationStorage::class)) {
