@@ -1,11 +1,11 @@
-image: heptacom/heptaconnect-pipeline:php74-7.0.0
+image: heptacom/heptaconnect-pipeline:php74-7.0.1
 
 definitions:
     partials:
         -   step: &php80-image
-                image: heptacom/heptaconnect-pipeline:php80-7.0.0
+                image: heptacom/heptaconnect-pipeline:php80-7.0.1
         -   step: &php81-image
-                image: heptacom/heptaconnect-pipeline:php81-7.0.0
+                image: heptacom/heptaconnect-pipeline:php81-7.0.1
     services:
         shopware-6-4-0: &shopware-6-service
             image: dockware/play:6.4.0.0
