@@ -67,7 +67,11 @@ final class ExtensionUploadActionTest extends TestCase
         $streamFactory = $factory->getBaseFactory()->getStreamFactory();
         $action = new ExtensionUploadAction($factory->getActionClientUtils(), $streamFactory);
 
-        static::expectException(PluginNoPluginFoundInZipException::class);
+        if (\version_compare(Factory::getShopwareVersion(), '6.5.0.0', '>=')) {
+            static::expectException(UnknownError::class);
+        } else {
+            static::expectException(PluginNoPluginFoundInZipException::class);
+        }
 
         $action->uploadExtension(new ExtensionUploadPayload(
             'file name with : " not so cool $symbols.zip',
