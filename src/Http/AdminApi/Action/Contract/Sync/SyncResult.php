@@ -12,16 +12,55 @@ final class SyncResult implements AttachmentAwareInterface
 {
     use AttachmentAwareTrait;
 
-    private SyncOperationResultCollection $operationResults;
+    /**
+     * @var array<string, array[]>
+     */
+    private array $data;
 
-    public function __construct(SyncOperationResultCollection $operationResults)
+    /**
+     * @var array<string, array[]>
+     */
+    private array $deleted;
+
+    /**
+     * @var array<string, array[]>
+     */
+    private array $notFound;
+
+    /**
+     * @param array<string, array[]> $data
+     * @param array<string, array[]> $deleted
+     * @param array<string, array[]> $notFound
+     */
+    public function __construct(array $data, array $deleted, array $notFound)
     {
         $this->attachments = new AttachmentCollection();
-        $this->operationResults = $operationResults;
+        $this->data = $data;
+        $this->deleted = $deleted;
+        $this->notFound = $notFound;
     }
 
-    public function getOperationResults(): SyncOperationResultCollection
+    /**
+     * @return array<string, array[]>
+     */
+    public function getData(): array
     {
-        return $this->operationResults;
+        return $this->data;
+    }
+
+    /**
+     * @return array<string, array[]>
+     */
+    public function getDeleted(): array
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @return array<string, array[]>
+     */
+    public function getNotFound(): array
+    {
+        return $this->notFound;
     }
 }

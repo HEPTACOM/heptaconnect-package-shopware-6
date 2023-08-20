@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync;
+namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\SyncV1;
 
 use Heptacom\HeptaConnect\Dataset\Base\Support\AbstractObjectCollection;
 

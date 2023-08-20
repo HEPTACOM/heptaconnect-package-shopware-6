@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action;
 
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncActionInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncOperation;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncPayload;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\Sync\SyncResult;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Exception\SyncResultException;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\SyncV1\SyncActionInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\SyncV1\SyncOperationResult;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\SyncV1\SyncOperationResultCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\SyncV1\SyncPayload;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\SyncV1\SyncResult;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Exception\SyncV1ResultException;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Support\ActionClientUtils;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorCollection;
-use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncV1Action\SyncPayloadInterceptorCollection;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncV1Action\SyncPayloadInterceptorInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\ExpectationFailedException;
 use Heptacom\HeptaConnect\Package\Shopware6\Support\JsonStreamUtility;
 
-final class SyncAction extends AbstractActionClient implements SyncActionInterface
+final class SyncV1Action extends AbstractActionClient implements SyncActionInterface
 {
     private SyncPayloadInterceptorCollection $syncPayloadInterceptors;
 
@@ -33,7 +35,7 @@ final class SyncAction extends AbstractActionClient implements SyncActionInterfa
 
     public function sync(SyncPayload $payload): SyncResult
     {
-        $payload = $payload->withExpectedPackage('shopware/core', '>=6.5');
+        $payload = $payload->withExpectedPackage('shopware/core', '<6.5');
 
         /** @var SyncPayloadInterceptorInterface $syncPayloadInterceptor */
         foreach ($this->syncPayloadInterceptors as $syncPayloadInterceptor) {
@@ -59,7 +61,7 @@ final class SyncAction extends AbstractActionClient implements SyncActionInterfa
         }
 
         if ($body === []) {
-            return new SyncResult([], [], []);
+            return new SyncResult(new SyncOperationResultCollection());
         }
 
         $request = $this->generateRequest('POST', $path, [], $body);
@@ -95,24 +97,27 @@ final class SyncAction extends AbstractActionClient implements SyncActionInterfa
                 throw $exception;
             }
 
-            throw new SyncResultException(
+            throw new SyncV1ResultException(
                 $request,
                 $response,
-                new SyncResult(
-                    $responseData['data'] ?? [],
-                    $responseData['deleted'] ?? [],
-                    $responseData['notFound'] ?? []
-                ),
+                $this->createSyncResultFromResponse($responseData),
                 'Found an error in a sync request',
                 1680479000,
                 $exception,
             );
         }
 
-        return new SyncResult(
-            $result['data'] ?? [],
-            $result['deleted'] ?? [],
-            $result['notFound'] ?? []
-        );
+        return $this->createSyncResultFromResponse($result);
+    }
+
+    private function createSyncResultFromResponse(array $result): SyncResult
+    {
+        $data = $result['data'];
+
+        return new SyncResult(new SyncOperationResultCollection(\array_map(
+            static fn ($data, $key): SyncOperationResult => new SyncOperationResult((string) $key, $data['result']),
+            \array_values($data),
+            \array_keys($data),
+        )));
     }
 }

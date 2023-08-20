@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Heptacom\HeptaConnect\Package\Shopware6\Utility\DependencyInjection;
 
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncAction\SyncPayloadInterceptorInterface;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncV1Action\SyncPayloadInterceptorInterface as SyncV1PayloadInterceptorInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -20,6 +21,11 @@ final class AdminApiSyncPayloadInterceptorRegistrationCompilerPass implements Co
      * The tag, that is used to identify the services.
      */
     public const TAG_NAME = 'heptaconnect.package.shopware6.admin_api.sync_payload_interceptor';
+
+    /**
+     * The tag, that is used to identify the legacy services.
+     */
+    public const V1_TAG_NAME = 'heptaconnect.package.shopware6.admin_api.sync_v1_payload_interceptor';
 
     /**
      * The suggested pass type, to use, when adding the compiler pass.
@@ -40,15 +46,17 @@ final class AdminApiSyncPayloadInterceptorRegistrationCompilerPass implements Co
                 continue;
             }
 
-            if ($definition->hasTag(self::TAG_NAME)) {
+            if ($definition->hasTag(self::TAG_NAME) || $definition->hasTag(self::V1_TAG_NAME)) {
                 continue;
             }
 
-            if (!\is_a($class, SyncPayloadInterceptorInterface::class, true)) {
-                continue;
+            if (\is_a($class, SyncPayloadInterceptorInterface::class, true)) {
+                $definition->addTag(self::TAG_NAME);
             }
 
-            $definition->addTag(self::TAG_NAME);
+            if (\is_a($class, SyncV1PayloadInterceptorInterface::class, true)) {
+                $definition->addTag(self::V1_TAG_NAME);
+            }
         }
     }
 }

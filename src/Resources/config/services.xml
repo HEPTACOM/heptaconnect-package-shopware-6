@@ -85,5 +85,10 @@
         >
             <argument type="tagged_iterator" tag="heptaconnect.package.shopware6.admin_api.sync_payload_interceptor"/>
         </service>
+        <service
+            id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncV1Action\SyncPayloadInterceptorCollection"
+        >
+            <argument type="tagged_iterator" tag="heptaconnect.package.shopware6.admin_api.sync_v1_payload_interceptor"/>
+        </service>
     </services>
 </container>
