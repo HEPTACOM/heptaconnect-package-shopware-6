@@ -231,26 +231,28 @@ pipelines:
             -   step: *github-keyword-gate-step
             -   step: *github-mirror-branch
             -   step: *composer-high-install
-            -   parallel: &steps-blocking-tests
+            -   parallel: &steps-blocking-tests-api
                     -   step: *test-coverage-6-4-0
                     -   step: *test-coverage-6-4-5
                     -   step: *test-coverage-6-4-10
                     -   step: *test-coverage-6-4-15
                     -   step: *test-coverage-6-4-20
                     -   step: *test-coverage-6-5-0
+            -   parallel: &steps-blocking-tests-static
                     -   step: *test-code-style-composer-normalize
                     -   step: *test-code-style-composer-unused
                     -   step: *test-code-style-json
                     -   step: *test-code-style-php
                     -   step: *test-code-style-phpcpd
             -   step: *composer-low-install
-            -   parallel: &steps-blocking-low-tests
+            -   parallel: &steps-blocking-low-tests-api
                     -   step: *test-coverage-6-4-0
                     -   step: *test-coverage-6-4-5
                     -   step: *test-coverage-6-4-10
                     -   step: *test-coverage-6-4-15
                     -   step: *test-coverage-6-4-20
                     -   step: *test-coverage-6-5-0
+            -   parallel: &steps-blocking-low-static
                     -   step: *test-code-style-composer-unused
             -   parallel: &steps-blocking-non-min-php-version-tests
                     -   step: *test-unit-high-install-80
@@ -279,9 +281,11 @@ pipelines:
 
     default:
         -   step: *composer-high-install
-        -   parallel: *steps-blocking-tests
+        -   parallel: *steps-blocking-tests-api
+        -   parallel: *steps-blocking-tests-static
         -   step: *composer-low-install
-        -   parallel: *steps-blocking-low-tests
+        -   parallel: *steps-blocking-low-tests-api
+        -   parallel: *steps-blocking-low-static
         -   parallel: *steps-blocking-non-min-php-version-tests
         -   step: *composer-high-install
         -   parallel: *steps-non-blocking-tests
