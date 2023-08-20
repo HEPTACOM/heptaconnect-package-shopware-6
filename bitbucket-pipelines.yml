@@ -26,6 +26,18 @@ definitions:
         shopware-6-5-0:
             <<: *shopware-6-service
             image: dockware/play:6.5.0.0
+        shopware-6-5-1:
+            <<: *shopware-6-service
+            image: dockware/play:6.5.1.0
+        shopware-6-5-2:
+            <<: *shopware-6-service
+            image: dockware/play:6.5.2.0
+        shopware-6-5-3:
+            <<: *shopware-6-service
+            image: dockware/play:6.5.3.0
+        shopware-6-5-4:
+            <<: *shopware-6-service
+            image: dockware/play:6.5.4.0
     steps:
         -   step: &default-step
                 caches:
@@ -161,6 +173,26 @@ definitions:
                 services:
                     - shopware-6-5-0
                 name: Test coverage (6.5.0.0)
+        -   step: &test-coverage-6-5-1
+                <<: *test-coverage-6-4-0
+                services:
+                    - shopware-6-5-1
+                name: Test coverage (6.5.1.0)
+        -   step: &test-coverage-6-5-2
+                <<: *test-coverage-6-4-0
+                services:
+                    - shopware-6-5-2
+                name: Test coverage (6.5.2.0)
+        -   step: &test-coverage-6-5-3
+                <<: *test-coverage-6-4-0
+                services:
+                    - shopware-6-5-3
+                name: Test coverage (6.5.3.0)
+        -   step: &test-coverage-6-5-4
+                <<: *test-coverage-6-4-0
+                services:
+                    - shopware-6-5-4
+                name: Test coverage (6.5.4.0)
         -   step: &test-code-style-php
                 <<: *default-step
                 name: ECS (Code style)
@@ -231,13 +263,18 @@ pipelines:
             -   step: *github-keyword-gate-step
             -   step: *github-mirror-branch
             -   step: *composer-high-install
-            -   parallel: &steps-blocking-tests-api
+            -   parallel: &steps-blocking-tests-previous-api
                     -   step: *test-coverage-6-4-0
                     -   step: *test-coverage-6-4-5
                     -   step: *test-coverage-6-4-10
                     -   step: *test-coverage-6-4-15
                     -   step: *test-coverage-6-4-20
+            -   parallel: &steps-blocking-tests-latest-api
                     -   step: *test-coverage-6-5-0
+                    -   step: *test-coverage-6-5-1
+                    -   step: *test-coverage-6-5-2
+                    -   step: *test-coverage-6-5-3
+                    -   step: *test-coverage-6-5-4
             -   parallel: &steps-blocking-tests-static
                     -   step: *test-code-style-composer-normalize
                     -   step: *test-code-style-composer-unused
@@ -245,13 +282,18 @@ pipelines:
                     -   step: *test-code-style-php
                     -   step: *test-code-style-phpcpd
             -   step: *composer-low-install
-            -   parallel: &steps-blocking-low-tests-api
+            -   parallel: &steps-blocking-low-tests-latest-api
+                    -   step: *test-coverage-6-5-0
+                    -   step: *test-coverage-6-5-1
+                    -   step: *test-coverage-6-5-2
+                    -   step: *test-coverage-6-5-3
+                    -   step: *test-coverage-6-5-4
+            -   parallel: &steps-blocking-low-tests-previous-api
                     -   step: *test-coverage-6-4-0
                     -   step: *test-coverage-6-4-5
                     -   step: *test-coverage-6-4-10
                     -   step: *test-coverage-6-4-15
                     -   step: *test-coverage-6-4-20
-                    -   step: *test-coverage-6-5-0
             -   parallel: &steps-blocking-low-static
                     -   step: *test-code-style-composer-unused
             -   parallel: &steps-blocking-non-min-php-version-tests
@@ -281,10 +323,12 @@ pipelines:
 
     default:
         -   step: *composer-high-install
-        -   parallel: *steps-blocking-tests-api
+        -   parallel: *steps-blocking-tests-latest-api
+        -   parallel: *steps-blocking-tests-previous-api
         -   parallel: *steps-blocking-tests-static
         -   step: *composer-low-install
-        -   parallel: *steps-blocking-low-tests-api
+        -   parallel: *steps-blocking-low-tests-latest-api
+        -   parallel: *steps-blocking-low-tests-previous-api
         -   parallel: *steps-blocking-low-static
         -   parallel: *steps-blocking-non-min-php-version-tests
         -   step: *composer-high-install
