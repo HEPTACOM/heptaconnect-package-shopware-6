@@ -147,6 +147,7 @@ definitions:
                 script:
                     - bash setup-vendor.sh
                     - . ./bitbucket-pipelines.env
+                    - curl -k --head -X GET --retry 30 --retry-connrefused --retry-delay 3 "${TEST_ADMIN_API_URL}"
                     - XDEBUG_MODE=coverage COMPOSER_EXTRA_ARGS=-vvv make -e coverage
         -   step: &test-coverage-6-4-5
                 <<: *test-coverage-6-4-0
