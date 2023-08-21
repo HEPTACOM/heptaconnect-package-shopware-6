@@ -39,6 +39,7 @@
         "symfony/polyfill-php80": "*"
     },
     "require-dev": {
+        "ext-gd": "*",
         "ext-zip": "*",
         "infection/infection": ">=0.21",
         "nyholm/psr7": "^1.5",
