@@ -13,10 +13,12 @@ use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\Contract\MediaU
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Action\MediaUploadAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreateActionInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreatePayload;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityDelete\EntityDeleteCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchActionInterface;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearchId\EntitySearchIdCriteria;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityCreateAction;
+use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityDeleteAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchIdAction;
 use Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\Exception\MediaDuplicatedFileNameException;
@@ -49,8 +51,11 @@ use PHPUnit\Framework\TestCase;
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\AbstractEntitySearchCriteria
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreatePayload
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityCreate\EntityCreateResult
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityDelete\EntityDeleteCriteria
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntityDelete\EntityDeleteResult
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\Contract\EntitySearch\EntitySearchResult
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityCreateAction
+ * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntityDeleteAction
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchAction
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Entity\EntitySearchIdAction
  * @covers \Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\ErrorHandling\Exception\DocumentNumberAlreadyExistsException
@@ -99,6 +104,8 @@ final class MediaUploadActionTest extends TestCase
 
     private static EntitySearchActionInterface $search;
 
+    private array $createdMediaIds = [];
+
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
@@ -110,9 +117,22 @@ final class MediaUploadActionTest extends TestCase
         self::$search = new EntitySearchAction($actionClientUtils, new CriteriaFormatter());
     }
 
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $factory = Factory::createAdminApiFactory();
+        $actionClientUtils = $factory->getActionClientUtils();
+        $delete = new EntityDeleteAction($actionClientUtils);
+
+        foreach ($this->createdMediaIds as $mediaId) {
+            $delete->delete(new EntityDeleteCriteria('media', $mediaId));
+        }
+    }
+
     public function testUploadMediaByUrl(): void
     {
-        $mediaId = self::$create->create(new EntityCreatePayload('media', $this->createMediaPayload()))->getId();
+        $mediaId = $this->createMedia();
         $media = $this->getMedias($mediaId)[$mediaId];
 
         static::assertNull($media['mimeType']);
@@ -136,7 +156,7 @@ final class MediaUploadActionTest extends TestCase
 
     public function testUploadMediaSucceedsByUrlThatDoesNotProvideImageButExpectsOne(): void
     {
-        $mediaId = self::$create->create(new EntityCreatePayload('media', $this->createMediaPayload()))->getId();
+        $mediaId = $this->createMedia();
         $media = $this->getMedias($mediaId)[$mediaId];
 
         static::assertNull($media['mimeType']);
@@ -159,7 +179,7 @@ final class MediaUploadActionTest extends TestCase
 
     public function testUploadMediaByUrlThatProvidesInvalidMediaContent(): void
     {
-        $mediaId = self::$create->create(new EntityCreatePayload('media', $this->createMediaPayload()))->getId();
+        $mediaId = $this->createMedia();
         $initMedia = $this->getMedias($mediaId)[$mediaId];
 
         try {
@@ -176,7 +196,7 @@ final class MediaUploadActionTest extends TestCase
     public function testUploadMediaByStream(): void
     {
         $streamFactory = Factory::createAdminApiFactory()->getBaseFactory()->getStreamFactory();
-        $mediaId = self::$create->create(new EntityCreatePayload('media', $this->createMediaPayload()))->getId();
+        $mediaId = $this->createMedia();
         $media = $this->getMedias($mediaId)[$mediaId];
 
         static::assertNull($media['mimeType']);
@@ -201,7 +221,7 @@ final class MediaUploadActionTest extends TestCase
 
     public function testUploadMediaByUrlTwiceToTheSameMedia(): void
     {
-        $mediaId = self::$create->create(new EntityCreatePayload('media', $this->createMediaPayload()))->getId();
+        $mediaId = $this->createMedia();
         self::$action->uploadMedia(new MediaUploadByUrlPayload('http://via.placeholder.com/100x100', $mediaId, 'png'));
         $media1 = $this->getMedias($mediaId)[$mediaId];
         self::$action->uploadMedia(new MediaUploadByUrlPayload('http://via.placeholder.com/200x200', $mediaId, 'png'));
@@ -223,7 +243,7 @@ final class MediaUploadActionTest extends TestCase
 
     public function testUploadMediaByUrlTwiceToTheSameMediaWithTheSameFilename(): void
     {
-        $mediaId = self::$create->create(new EntityCreatePayload('media', $this->createMediaPayload()))->getId();
+        $mediaId = $this->createMedia();
         $filename = 'my-media-id-is-the-filename-' . $mediaId;
         self::$action->uploadMedia(new MediaUploadByUrlPayload('http://via.placeholder.com/100x100', $mediaId, 'png', $filename));
         $media1 = $this->getMedias($mediaId)[$mediaId];
@@ -246,8 +266,8 @@ final class MediaUploadActionTest extends TestCase
 
     public function testUploadMediaByUrlTwiceToDifferentMediaWithTheSameFilename(): void
     {
-        $mediaId1 = self::$create->create(new EntityCreatePayload('media', $this->createMediaPayload()))->getId();
-        $mediaId2 = self::$create->create(new EntityCreatePayload('media', $this->createMediaPayload()))->getId();
+        $mediaId1 = $this->createMedia();
+        $mediaId2 = $this->createMedia();
         $filename = 'my-media-id-is-the-filename-' . $mediaId1;
         self::$action->uploadMedia(new MediaUploadByUrlPayload('http://via.placeholder.com/100x100', $mediaId1, 'png', $filename));
 
@@ -290,5 +310,16 @@ final class MediaUploadActionTest extends TestCase
             ->asArray();
 
         return \array_column($result, null, 'id');
+    }
+
+    private function createMedia(): string
+    {
+        $result = self::$create->create(
+            new EntityCreatePayload('media', $this->createMediaPayload())
+        )->getId();
+
+        $this->createdMediaIds[] = $result;
+
+        return $result;
     }
 }
