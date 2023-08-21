@@ -16,7 +16,9 @@ final class MediaDuplicatedFileNameValidator implements JsonResponseValidatorInt
         $code = $error['code'] ?? '';
         $status = $error['status'] ?? '';
 
-        if ($status === '500' && $code === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME') {
+        // status 500 until 6.5.3.2
+        // status 409 since 6.5.4.0
+        if (($status === '500' || $status === '409') && $code === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME') {
             $fileName = $error['meta']['parameters']['fileName'];
             $fileExtension = $error['meta']['parameters']['fileExtension'];
 
