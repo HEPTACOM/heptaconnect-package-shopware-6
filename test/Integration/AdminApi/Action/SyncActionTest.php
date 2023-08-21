@@ -199,7 +199,7 @@ final class SyncActionTest extends TestCase
                 {
                     return $payload->withSyncOperations(new SyncOperationCollection())
                         ->withSyncOperation('tag', SyncOperation::ACTION_UPSERT, [
-                            'name' => 'a name'
+                            'name' => 'a name',
                         ]);
                 }
             },
