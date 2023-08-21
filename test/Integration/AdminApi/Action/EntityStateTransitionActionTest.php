@@ -109,7 +109,7 @@ final class EntityStateTransitionActionTest extends TestCase
         if (\version_compare(Factory::getShopwareVersion(), '6.5.4', '>=')) {
             // since 6.5.4.0 you can transition an order without orderCustomer
             static::expectNotToPerformAssertions();
-        } else if (\version_compare(Factory::getShopwareVersion(), '6.4.16', '>=')) {
+        } elseif (\version_compare(Factory::getShopwareVersion(), '6.4.16', '>=')) {
             static::expectException(UnknownError::class);
         } else {
             static::expectException(CartMissingOrderRelationException::class);
