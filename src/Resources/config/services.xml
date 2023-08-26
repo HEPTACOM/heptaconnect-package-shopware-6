@@ -10,10 +10,19 @@
             autowire="true"
         />
         <prototype namespace="Heptacom\HeptaConnect\Package\Shopware6\" resource="../../">
+            <exclude>../../EntitySearch/Contract/**/**</exclude>
             <exclude>../../Http/ErrorHandling/Exception/**</exclude>
-            <exclude>../../Http/AdminApi/Action/Contract/**/*{Payload,Criteria}.php</exclude>
+            <exclude>../../Http/AdminApi/Action/Contract/**/*{Payload,Criteria,Params,Result,Collection}.php</exclude>
+            <exclude>../../Http/AdminApi/Action/Contract/**/{EntitySchema,OrderDocument,StorePlugin,SyncOperation}.php</exclude>
+            <exclude>../../Http/AdminApi/Action/Exception/**</exclude>
+            <exclude>../../Http/AdminApi/Authentication/ApiConfiguration.php</exclude>
             <exclude>../../Http/AdminApi/Authentication/Exception/**</exclude>
+            <exclude>../../Http/AdminApi/Entity/Contract/**/*{Payload,Criteria,Result}.php</exclude>
+            <exclude>../../Http/AdminApi/Entity/Exception/**</exclude>
             <exclude>../../Http/AdminApi/ErrorHandling/Exception/**</exclude>
+            <exclude>../../Http/StoreApi/Action/Contract/**/*{Payload,Criteria,Params,Result,Collection}.php</exclude>
+            <exclude>../../Http/StoreApi/Authentication/ApiConfiguration.php</exclude>
+            <exclude>../../Http/StoreApi/ErrorHandling/Exception</exclude>
             <exclude>../../Utility/**</exclude>
         </prototype>
         <prototype
@@ -31,10 +40,21 @@
         </prototype>
         <prototype
             namespace="Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\ErrorHandling\JsonResponseValidator\"
-            resource="../../Http/AdminApi/ErrorHandling/JsonResponseValidator/"
+            resource="../../Http/StoreApi/ErrorHandling/JsonResponseValidator/"
         >
             <tag name="heptaconnect.package.shopware6.store_api.json_response_validator"/>
         </prototype>
+
+        <service id="Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\Contract\CriteriaFormatterInterface"
+            alias="Heptacom\HeptaConnect\Package\Shopware6\EntitySearch\CriteriaFormatter"/>
+
+        <service id="Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\AuthenticationInterface"
+            alias="Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Authentication"/>
+
+        <service id="Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\AuthenticationMemoryCache"
+            decorates="Heptacom\HeptaConnect\Package\Shopware6\Http\StoreApi\Authentication\Contract\AuthenticationInterface">
+            <argument type="service" id=".inner"/>
+        </service>
 
         <service
             id="Heptacom\HeptaConnect\Package\Shopware6\Http\ErrorHandling\JsonResponseErrorHandler.admin_api"
@@ -89,6 +109,10 @@
             id="Heptacom\HeptaConnect\Package\Shopware6\Http\AdminApi\Contract\SyncV1Action\SyncPayloadInterceptorCollection"
         >
             <argument type="tagged_iterator" tag="heptaconnect.package.shopware6.admin_api.sync_v1_payload_interceptor"/>
+        </service>
+
+        <service id="Psr\SimpleCache\CacheInterface"
+            alias="Heptacom\HeptaConnect\Portal\Base\Portal\Contract\PortalStorageInterface">
         </service>
     </services>
 </container>
