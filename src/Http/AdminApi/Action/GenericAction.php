@@ -15,7 +15,7 @@ final class GenericAction extends AbstractActionClient implements GenericActionI
         $request = $this->generateRequest(
             $payload->getMethod(),
             $payload->getPath(),
-            $payload->getQueryParameters(),
+            $payload->getQueryParameters() ?? [],
             $payload->getBody()
         );
 
