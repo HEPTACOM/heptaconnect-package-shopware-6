@@ -17,7 +17,6 @@
             "name": "HEPTACOM GmbH"
         }
     ],
-    "homepage": "https://heptaconnect.io",
     "support": {
         "issues": "https://github.com/HEPTACOM/heptaconnect-package-shopware-6/issues",
         "source": "https://github.com/HEPTACOM/heptaconnect-package-shopware-6",
@@ -84,5 +83,6 @@
         "unused": [
             "symfony/polyfill-php80"
         ]
-    }
+    },
+    "homepage": "https://heptaconnect.io"
 }

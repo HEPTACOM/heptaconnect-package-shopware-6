@@ -163,7 +163,7 @@ var_export(\array_column($client->post('country')['data'], 'iso'));
 
 ## System requirements
 
-* PHP 7.4 or above
+* PHP 8.0 or above
 
 
 ## Changelog
